@@ -1,0 +1,148 @@
+<template>
+    <div class="page">
+        <layouts>
+            <template #time>
+                <times :time="time"/>
+            </template>
+            <template #left>
+                <div class="area">
+                    <titlebox :title=" '能源经营业务' "/>
+                    <div class="tag">
+                        <p class="tag-title">订购中客户数量(个)</p>
+                        <p class="tag-num">
+                            <span id="topDisChargeCount1">0</span>
+                            <span style="font-size: 14px;display: inline-block;margin-left: 5px;">个</span>
+                        </p>
+                    </div>
+                    <div class="tag">
+                        <p class="tag-title">交付中客户数量(个)</p>
+                        <p class="tag-num">
+                            <span id="topDisChargeCount1">0</span>
+                            <span style="font-size: 14px;display: inline-block;margin-left: 5px;">个</span>
+                        </p>
+                    </div>
+                    <div class="tag">
+                        <p class="tag-title">服务中客户数量(个)</p>
+                        <p class="tag-num">
+                            <span id="topDisChargeCount1">0</span>
+                            <span style="font-size: 14px;display: inline-block;margin-left: 5px;">个</span>
+                        </p>
+                    </div>
+                </div>
+                <div class="area">
+                    <titlebox :title=" '发电客户' "/>
+                    <div class="tag">
+                        <p class="tag-title">使用发电客户数量(个)</p>
+                        <p class="tag-num">
+                            <span id="topDisChargeCount1">0</span>
+                            <span style="font-size: 14px;display: inline-block;margin-left: 5px;">个</span>
+                        </p>
+                    </div>
+                </div>
+                <div class="area">
+                    <titlebox :title=" '换电客户' "/>
+                    <div class="tag">
+                        <p class="tag-title">使用换电客户数量(个)</p>
+                        <p class="tag-num">
+                            <span id="topDisChargeCount1">0</span>
+                            <span style="font-size: 14px;display: inline-block;margin-left: 5px;">个</span>
+                        </p>
+                    </div>
+                </div>
+                 <div class="area">
+                    <titlebox :title=" '内部客户' "/>
+                    <div class="tag">
+                        <p class="tag-title">内部生产人员数量(个)</p>
+                        <p class="tag-num">
+                            <span id="topDisChargeCount1">0</span>
+                            <span style="font-size: 14px;display: inline-block;margin-left: 5px;">个</span>
+                        </p>
+                    </div>
+                     <div class="tag">
+                        <p class="tag-title">管理人员数量(个)</p>
+                        <p class="tag-num">
+                            <span id="topDisChargeCount1">0</span>
+                            <span style="font-size: 14px;display: inline-block;margin-left: 5px;">个</span>
+                        </p>
+                    </div>
+                </div>
+            </template>
+            <template #right>
+                 <tablemap :showType="'table'"/>
+            </template>
+        </layouts>
+    </div>
+</template>
+
+<script>
+import times from "../../components/tableTime";
+import layouts from "../../components/layouts";
+import tablemap from "../../components/table_map";
+import titlebox from "../../components/title";
+export default {
+    data() {
+        return {
+            time: "2019-06-14 10:48:53"
+        };
+    },
+    components: {
+        times,
+        layouts,
+        tablemap,
+        titlebox
+    },
+    created() {},
+    mounted() {},
+    methods: {}
+};
+</script>
+
+<style scoped lang='scss'>
+.page {
+    padding-top: 0.7%;
+    // width: 1280px;
+    min-height: 700px;
+}
+.area {
+    background: #fff;
+    border-radius: 4px;
+    margin-bottom: 14px;
+
+}
+.area:last-child{
+    margin-bottom: 0;
+}
+</style>
+
+<style lang="scss" scoped>
+</style>
+
+<style lang="scss" scoped>
+.news-title {
+    // height: 59px;
+    width: calc(100% - 0.7% - 0.7% - 6px - 16px);
+    margin-left: 0.7%;
+    margin-right: 0.7%;
+    // border-bottom: 1px solid #e4ebf0;
+    padding: 10px;
+}
+.tag {
+    width: 100%;
+    padding-left: 20px;
+    padding-bottom: 10px;
+    cursor: pointer;
+    box-sizing: border-box;
+
+}
+.tag-title {
+    font-size: 16px;
+    color: #6e7c87;
+    margin-top: 15px;
+    margin-bottom: 10px;
+}
+.tag-num {
+    font-size: 26px;
+    color: #6e7c87;
+    margin-right: 10px;
+}
+</style>

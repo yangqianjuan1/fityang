@@ -1,0 +1,187 @@
+<template>
+    <div class="top_wrap box_s">
+        <div class="logo_wrap flot">
+            <img src="../assets/img/logo.png" alt>
+        </div>
+        <div class="nav_box flot">
+            <el-menu
+                :default-active="activeIndex"
+                class="el-menu-demo"
+                mode="horizontal"
+                @select="handleSelect"
+                background-color="#5a6378"
+                text-color="rgba(255,255,255,.7)"
+                active-text-color="#fff"
+            >
+                <el-menu-item index="/">首页</el-menu-item>
+                <el-menu-item index="/resources">资源中心</el-menu-item>
+                <el-submenu index="monitoring">
+                    <template slot="title">监控中心</template>
+                    <el-menu-item index="/monitoring">能源生产保障</el-menu-item>
+                    <el-menu-item index="/monitoring/electricity">能源备电监控</el-menu-item>
+                    <el-menu-item index="/monitoring/powerGeneration">能源发电监控</el-menu-item>
+                </el-submenu>
+                <el-submenu index="business">
+                    <template slot="title">业务中心</template>
+                    <el-menu-item index="/business">能源生产保障</el-menu-item>
+                    <el-menu-item index="/business/powerGeneration">能源发电业务</el-menu-item>
+                    <el-menu-item index="/business/electricity">能源备电业务</el-menu-item>
+                </el-submenu>
+                <el-submenu index="dispatch">
+                    <template slot="title">调度中心</template>
+                    <el-menu-item index="/dispatch">对内应急保障中心</el-menu-item>
+                    <el-menu-item index="/dispatch/electricity">备电客户保障中心</el-menu-item>
+                    <el-menu-item index="/dispatch/powerOutages">电力停电预警中心</el-menu-item>
+                    <el-menu-item index="/dispatch/energy">基站能源均衡中心</el-menu-item>
+                </el-submenu>
+                <el-submenu index="customer">
+                    <template slot="title">客户中心</template>
+                    <el-menu-item index="/customer">客户维护</el-menu-item>
+                    <el-menu-item index="/customer/management">客户管理</el-menu-item>
+                    <el-menu-item index="/customer/statistical">客户统计</el-menu-item>
+                </el-submenu>
+                <el-submenu index="operating">
+                    <template slot="title">运营中心</template>
+                    <el-menu-item index="/operating">运营中心</el-menu-item>
+                    <el-menu-item index="/operating/shunt">分路计量</el-menu-item>
+                </el-submenu>
+                <!-- <el-menu-item index="/operating">运营中心</el-menu-item> -->
+            </el-menu>
+        </div>
+        <div class="username_wrap flot_r" v-if="userName">
+            <el-dropdown @command="handleCommand">
+                <span class="el-dropdown-link">
+                    <i class="el-icon-s-custom icosc"></i>
+                    {{userName}}
+                    <i class="el-icon-caret-bottom el-icon--right"></i>
+                </span>
+                <el-dropdown-menu slot="dropdown">
+                    <el-dropdown-item command="/customer/personal">个人中心</el-dropdown-item>
+                    <el-dropdown-item command="/customer/modify">修改密码</el-dropdown-item>
+                    <el-dropdown-item command="out">退出登录</el-dropdown-item>
+                </el-dropdown-menu>
+            </el-dropdown>
+        </div>
+
+        <el-dialog
+            title="提示"
+            :visible.sync="dialogVisible"
+            width="30%"
+            :before-close="handleClose"
+            append-to-body="true"
+        >
+            <span>确定要退出登录吗？</span>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="dialogVisible = false">取 消</el-button>
+                <el-button type="primary" @click="logout">确 定</el-button>
+            </span>
+        </el-dialog>
+    </div>
+</template>
+
+<script>
+import * as types from "@/store/types";
+import { mapState, mapActions, mapMutations } from "vuex";
+export default {
+    data() {
+        return {
+            userName: null,
+            activeIndex: "/",
+            dialogVisible: false
+        };
+    },
+    computed: {
+        ...mapState({
+            userInfo: state => state.userInfo
+        })
+    },
+    components: {},
+    created() {
+        this.activeIndex = this.$route.matched[1].path;
+        if (this.userInfo) {
+            this.userName = this.userInfo.name;
+        }
+    },
+    mounted() {},
+    methods: {
+        ...mapMutations({
+            setUserInfo: types.global.mutations.SET_USER_INFO
+        }),
+        handleCommand(command) {
+            console.log(command);
+            if (command == "out") {
+                this.dialogVisible = true;
+            } else {
+                this.$router.push({
+                    path: command
+                });
+            }
+        },
+        handleSelect(key, keyPath) {
+            this.$router.push({ path: key });
+        },
+        handleClose(done) {
+            done();
+        },
+        handleClick() {
+            Console.log(1111);
+        },
+        logout() {
+            let vm = this;
+            vm.Api.logout().then(res => {
+                vm.setUserInfo(null);
+                vm.isLogin = false;
+                vm.$router.push({
+                    path: "/login"
+                });
+            });
+        }
+    }
+};
+</script>
+
+<style scoped lang='scss'>
+.icosc {
+    color: #fff;
+    font-size: 18px;
+}
+.el-dropdown {
+    color: rgba(255, 255, 255, 0.7);
+}
+.top_wrap {
+    height: 64px;
+    width: 100%;
+    background: #5a6378;
+    padding-top: 0.3%;
+    padding-left: 8.3%;
+    position: relative;
+    z-index: 2;
+}
+.nav_box {
+    margin-left: 6%;
+    padding: 0 20px;
+    color: #fff;
+    height: 60px;
+    top: -4px;
+    position: relative;
+    font-size: 14px;
+}
+.username_wrap {
+    height: 60px;
+    top: -4px;
+    right: 20px;
+    height: 100%;
+    position: absolute;
+    line-height: 70px;
+    padding: 0 20px;
+}
+.flot {
+    float: left;
+}
+.flot_r {
+    float: right;
+}
+.el-menu.el-menu--horizontal {
+    border: none;
+}
+</style>

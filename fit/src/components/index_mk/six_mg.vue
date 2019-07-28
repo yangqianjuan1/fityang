@@ -1,0 +1,67 @@
+<template>
+    <div class="module">
+        <ul>
+            <li class="mg1" @click="toRouter('resources')">资源中心</li>
+            <li class="mg2" @click="toRouter('monitoring')">监控中心</li>
+            <li class="mg3" @click="toRouter('business')">业务中心</li>
+            <li class="mg4"  @click="toRouter('dispatch')">调度中心</li>
+            <li class="mg5" @click="toRouter('customer')">客户中心</li>
+            <li class="mg6" @click="toRouter('operating')">运营中心</li>
+        </ul>
+    </div>
+</template>
+
+<script>
+export default {
+    data() {
+        return {};
+    },
+    components: {},
+    created() {},
+    mounted() {},
+    methods: {
+        toRouter(str) {
+            this.$router.push({
+                path: `/${str}`
+            });
+        }
+    }
+};
+</script>
+
+<style scoped lang='scss'>
+li {
+    display: inline-block;
+    width: 15.5%;
+    color: #fff;
+    font-size: 1.3rem;
+    text-align: center;
+    line-height: 122px;
+    background-position: top center;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    cursor: pointer;
+}
+.mg1 {
+    background-image: url("../../assets/img/six_1.png");
+}
+.mg2 {
+    background-image: url("../../assets/img/six_2.png");
+}
+.mg3 {
+    background-image: url("../../assets/img/six_3.png");
+}
+.mg4 {
+    background-image: url("../../assets/img/six_4.png");
+}
+.mg5 {
+    background-image: url("../../assets/img/six_5.png");
+}
+.mg6 {
+    background-image: url("../../assets/img/six_6.png");
+}
+.module {
+    margin-top: 1%;
+}
+</style>
+

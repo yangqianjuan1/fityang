@@ -1,0 +1,194 @@
+<template>
+    <div class="page">
+        <times :show="false"/>
+        <div class="area">
+            <div class="news-left-block"></div>
+            <div class="news-title">
+                <p>创建新用户</p>
+            </div>
+            <div class="clear"></div>
+            <div class="wrap">
+                <el-form :inline="true" :model="formInline" class="demo-form-inline"  label-width="100px">
+                    <el-row>
+                        <el-col :span="8">
+                            <el-form-item label="客户名称">
+                                <el-input v-model="formInline.user" placeholder="审批人"></el-input>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="8">
+                            <el-form-item label="业务类型">
+                                <el-select v-model="formInline.region" placeholder="活动区域">
+                                    <el-option label="区域一" value="shanghai"></el-option>
+                                    <el-option label="区域二" value="beijing"></el-option>
+                                </el-select>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="8">
+                            <el-form-item label="备电时长">
+                                <el-input v-model="formInline.user" placeholder="审批人"></el-input>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+
+                    <el-row>
+                        <el-col :span="8">
+                            <el-form-item label="合同编号">
+                                <el-input v-model="formInline.user" placeholder="审批人"></el-input>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="8">
+                            <el-form-item label="生效日期">
+                                <el-date-picker v-model="value1" type="date" placeholder="选择日期"></el-date-picker>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="8">
+                            <el-form-item label="详细地址">
+                                <el-input v-model="formInline.user" placeholder="审批人"></el-input>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+
+                    <el-row>
+                        <el-col :span="8">
+                            <el-form-item label="联系人">
+                                <el-input v-model="formInline.user" placeholder="审批人"></el-input>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="8">
+                            <el-form-item label="所属省">
+                                <el-select v-model="formInline.region" placeholder="活动区域">
+                                    <el-option label="区域一" value="shanghai"></el-option>
+                                    <el-option label="区域二" value="beijing"></el-option>
+                                </el-select>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="8">
+                            <el-form-item label="签约周期">
+                                <el-input v-model="formInline.user" placeholder="审批人"></el-input>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="8">
+                            <el-form-item label="联系电话">
+                                <el-input v-model="formInline.user" placeholder="审批人"></el-input>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="8">
+                            <el-form-item label="所属市">
+                                <el-select v-model="formInline.region" placeholder="活动区域">
+                                    <el-option label="区域一" value="shanghai"></el-option>
+                                    <el-option label="区域二" value="beijing"></el-option>
+                                </el-select>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="8">
+                            <el-form-item label="签约金额">
+                                <el-input v-model="formInline.user" placeholder="审批人"></el-input>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="8">
+                            <el-form-item label="办理日期">
+                                <el-date-picker v-model="value1" type="date" placeholder="选择日期"></el-date-picker>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="8">
+                            <el-form-item label="所属区">
+                                <el-select v-model="formInline.region" placeholder="活动区域">
+                                    <el-option label="区域一" value="shanghai"></el-option>
+                                    <el-option label="区域二" value="beijing"></el-option>
+                                </el-select>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="8">
+                            <el-form-item label="服务人">
+                                <el-input v-model="formInline.user" placeholder="审批人"></el-input>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+
+                    <div class="btn_wrap">
+                        <el-button type="primary">保存</el-button>
+                    </div>
+                </el-form>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script>
+import times from "../../../components/tableTime";
+export default {
+    data() {
+        return {
+            formInline: {
+                user: "",
+                region: ""
+            },
+            value1: ""
+        };
+    },
+    components: {
+        times
+    },
+    created() {},
+    mounted() {},
+    methods: {}
+};
+</script>
+
+<style scoped lang='scss'>
+.btn_wrap{
+    width: 210px;
+    margin:  0 auto;
+    .el-button{
+        width: 100%;
+    }
+}
+.wrap {
+    padding-top: 15px;
+}
+.news-left-block {
+    float: left;
+    width: 6px;
+    height: 16px;
+    background: #0070c9;
+    margin-left: 16px;
+    margin-top: 20px;
+}
+.area {
+    background: #fff;
+    padding: 10px;
+}
+.page {
+    padding-top: 0.7%;
+    width: 1280px;
+    min-height: 700px;
+    margin: 0 auto;
+}
+.news-title {
+    float: left;
+    width: calc(100% - 0.7% - 0.7% - 6px - 16px);
+    margin-left: 0.7%;
+    margin-right: 0.7%;
+    border-bottom: 1px solid #e4ebf0;
+    p {
+        cursor: default;
+        float: left;
+        font-size: 16px;
+        color: #0070c9;
+        margin-top: 17px;
+        margin-bottom: 13px;
+        font-weight: bold;
+    }
+}
+</style>
+<style scoped>
+.page>>>.el-date-editor{
+    width: 201px;
+}
+</style>
+
+
