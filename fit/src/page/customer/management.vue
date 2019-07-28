@@ -1,6 +1,6 @@
 <template>
   <div class="page">
-    <times :show="false" />客户管理页面11
+    <times :show="false" />客户管理页面22
     <el-row>
       <el-col :span="6">
         <div class="area">
@@ -14,8 +14,16 @@
               style="width: 100%;margin-top:10px;margin-bottom:10px;"
               :header-cell-style="{background:'#E4EAEC',color:'#666',fontSize:'12px'}"
             >
-              <el-table-column prop="date" label="客户名称" align="center"></el-table-column>
-              <el-table-column prop="name" label="联系方式" align="center"></el-table-column>
+              <el-table-column
+                prop="date"
+                label="客户名称"
+                align="center"
+              ></el-table-column>
+              <el-table-column
+                prop="name"
+                label="联系方式"
+                align="center"
+              ></el-table-column>
             </el-table>
           </div>
         </div>
@@ -32,10 +40,26 @@
               style="width: 100%;margin-top:10px;margin-bottom:10px;"
               :header-cell-style="{background:'#E4EAEC',color:'#666',fontSize:'12px'}"
             >
-              <el-table-column prop="date" label="客户名称" align="center"></el-table-column>
-              <el-table-column prop="name" label="联系方式" align="center"></el-table-column>
-              <el-table-column prop="name" label="发单时间" align="center"></el-table-column>
-              <el-table-column prop="name" label="客户负责人" align="center"></el-table-column>
+              <el-table-column
+                prop="date"
+                label="客户名称"
+                align="center"
+              ></el-table-column>
+              <el-table-column
+                prop="name"
+                label="联系方式"
+                align="center"
+              ></el-table-column>
+              <el-table-column
+                prop="name"
+                label="发单时间"
+                align="center"
+              ></el-table-column>
+              <el-table-column
+                prop="name"
+                label="客户负责人"
+                align="center"
+              ></el-table-column>
             </el-table>
           </div>
         </div>
@@ -59,23 +83,48 @@
                 <el-input v-model="form.name"></el-input>
               </el-form-item>
               <el-form-item label="类型">
-                <el-select class="wid58" v-model="form.region" placeholder="类型选择">
-                  <el-option label="区域一" value="shanghai"></el-option>
-                  <el-option label="区域二" value="beijing"></el-option>
+                <el-select
+                  class="wid58"
+                  v-model="form.region"
+                  placeholder="类型选择"
+                >
+                  <el-option
+                    label="区域一"
+                    value="shanghai"
+                  ></el-option>
+                  <el-option
+                    label="区域二"
+                    value="beijing"
+                  ></el-option>
                 </el-select>
               </el-form-item>
 
               <el-form-item label="活动形式">
-                <el-input type="textarea" class="wid58" resize="none" v-model="form.desc"></el-input>
+                <el-input
+                  type="textarea"
+                  class="wid58"
+                  resize="none"
+                  v-model="form.desc"
+                ></el-input>
               </el-form-item>
               <el-form-item label="手机号">
                 <el-input v-model="form.name"></el-input>
               </el-form-item>
               <el-form-item label="验证码">
-                <el-input class="wid23" v-model="form.name"></el-input>
-                <el-button class="winmin" size="mini" type="primary">立即获取</el-button>
+                <el-input
+                  class="wid23"
+                  v-model="form.name"
+                ></el-input>
+                <el-button
+                  class="winmin"
+                  size="mini"
+                  type="primary"
+                >立即获取</el-button>
               </el-form-item>
-              <el-button class="win100" type="primary">立即发布</el-button>
+              <el-button
+                class="win100"
+                type="primary"
+              >立即发布</el-button>
             </el-form>
           </div>
         </div>
@@ -94,11 +143,31 @@
               style="width: 100%;margin-top:10px;margin-bottom:10px;"
               :header-cell-style="{background:'#E4EAEC',color:'#666',fontSize:'12px'}"
             >
-              <el-table-column prop="date" label="合同名称" align="center"></el-table-column>
-              <el-table-column prop="name" label="签订日期" align="center"></el-table-column>
-              <el-table-column prop="name" label="已支付月份" align="center"></el-table-column>
-              <el-table-column prop="name" label="已服务月份" align="center"></el-table-column>
-              <el-table-column prop="name" label="合同时长" align="center"></el-table-column>
+              <el-table-column
+                prop="date"
+                label="合同名称"
+                align="center"
+              ></el-table-column>
+              <el-table-column
+                prop="name"
+                label="签订日期"
+                align="center"
+              ></el-table-column>
+              <el-table-column
+                prop="name"
+                label="已支付月份"
+                align="center"
+              ></el-table-column>
+              <el-table-column
+                prop="name"
+                label="已服务月份"
+                align="center"
+              ></el-table-column>
+              <el-table-column
+                prop="name"
+                label="合同时长"
+                align="center"
+              ></el-table-column>
             </el-table>
           </div>
         </div>
@@ -115,9 +184,21 @@
               style="width: 100%;margin-top:10px;margin-bottom:10px;"
               :header-cell-style="{background:'#E4EAEC',color:'#666',fontSize:'12px'}"
             >
-              <el-table-column prop="date" label="客户名称" align="center"></el-table-column>
-              <el-table-column prop="name" label="状态" align="center"></el-table-column>
-              <el-table-column prop="name" label="相关信息" align="center"></el-table-column>
+              <el-table-column
+                prop="date"
+                label="客户名称"
+                align="center"
+              ></el-table-column>
+              <el-table-column
+                prop="name"
+                label="状态"
+                align="center"
+              ></el-table-column>
+              <el-table-column
+                prop="name"
+                label="相关信息"
+                align="center"
+              ></el-table-column>
             </el-table>
           </div>
         </div>
