@@ -1,6 +1,6 @@
 <template>
   <div class="page">
-    <times :show="false" />客户管理页面:pp
+    <times :show="false" />客户管理页面：不知道
     <el-row>
       <el-col :span="6">
         <div class="area">
