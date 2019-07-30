@@ -1,6 +1,6 @@
 <template>
     <div class="modify">
-        <div class="title">修改密码</div>
+        <div class="title">修改密码1</div>
         <div class="line">
             <el-form
                 :model="ruleForm"
