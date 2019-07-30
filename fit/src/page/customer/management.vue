@@ -1,6 +1,6 @@
 <template>
   <div class="page">
-    <times :show="false" />客户管理页面:git学习2
+    <times :show="false" />客户管理页面:git学习3
     <el-row>
       <el-col :span="6">
         <div class="area">
