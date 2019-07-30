@@ -1,13 +1,13 @@
 <template>
   <div class="page">
-    <times :show="false" />客户管理页面:git学习1
+    <times :show="false" />客户管理页面:git学习2
     <el-row>
       <el-col :span="6">
         <div class="area">
           <div class="wrap">
             <div class="title">
               <p>客户信息</p>
-              <span @click="lookClientInfo">查看全部 &gt;</span>
+              <span @click="lookClientInfo">查看全部1 &gt;</span>
             </div>
             <el-table
               :data="tableData1"
