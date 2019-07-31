@@ -1,6 +1,6 @@
 <template>
   <div class="page">
-    <times :show="false" />客户管理页面:git学习dev-5
+    <times :show="false" />客户管理页面:git学习新建分支yql——dev
     <el-row>
       <el-col :span="6">
         <div class="area">
