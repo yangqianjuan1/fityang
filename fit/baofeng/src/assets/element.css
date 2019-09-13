@@ -1,0 +1,84 @@
+#login .el-form-item__content {
+    line-height: 17px;
+}
+
+#login .el-input__icon {
+    font-size: 20px;
+    font-weight: 500
+}
+
+#login .loginbtn {
+    margin-top: 14px;
+    width: 100%;
+}
+
+.fl {
+    float: left;
+}
+
+.fr {
+    float: right;
+}
+
+.el-checkbox__label {
+    font-size: 12px;
+}
+
+input[type="yanzhengma"] {
+    width: 48%;
+    float: left;
+}
+
+input[type="yanzhengma"] img {
+    width: 48%;
+    float: right;
+}
+
+.el-form-item.is-error .el-input__validateIcon {
+    color: #fff;
+}
+
+.mianfeigetduanxin {
+    position: absolute;
+    right: 15px;
+}
+
+#home .el-dialog__title {
+    color: #46a4e9;
+    position: relative;
+    left: -200px;
+    font-size: 24px;
+}
+
+#home .el-dialog {
+    width: 543px;
+    height: 336px;
+    background-color: #ffffff;
+    position: relative;
+}
+
+#home .dialog-footer {
+    position: relative;
+    bottom: -20px;
+    width: 100%;
+}
+
+#home .dialog-footer button {
+    width: 100%;
+}
+
+#home .left input {
+    margin-top: 10px;
+}
+
+#home .el-dialog__body {
+    padding: 11px 20px;
+}
+
+.mt10 {
+    margin-top: 10px;
+}
+
+.el-checkbox {
+    float: left;
+}
