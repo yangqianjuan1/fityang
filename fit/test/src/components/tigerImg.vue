@@ -1,0 +1,72 @@
+<template>
+  <div class="tiger"   ref="tiger"  v-if="getShow">
+    <!--<img src="https://wanlima.oss-cn-hangzhou.aliyuncs.com/016e8f5a180f20dfddc73a0e342a83049bd6e8a9">-->
+    <img :src="'../../static/tiger/wing-left-sprite-min.png'" v-if="Style[6]" :style="{left: getTransform(Style[6])}">
+    <img :src="'../../static/tiger/body-sprite-min.png'" v-if="Style[0]" :style="{left: getTransform(Style[0])}">
+    <img :src="'../../static/tiger/foot-sprite-min.png'" v-if="Style[1]" :style="{left: getTransform(Style[1])}">
+    <img :src="'../../static/tiger/hat-sprite-min.png'" v-if="Style[2]" :style="{left: getTransform(Style[2])}">
+    <img :src="'../../static/tiger/horn-sprite-min.png'" v-if="Style[3]" :style="{left: getTransform(Style[3])}">
+    <img :src="'../../static/tiger/pendant-sprite-min.png'" v-if="Style[4]" :style="{left: getTransform(Style[4])}">
+    <img :src="'../../static/tiger/saddle-sprite-min.png'" v-if="Style[5]" :style="{left: getTransform(Style[5])}">
+    <img :src="'../../static/tiger/wing-right-sprite-min.png'" v-if="Style[6]" :style="{left: getTransform(Style[6])}">
+
+  </div>
+</template>
+
+<script>
+    export default{
+        name: "tigerImg",
+      props:{
+        Style:[]
+      },
+        data(){
+            return {
+                height:0
+            }
+        },
+      mounted(){
+        this.getTigerHeight();
+      },
+      computed:{
+        getShow:function () {
+          if(this.Style){
+              if(this.Style.length>0){
+                  return true
+              }else{
+                  return false
+              }
+          }else{
+
+          }
+        }
+      },
+      methods:{
+        getTransform:function (style) {
+          return '-'+this.height*(parseInt(style)-1)+'px'
+
+        },
+        getTigerHeight:function () {
+          this.$nextTick(() => {
+            let tiger = this.$refs.tiger;
+            if (tiger) {
+                this.height = tiger.clientWidth;
+              tiger.style.height = tiger.clientWidth+'px'
+            }
+          })
+        },
+      }
+    }
+</script>
+
+<style scoped>
+  .tiger{
+    position: relative;
+    overflow: hidden;
+  }
+  .tiger>img{
+    position: absolute;
+    height: 100%;
+    left: 0;
+    /*top:0;*/
+  }
+</style>

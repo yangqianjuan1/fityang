@@ -1,0 +1,527 @@
+<template>
+  <div class="fuse">
+    <div class="top">
+      <div class="htitle" flex="cross:center main:right">
+        <img src="../../assets/img/fuse/fuse-guide.png" class="right ruleIcon" @click="open">
+      </div>
+      <fuse-label></fuse-label>
+      <div class="choose" flex="main:justify">
+        <!--<div><img src="https://wanlima.oss-cn-hangzhou.aliyuncs.com/0934c209fbf47d09a23f9ade1516215f9b8ac3bc" :class="getCurLeft"></div>-->
+        <div @click="toChoose('left')" style="width: 30%;margin:10% 0 0 10%" flex="cross:center dir:top">
+          <!--<img v-lazy="leftInfo.Style?leftInfo.horse:defaultImg" :class="getCurLeft">-->
+          <tiger-img :Style="leftInfo.Style" v-if="leftInfo.Style" :class="getCurLeft"></tiger-img>
+          <img :src="defaultImg" :class="getCurLeft" v-if="!leftInfo.Style">
+          <img src="../../assets/img/fuse/shadow.png" class="shadow">
+          <p class="type">{{getTigerType(leftInfo)}}</p>
+
+        </div>
+        <!--<div style="width: 3.3rem "></div>-->
+        <!--<div><img src="../../assets/img/fuse/choose.png" :class="getCur"></div>-->
+        <div @click="toChoose('right')" style="width: 30%;margin:10% 3% 0 0" flex="cross:center dir:top">
+
+          <tiger-img :Style="rightInfo.Style" v-if="rightInfo.Style" :class="getCurLeft"></tiger-img>
+          <img :src="defaultImg" :class="getCurLeft" v-if="!rightInfo.Style">
+          <img src="../../assets/img/fuse/shadow.png" class="shadow">
+          <p class="type">{{getTigerType(rightInfo)}}</p>
+        </div>
+
+      </div>
+    </div>
+    <div class="bot">
+      <img src="../../assets/img/fuse/route.png" class="route">
+      <img src="../../assets/img/activity/tiger.png" class="result">
+      <button class="btn btn-yellow" @click="evolution" >{{getFuseState}}</button>
+    </div>
+    <my-dialog :dialog-open="Dialog">
+      <div class="warp takeCenter">
+        <img src="../../assets/img/competition/close.png" class="close right" @click="close">
+
+        <scroll style="height: 100%;position: relative" warpId="guide">
+          <div class="digTitle" >
+            <p style=" font-size: 0.5rem;font-weight:600;text-align: center">融合进化指南</p>
+            <p>玩家可选取自己账户下两只虎进行融合，根据选择老虎种类的不同，会进化出不同种类的老虎（融合的老虎将会被放生，玩家将会获得一只新的老虎）。</p>
+            <p>2、融合老虎要求：</p>
+            <p>只能选择“猛虎、神虎”进行融合；</p>
+            <p>老虎当天没有进行过喂养；</p>
+            <p>交易中、拥有堂主，弟子的老虎无法参加融合；</p>
+            <p>3、融合规则：</p>
+            <p><span>猛虎+猛虎</span>可融合出<span>猛虎、神虎、创世虎</span></p>
+
+            <p><span>猛虎+神虎</span>可融合出<span>猛虎、神虎、创世虎</span></p>
+
+            <p><span>神虎+神虎</span>可融合出<span>神虎、创世虎</span></p>
+          </div>
+        </scroll>
+      </div>
+    </my-dialog>
+    <one-cancel-dialog v-model="chooseDlg">
+
+      <p style="font-size: 0.5rem;font-weight: 600;text-align: center">融合进化</p>
+        <div flex="main:center cross:center box:mean" class="synthesis-title "  :class="typeCur==1?'type1':'type2'">
+          <p  @click="chooseType(1)"></p>
+          <p  @click="chooseType(2)"></p>
+        </div>
+     <div flex="main:justify">
+       <search style="width: 35%;" :value="searchValue" @input="getSearch" :searchFuc="search"></search>
+     <div @click="sort"> <sort name="战斗力" :up="orderByCombat" ></sort></div>
+     </div>
+        <scroll
+          ref="scroll2"
+          style="height: 6rem;position: relative"
+          :pullUpLoad="setPullUpLoad"
+          :pullUpLoadFuc="getFragmentList"
+          pullUpLoadFucParam="UpLoad">
+          <ul >
+            <li v-for="item in List" >
+              <div flex="main:center cross:center "  class="synthesis-item " @click="chooseTiger(item)">
+                <tiger-img :Style="item.Style" style="width: 30%"></tiger-img>
+                <div >
+                  <p>ID号：{{item.HorseNo}}</p>
+                  <p>等级：{{item.RareLevel|rare}}</p>
+                  <p>战斗力：{{item.CombatPower}}</p>
+                </div>
+                <div>
+                </div>
+              </div>
+              <div class="under-line"></div>
+            </li>
+            <div style="text-align: center" v-if="empty">
+              <img style="width: 2.5rem;padding: 1rem" src="../../assets/img/dialog/empty.png" >
+            </div>
+          </ul>
+        </scroll>
+        <!--<button class="cancel cl miaobian-zi" @click="closeDialog">取消</button>-->
+    </one-cancel-dialog>
+    <my-dialog :dialogOpen="newTiger">
+      <div class="born takeCenter">
+        <div flex="main:center cross:center" >
+          <div style="width: 50%" v-if="newTigerInfo">
+            <tiger-info  :Info="newTigerInfo" id="bronResult" style="width:100%;" :type="4"></tiger-info>
+          </div>
+        </div>
+        <button class="sure btn-yellow" @click="sure">确认领取</button>
+      </div>
+    </my-dialog>
+  </div>
+</template>
+
+<script>
+  import common from '../../components/common'
+  import Scroll from "../../components/scroll/scroll";
+  import MyDialog from "../../components/dialog";
+  import OneCancelDialog from "../../components/tips/oneCancelDialog";
+  import FuseLabel from "./fuseLabel";
+  import TigerImg from "../../components/tigerImg";
+  import TigerInfo from "../../components/tigerInfo";
+  import Sort from "../../components/sort";
+  import Search from "../../components/search";
+  export default{
+    components: {
+      Search,
+      Sort,
+      TigerInfo,
+      TigerImg,
+      FuseLabel,
+      OneCancelDialog,
+      MyDialog,
+      Scroll},
+    name: "fuse",
+    data(){
+      return {
+        defaultImg:require("../../assets/img/fuse/choose.png"),
+        Fragments:0,
+        wlPiecesCount:0,
+        chooseSide:"left",
+        fragmentOffset:0,
+        size:20,
+        Dialog:false,
+        chooseDlg:false,
+        chooseLeft:false,
+        chooseRight:false,
+        typeCur:1,
+        leftInfo:{
+        },
+        rightInfo:{
+        },
+        List:[],
+        newTiger:false,
+        newTigerInfo:{},
+        empty:false,
+        isFuse:false,
+        orderByCombat:-1,//战斗力排序
+        searchValue:'',
+      }
+    },
+    computed:{
+      getFuseState:function () {
+        return this.isFuse?'进化中':'进化';
+      },
+      setPullUpLoad:function () {
+        return {
+          threshold:-60,
+        }
+      },//上拉设置
+      getCurLeft:function () {
+        if(this.chooseLeft){
+          return "chooseCur"
+        }else{
+          return "chooseUn"
+        }
+      },
+      getCurRight:function () {
+        if(this.chooseRight){
+          return "chooseCur"
+        }else{
+          return "chooseUn"
+        }
+      },
+    },
+    methods:{
+      getTigerType:function (item) {
+        if(!item.tiger){
+          return ""
+        }
+        if(item.IsGenesis){
+          return '创世虎'
+        }else if(item.IsStud){
+          return '神虎'
+        }else{
+          return '猛虎'
+        }
+      },//老虎种类
+      chooseTiger:function (item) {
+
+        if(this.chooseSide =='left'){
+          this.leftInfo = item;
+          this.chooseLeft = true;
+        }
+        if(this.chooseSide =='right'){
+          this.rightInfo = item;
+          this.chooseRight = true;
+        }
+        this.chooseDlg = false;
+        this.List = [];
+      },//选择老虎
+      sort:function () {
+          this.searchValue = "";
+          if(this.orderByCombat===-1)
+          {
+            this.orderByCombat = 0
+          }else
+        {
+          this.orderByCombat = this.orderByCombat>0?0:1;
+        }
+
+        this.getFragmentList();
+      },
+      search:function () {
+        this.orderByCombat = -1;
+        this.getFragmentList();
+      },
+      getSearch:function (val) {
+        this.searchValue = val
+      },
+      getFragmentList:function (type) {
+        let offset;
+        if(type ==='UpLoad'){
+          offset = this.fragmentOffset;
+        }else{
+          offset =0;
+        }
+        let tigerType =this.typeCur;
+        let data = {offset:offset,size:this.size,type:tigerType,horseNo:this.searchValue,orderByCombat:this.orderByCombat};
+        this.$axios.post('/api/horse/getevolutionlist/', data).then(
+          res => {
+            let sameIndex=null;
+            let result = res.data;
+            if (result.IsSuccess) {
+              if(result.Result.Data.length>0){
+                let record = [];
+                result.Result.Data.map(item=>{
+                  item.tiger = common.svgApi+item.HorseKey;
+                  if(item.HorseKey!==this.leftInfo.HorseKey &&item.HorseKey!==this.rightInfo.HorseKey)
+                  {
+                    record.push(item);
+                  }
+                });
+                if(type ==='UpLoad'){
+                  this.List = this.List.concat(record);
+                }else{
+                  this.List = record
+                }
+                this.fragmentOffset = this.List.length;
+                if(type ==='UpLoad'){
+
+                  // this.$tips('暂无更多数据')
+                }
+              }
+              if(this.List.length>0){
+                this.empty = false;
+              }else{
+                this.empty = true;
+              }
+              if(this.$refs.scroll2){
+                this.$refs.scroll2.finishiPullUp();
+              }
+
+            } else {
+              if(this.$refs.scroll2){
+                this.$refs.scroll2.finishiPullUp();
+              }
+              this.$get_error('tips',result.Code,result.Message);
+            }
+          }, error => {
+            if(this.$refs.scroll2){
+              this.$refs.scroll2.finishiPullUp();
+            }
+            this.$get_error('network');
+          }
+        );
+      },//list
+      toChoose:function (type) {
+        this.chooseSide = type;
+        this.List = [];
+        this.chooseDlg = true;
+        this.typeCur = 1;
+        this.getFragmentList();
+      },//点击加号
+      chooseType:function (type) {
+        this.typeCur = type;
+        this.empty = false;
+        this.List = [];
+        this.searchValue = "";
+        this.orderByCombat = -1;
+        this.getFragmentList();
+      },//切换标签
+      open:function () {
+        this.Dialog = true;
+      },//打开指南
+      close:function () {
+        this.Dialog = false;
+      },//关闭指南
+      closeDialog:function () {
+        this.List = [];
+        this.chooseDlg = false;
+      },//关闭选马
+      evolution:function () {
+        if(this.isFuse)
+        {
+          return
+        }
+        if(!(this.leftInfo.HorseKey &&this.rightInfo.HorseKey)){
+          return this.$tips("请选择老虎");
+        }
+        this.isFuse =true;
+        let data={horseKey1:this.leftInfo.HorseKey,horseKey2:this.rightInfo.HorseKey};
+        this.$axios.post('/api/horse/evolution/',data).then(
+          res => {
+            let result = res.data;
+            if (result.IsSuccess) {
+              this.newTigerInfo = result.Result.horseInfo;
+//              this.newTigerInfo.horse= common.svgApi+result.Result.horseInfo.HorseKey;
+              this.Fragments = result.Result.count;
+              this.wlPiecesCount = result.Result.wanliCount;
+              this.newTiger = true;
+              this.leftInfo = {};
+              this.rightInfo= {};
+              this.chooseRight= false;
+              this.chooseLeft= false;
+              this.isFuse =false;
+            } else {
+              this.isFuse =false;
+              this.$get_error('tips',result.Code,result.Message);
+            }
+          }, error => {
+            this.isFuse =false;
+            this.$get_error('reload');
+          }
+        )
+      },//进化
+      sure:function () {
+        this.newTiger = false;
+      }
+    },
+    watch:{
+      chooseDlg(val){
+          this.orderByCombat= -1;
+          this.searchValue =""
+      }
+    }
+  }
+</script>
+
+<style scoped>
+  .born{
+    text-align: center;
+    width: 80%;
+  }
+  #bronResult{
+    animation: tiger ease-out	 0.5s  ;
+  }
+  @keyframes tiger {
+    from{
+      transform: scale(0);
+    }
+    to{
+      transform: scale(1);
+    }
+  }
+  .sure{
+    margin-top: 0.2rem;
+    padding: 0.2rem 0.5rem;
+    z-index: 10;
+    position: relative;
+  }
+
+  .type{
+    background-image: url("../../assets/img/fuse/name-bg.png");
+    background-size: 100% 100%;
+    width: 80%;
+    height: 0.7rem;
+    line-height:0.7rem;
+    text-align: center;
+    margin: 0 auto;
+    font-weight: 600;
+
+  }
+  .synthesis-title{
+    height: 0.7rem;
+    text-align: center;
+    padding: 0.1rem 18%;
+    border-radius: 0.1rem;
+    margin:  0.2rem 0;
+
+  }
+  .synthesis-title p{
+    height: 100%;
+    cursor: pointer;
+  }
+  .type1{
+    background: url("../../assets/img/dialog/label_2_0.png");
+    background-size: 100% 100%;
+  }
+  .type2{
+    background: url("../../assets/img/dialog/label_2_1.png");
+    background-size: 100% 100%;
+  }
+  .synthesis-item{
+    padding: 0.3rem 0;
+    text-align: center;
+  }
+  .synthesis-item p{
+    text-align: left;
+  }
+  .synthesis-item img{
+    width: 0.8rem;
+  }
+  .route{
+    width: 1rem;
+    position: relative;
+    top:-3rem;
+    margin-left: 0.2rem;
+  }
+  .top{
+    height: 10.4rem;
+    /*background: url("../../assets/img/fuse/top_1.png");*/
+    background-size: 100% 100%;
+  }
+  .bot{
+    text-align: center;
+  }
+  .fuse {
+    width: 100%;
+    height: 100%;
+    min-height: 100vh;
+    background: url("../../assets/img/fuse/bg_1.png");
+    background-size: 100% 100%;
+  }
+  .fuse::-webkit-scrollbar {width: 0;}
+  .htitle {
+    z-index: 100;
+    width: 100%;
+    height: 1.5rem;
+    position: relative;
+  }
+
+  .name{
+    word-WRAP: break-word;
+    width: 80%;
+    font-size: 0.35rem;
+    height: 0.64rem;
+    line-height: 0.64rem;
+    background-image: url("../../assets/img/transactin/heidi.png");
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    text-align: center;
+    color: #ffffff;
+    margin:  0 auto;
+  }
+  .warp{
+    width: 90%;
+    height: 80vh;
+    padding:1rem 0.5rem;
+    background-image: url("../../assets/img/competition/guideBg.png");
+    background-size: 100% 100%;
+  }
+  .digTitle p{
+    margin: 0.2rem;
+  }
+  .digTitle span{
+    color: #fe662e;
+  }
+  .close{
+    width: 0.56rem;
+    margin-top: 0.5rem;
+    margin-right: 0.5rem;
+  }
+  .result{
+    width: 2.67rem;
+    display: block;
+    margin:  0 auto;
+    position: relative;
+    top:-3rem;
+    left: 0.1rem;
+  }
+  .btn{
+    border-radius: 0.3rem;
+    height: 0.8rem;
+    line-height: 0.8rem;;
+    width: 2.5rem;
+    position: relative;
+    top:-2.8rem;
+    left: 0.2rem;
+  }
+  .chooseCur{
+    width: 80%;
+    z-index: 10;
+    position: relative;
+    /*margin:0.7rem 0 0.8rem;*/
+  }
+  .chooseUn{
+    width: 80%;
+    z-index: 10;
+    position: relative;
+  }
+  .shadow{
+    width: 80%;
+    position: relative;
+    top:-0.5rem;
+    z-index: 0;
+  }
+  .tick{
+    display: inline-block;
+    text-align: center;
+    width: 40%;
+  }
+  .tick img{
+    width: 100%;
+  }
+  .plus{
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 0.5rem;
+    line-height:1rem;
+    height: 1rem;
+    width:20%
+  }
+</style>

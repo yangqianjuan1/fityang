@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,Chrome=1" />
+    <title>万利马充值</title>
+    <style>
+        .center {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate3d(-50%, -50%, 0);
+        }
+        
+        .info {
+            position: relative;
+            top: -50px;
+            width: 950px;
+            font-size: 18px;
+            overflow: hidden;
+            margin: 0 auto;
+        }
+        
+        .from td {
+            height: 40px;
+        }
+        
+        .from span {
+            text-align: right;
+            display: inline-block;
+            margin-top: 36px;
+            padding-right: 20px;
+            width: 100px;
+        }
+        
+        input {
+            width: 360px;
+            height: 40px;
+            line-height: 40px;
+            margin-top: 36px;
+        }
+        
+        .box {
+            border-top: 5px solid #CBCBCB;
+            border-bottom: 5px solid #CBCBCB;
+            -webkit-box-shadow: 0 0 50px 10px #CBCBCB;
+            ;
+            -moz-box-shadow: 0 0 50px 10px #CBCBCB;
+            ;
+            box-shadow: 0 0 50px 10px #CBCBCB;
+            ;
+        }
+        
+        button {
+            width: 360px;
+            height: 40px;
+            margin-top: 36px;
+            background: #0D97BF;
+            color: #ffffff;
+            border: none;
+            margin-left: 120px;
+        }
+    </style>
+</head>
+
+<body>
+    <div style="background: #fbfbfb;position: absolute;top: 0;bottom: 0;left: 0;right: 0">
+        <img src="./images/top_01.png" style="width: 100%;height: 54px">
+
+        <div style="width: 950px;height: 532px;background: #ffffff;" class="center box">
+            <p class="info">
+                <span style="float: left">您正在向万利马账户（505***qq.com）进行充值</span>
+                <span style="float: right"><span style="color: red">121ETH</span>：转账金额</span>
+            </p>
+            <p style="width: 360px;margin: 0 auto;border-bottom: 2px solid #CBCBCB;font-size: 20px;color: #000000;line-height: 30px ;height: 30px;position: relative;left: 60px">以太坊账户转账</p>
+            <form class="center from" style="text-align: center">
+                <table>
+                    <tr>
+                        <td>
+                            <span>钱包客户端：</span>
+                        </td>
+                        <td>
+                            <input type='text' name='name' id='provider' size='64' value='' />
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <span>解锁账户：</span>
+                        </td>
+                        <td>
+                            <input type='text' name='name' id='unlockAccount' size='64' value='' />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span>密码：</span>
+                        </td>
+                        <td>
+                            <input type='password' name='name' id='unlockPassword' size='64' value='' />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span>gas：</span>
+                        </td>
+                        <td>
+                            <input type='text' name='name' id='gas' size='64' value='' />
+                        </td>
+                    </tr>
+                </table>
+                <button type='button' onclick='btnClick()'>提交</button>
+                <script src='/web3.min.js'></script>
+                <script>
+                    function btnClick() {
+                        try {
+                            var fromAccount = document.getElementById('unlockAccount').value
+                            var provider = document.getElementById('provider').value
+                            var accountPwd = document.getElementById('unlockPassword').value
+                            var gas = document.getElementById('gas').value
+                            console.log(provider + "=======" + accountPwd + "=======" + gas);
+                            // set the provider you want from Web3.providers
+                            web3 = new Web3(new Web3.providers.HttpProvider(provider));
+                            //unlock account
+                            var ss = web3.personal.unlockAccount(fromAccount, accountPwd);
+                            var paymentContract = web3.eth.contract([{
+                                'constant': false,
+                                'inputs': [{
+                                    'name': 'orderNo',
+                                    'type': 'string'
+                                }],
+                                'name': 'pay',
+                                'outputs': [],
+                                'payable': true,
+                                'stateMutability': 'payable',
+                                'type': 'function'
+                            }, {
+                                'inputs': [],
+                                'payable': false,
+                                'stateMutability': 'nonpayable',
+                                'type': 'constructor'
+                            }, {
+                                'anonymous': false,
+                                'inputs': [{
+                                    'indexed': false,
+                                    'name': 'from',
+                                    'type': 'address'
+                                }, {
+                                    'indexed': false,
+                                    'name': 'amount',
+                                    'type': 'uint256'
+                                }, {
+                                    'indexed': false,
+                                    'name': 'orderNo',
+                                    'type': 'string'
+                                }],
+                                'name': 'onPay',
+                                'type': 'event'
+                            }]);
+                            var s = paymentContract.at('0x615fc8b2ceaf7694de51f64926a7101597adea8a');
+                            s.pay.sendTransaction('orderno', {
+                                'from': fromAccount,
+                                'gas': gas,
+                                'gasPrice': 12,
+                                'value': 12
+                            }, function(err, transactionHash) {
+                                if (!err) {
+                                    {
+                                        console.log(transactionHash); // '0x97c3e6cbabb2a704f0a26d114ce43c1f4859dbda8d6ad9d68380cea762ae60e7'
+                                        alert('成功');
+                                    }
+                                } else {
+                                    {
+                                        alert(err)
+                                        console.log(err)
+                                    }
+                                }
+                            })
+                        } catch (err) {
+                            alert(err)
+                        }
+                    }
+                </script>
+            </form>
+        </div>
+    </div>
+    <p style="text-align: center;position: fixed;bottom: 50px;width: 100%;">xxxxxxxxxxxxxxxxxxxxxxxxxxxxx</p>
+</body>
+
+</html>

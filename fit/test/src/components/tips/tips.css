@@ -1,0 +1,12 @@
+.tips{
+  position: fixed;
+  bottom: 30vh;
+  background: rgba(0,0,0,0.5);
+  /*opacity: 0.5;*/
+  padding: 0.3rem 0.5rem;
+  color: #fff;
+  max-width: 90%;
+  border-radius: 5px;
+  font-size: 14px ;
+  z-index: 9999;
+}

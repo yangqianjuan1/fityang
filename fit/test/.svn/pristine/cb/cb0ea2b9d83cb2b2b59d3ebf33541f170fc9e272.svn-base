@@ -1,0 +1,1090 @@
+<template>
+	<div class="raceArea">
+		<div class="raceTigerScroll" :class="{raceBackgroundMove:isBackgroundMove}">
+		</div>
+		<div class="raceTigerContent">
+			<div class="raceTitle">
+				<div class="raceSeat"></div>
+				<div class="amountPool">
+				</div>
+				<div class="raceItem">
+					<div class="sesionBtn" @click="chooseSession">{{sessionNumText}}</div>
+				</div>
+				<div class="raceTimer">
+					<div class="timeInfo">
+						{{currTimeType}}{{currTimeNum}}
+					</div>
+				</div>
+			</div>
+			<div class="tigerRace">
+
+				<div class="tigerTrack" v-for="(item,key) in tigerinfo" :key="key" :style="{zIndex:item.id}">
+					<img class="deerImg" v-if="isDeerScroll&&item.id==1" src="../../assets/img/race/deer.png" :class="{deerImgMove:item.id==1}" />
+					<div class="tigerImgData" :class="'tigerMoveItem'+item.id">
+						<tiger-img :Style="item.Style" style="top: -0.5rem;"></tiger-img>
+					</div>
+				</div>
+
+			</div>
+		</div>
+		<div class="moves">
+			<div class="tigerBet" :class="{tigerAnitation:startBetMove}" :style="{animationPlayState:animateStill}">
+				<bet v-if="startBetMove" @confirmSub="confirmBet"></bet>
+			</div>
+			<div @click="betMove" class="controllerBtn" :class="{bet_back_img_css:startBetMove}"></div>
+		</div>
+		<div class="sessionPosition" :class="{sessionAnitation:sessionCanBeSeed}" :style="{animationPlayState:sessionStill}">
+			<session v-if="sessionCanBeSeed" @closeSessionBtn="closeChooseSession" :btns="sessionList" @sessionNum="betChangeSessionNum"></session>
+		</div>
+		
+		<comfire-dialog v-model="competitionMakeSure" :sure="sureToCompetition">
+		  <p class="comTitle">逐鹿竞猜</p>
+		  <p style="text-align: center;margin-top: 0.5rem">确认竞猜<span class="special-color">{{totalAmount}}</span>份共计{{totalAmount*10}}FMVP参与本场第{{totalSession}}赛道的逐鹿竞猜？</p>
+		</comfire-dialog>
+		<reult-dialog v-model="resultMakeSure" :sure="resultTips" >
+		  <p class="comTitle">竞猜结果</p>
+		  <p style="text-align: center;margin-top: 0.5rem">恭喜<span class="special-color">{{winSessionNum}}</span>号赛道的老虎获得胜利</p>
+		</reult-dialog>
+		
+		<comfire-dialog v-model="locationMakeSure" :sure="makesureLocation">
+		  <p class="comTitle">提示</p>
+		  <p style="text-align: center;margin-top: 0.5rem">本场活动已结束，是否返回参赛界面?</p>
+		</comfire-dialog>
+		
+		<time-dialog :dialogOpen="timeOpen">
+			<div class="raceStart">{{timeOpenText}}</div>
+		</time-dialog>
+		
+	</div>
+</template>
+
+<script>
+	import tigerImg from './raceTigerImg'
+	import bet from './raceBet'
+	import session from './raceSession'
+	import ComfireDialog from "../../components/comfireDialog";
+	import ReultDialog from "../../components/resultDialog";
+	import timeDialog from "../../components/dialog";
+	export default {
+		mounted(){
+			if(sessionStorage.currSession=='null'||sessionStorage.currId=='null'){
+				this.$router.go("-1");
+				return;
+			}
+			this.sessionNumText=sessionStorage.currSession;
+			this.getTimeType();
+			this.getTigerInfo();
+		},
+		components: {
+			tigerImg,
+			bet,
+			session,
+			ComfireDialog,
+			timeDialog,
+			ReultDialog,
+		},
+		data() {
+			return {
+				timeOpenText:'',
+				timeOpen:false,
+				resultMakeSure:false,
+				locationMakeSure:false,
+				winSessionNum:0,
+				sessionNumText:'场次',
+				totalAmount:0,
+				totalParamAmount:[0, 0, 0, 0, 0, 0, 0, 0, 0],
+				totalSession:0,
+				competitionMakeSure:false,
+				sessionList:[],
+				sessionCanBeSeed: false,
+				startBetMove: false,
+				sessionStill: 'running',
+				animateStill: 'running',
+				isBackgroundMove: false,
+				isDeerScroll: false,
+				currAmountPool: 100000,
+				currTimeType: '',
+				currTimeNum:0,
+				countDownDate:0,
+				tigerinfo: [{"Style":["006","055","045","","063","028",""],"AccountKey":"YjY0MjBmMDAwMDAwMDAwMA","HorseKey":"6312ad709946eeb60fc06673480e7873c0ac4eaf","IsGenesis":false,"IsStud":false,"HorseNo":"2089","CreateTime":"2019-03-05 10:21:31","ServiceNowTime":"2019-05-24 11:06:19","TradeStatus":false,"Source":8,"Weight":50,"InitialWeight":50.0,"SonCount":0,"GrandsonCount":0,"FamilyCount":0,"FeedTimes":0,"IsNew":false,"IsCanBreed":false,"RareLevel":32,"CombatPower":205.0,"CanTransfer":true,"LastFeedTime":"0001-01-01 00:00:00","IsInitSend":false,"InviteCode":"4ONMSQ","BattleType":2,"BreedLimit":0,"HorseCount":0},{"Style":["001","043","025","","025","074",""],"AccountKey":"YjQ0MjBmMDAwMDAwMDAwMA","HorseKey":"bbb53818c654c3fa66e48fe616a81f2025c1b376","IsGenesis":false,"IsStud":false,"HorseNo":"3473","CreateTime":"2019-05-21 15:17:58","ServiceNowTime":"2019-05-24 11:06:19","TradeStatus":false,"Source":8,"Weight":50,"InitialWeight":50.0,"SonCount":0,"GrandsonCount":0,"FamilyCount":0,"FeedTimes":0,"IsNew":false,"IsCanBreed":false,"RareLevel":16,"CombatPower":200.0,"CanTransfer":true,"LastFeedTime":"0001-01-01 00:00:00","IsInitSend":false,"InviteCode":"QP26W2","BattleType":2,"BreedLimit":0,"HorseCount":0},{"Style":["002","037","029","","015","020",""],"AccountKey":"YjE0MjBmMDAwMDAwMDAwMA","HorseKey":"29780e237a78565934f1bd32764284800beb5969","IsGenesis":false,"IsStud":false,"HorseNo":"3217","CreateTime":"2019-05-21 14:59:48","ServiceNowTime":"2019-05-24 11:06:19","TradeStatus":false,"Source":8,"Weight":50,"InitialWeight":50.0,"SonCount":0,"GrandsonCount":0,"FamilyCount":0,"FeedTimes":0,"IsNew":false,"IsCanBreed":false,"RareLevel":64,"CombatPower":210.0,"CanTransfer":true,"LastFeedTime":"0001-01-01 00:00:00","IsInitSend":false,"InviteCode":"UFNULQ","BattleType":2,"BreedLimit":0,"HorseCount":0},{"Style":["006","044","063","","075","066",""],"AccountKey":"YWY0MjBmMDAwMDAwMDAwMA","HorseKey":"b45cab00bc0ec3d82e18b0e69e4d0ef79de366f8","IsGenesis":false,"IsStud":false,"HorseNo":"3089","CreateTime":"2019-05-21 14:56:46","ServiceNowTime":"2019-05-24 11:06:19","TradeStatus":false,"Source":8,"Weight":50,"InitialWeight":50.0,"SonCount":0,"GrandsonCount":0,"FamilyCount":0,"FeedTimes":0,"IsNew":false,"IsCanBreed":false,"RareLevel":32,"CombatPower":205.0,"CanTransfer":true,"LastFeedTime":"0001-01-01 00:00:00","IsInitSend":false,"InviteCode":"ETQHEJ","BattleType":2,"BreedLimit":0,"HorseCount":0},{"Style":["004","065","017","","042","053",""],"AccountKey":"YjM0MjBmMDAwMDAwMDAwMA","HorseKey":"d36440ca79cae447ac9de5ab80bc069aab2cd62c","IsGenesis":false,"IsStud":false,"HorseNo":"3328","CreateTime":"2019-05-21 15:02:20","ServiceNowTime":"2019-05-24 11:06:19","TradeStatus":false,"Source":8,"Weight":50,"InitialWeight":50.0,"SonCount":0,"GrandsonCount":0,"FamilyCount":0,"FeedTimes":0,"IsNew":false,"IsCanBreed":false,"RareLevel":16,"CombatPower":200.0,"CanTransfer":true,"LastFeedTime":"0001-01-01 00:00:00","IsInitSend":false,"InviteCode":"MBWWB0","BattleType":2,"BreedLimit":0,"HorseCount":0},{"Style":["002","031","028","","043","067",""],"AccountKey":"YjI0MjBmMDAwMDAwMDAwMA","HorseKey":"724f8bec93d48b22eac50a279caf5eb7f8aacbf7","IsGenesis":false,"IsStud":false,"HorseNo":"3285","CreateTime":"2019-05-21 15:00:49","ServiceNowTime":"2019-05-24 11:06:19","TradeStatus":false,"Source":8,"Weight":50,"InitialWeight":50.0,"SonCount":0,"GrandsonCount":0,"FamilyCount":0,"FeedTimes":0,"IsNew":false,"IsCanBreed":false,"RareLevel":32,"CombatPower":205.0,"CanTransfer":true,"LastFeedTime":"0001-01-01 00:00:00","IsInitSend":false,"InviteCode":"SGZ04F","BattleType":2,"BreedLimit":0,"HorseCount":0},{"Style":["005","060","054","","063","063",""],"AccountKey":"YjA0MjBmMDAwMDAwMDAwMA","HorseKey":"3ea2be8da66895a865ceb2e7ed212c97970a1b4c","IsGenesis":false,"IsStud":false,"HorseNo":"3155","CreateTime":"2019-05-21 14:58:54","ServiceNowTime":"2019-05-24 11:06:19","TradeStatus":false,"Source":8,"Weight":50,"InitialWeight":50.0,"SonCount":0,"GrandsonCount":0,"FamilyCount":0,"FeedTimes":0,"IsNew":false,"IsCanBreed":false,"RareLevel":16,"CombatPower":200.0,"CanTransfer":true,"LastFeedTime":"0001-01-01 00:00:00","IsInitSend":false,"InviteCode":"DA1H7B","BattleType":2,"BreedLimit":0,"HorseCount":0},{"Style":["005","063","030","","061","023",""],"AccountKey":"YjU0MjBmMDAwMDAwMDAwMA","HorseKey":"457b30886f184df743e5fc5b13a373d3880fcc72","IsGenesis":false,"IsStud":false,"HorseNo":"3388","CreateTime":"2019-05-21 15:16:50","ServiceNowTime":"2019-05-24 11:06:19","TradeStatus":false,"Source":8,"Weight":50,"InitialWeight":50.0,"SonCount":0,"GrandsonCount":0,"FamilyCount":0,"FeedTimes":0,"IsNew":false,"IsCanBreed":false,"RareLevel":16,"CombatPower":200.0,"CanTransfer":true,"LastFeedTime":"0001-01-01 00:00:00","IsInitSend":false,"InviteCode":"358LUQ","BattleType":2,"BreedLimit":0,"HorseCount":0},{"Style":["004","065","075","","006","044",""],"AccountKey":"YWU0MjBmMDAwMDAwMDAwMA","HorseKey":"11ce4e0edb5d0c55f69e594210c29c755b95cf0e","IsGenesis":false,"IsStud":false,"HorseNo":"2983","CreateTime":"2019-05-21 14:17:50","ServiceNowTime":"2019-05-24 11:06:19","TradeStatus":false,"Source":8,"Weight":50,"InitialWeight":50.0,"SonCount":0,"GrandsonCount":0,"FamilyCount":0,"FeedTimes":0,"IsNew":false,"IsCanBreed":false,"RareLevel":16,"CombatPower":200.0,"CanTransfer":true,"LastFeedTime":"0001-01-01 00:00:00","IsInitSend":false,"InviteCode":"GSYUIT","BattleType":2,"BreedLimit":0,"HorseCount":0}],
+			}
+		},
+		methods: {
+			makesureLocation(){
+				this.locationMakeSure=false;
+				this.$router.go(-1);
+			},
+			resultTips(){
+				this.resultMakeSure=false;
+				this.locationMakeSure=true;
+			},
+			getTimeText(obj){
+				switch (obj){
+				  case 0: {
+					  this.currTimeType='群虎逐鹿报名';
+					  this.$router.go(-1);
+					  break;
+				  } 
+				  case 1:  {
+					  this.currTimeType='系统匹配赛道中';
+					  break;
+				  } 
+				  case 2: {
+					  this.currTimeType='逐鹿竞猜报名';
+					  break;
+				  }  
+				  case 3:  {
+					  this.currTimeType='逐鹿竞猜结算中';
+					  this.getWinner();
+					  var times=10;
+					  var timer=setInterval(()=>{
+						  if(times==1){
+							  this.tigerinfo=[];
+							  this.sessionNumText='场次';
+							  sessionStorage.currSession=null;
+							  sessionStorage.currId=null;
+							  if(this.winSessionNum==0){
+								  this.resultTips();
+							  }else{
+								  this.resultMakeSure=true;
+							  }
+							  clearInterval(timer);
+							  return;
+						  }
+						  times--;
+					  },1000);
+					  break;
+				  }
+				}
+			},
+			getTimeType(){
+				 this.$axios.get('http://01.coinunio.com/api/battle/competelastsettlingtime/').then(
+				  res=>{
+				    let result = res.data;
+				    if(result.IsSuccess){
+					  this.getTimeText(result.Result.competeStatus);
+					  this.dayBetween(result.Result.sysTime,result.Result.settlingTime);
+				    }else{
+				      this.$get_error('tips',result.Code,result.Message);
+				    }
+				  },error=>{
+				    this.$get_error('reload');
+				  }
+				);
+			},
+			dayBetween(sysTime,endTime){
+			  let sysString = sysTime.replace(/-/g, "/");
+			  let endString = endTime.replace(/-/g, "/");
+			  let system = new Date(sysString);
+			  let end = new Date(endString);
+			  this.countDownDate = end.getTime() - system.getTime();
+			  if(this.Interval){
+			    clearInterval(this.Interval );
+			  }
+			  this.Interval = setInterval(()=>{
+				  this.countLoop();
+				   if(this.currTimeNum=="00:00"){
+						this.getTimeType();
+					}
+			  },1000);
+			},//倒计时
+			countLoop() {
+			  if(this.countDownDate<=0) return;
+			  this.countDownDate = this.countDownDate-1000;
+			  let countDown = new Date( this.countDownDate);
+			  let d,h,m,s;
+			  if (this.countDownDate>=0) {
+			    m = Math.floor(this.countDownDate/1000/60%60);
+			    if(m<10)m='0'+m;
+			    s = Math.floor(this.countDownDate/1000%60);
+			    if(s<10)s='0'+s;
+			  }
+			  this.currTimeNum =m+':'+s;
+			},
+			getWinner:function(){
+				this.timeOpen=true;
+				var times=4;
+				var timer=setInterval(()=>{
+					times--;
+					if(times==0){
+						this.timeOpen=false;
+						clearInterval(timer);
+						
+						let data={cid:sessionStorage.currSession};
+						this.$axios.post('api/horse/gethorseJincaiWin/',data).then(res=>{
+							var result=res.data;
+							if(result.IsSuccess&&result.Result.length>0){
+								var winnerNo=result.Result[0].WinHorseNo;
+								for(const item in this.tigerinfo){
+									if(this.tigerinfo[item].HorseNo==winnerNo){
+										this.tigerinfo[item].id=1;
+										this.winSessionNum=parseInt(item)+1;
+									}else{
+										this.tigerinfo[item].id=this.getrandom(2,9);
+									}
+								}
+								this.tigerMove();
+							}else{
+								this.$tips("请手动刷新页面");
+							}
+						},error=>{
+							this.$tips("请求异常");
+						});
+						return;
+					}
+					this.timeOpenText="倒计时:"+times;
+				},1000);
+			},
+			getrandom(Min,Max){
+				var Range = Max - Min;
+				var Rand = Math.random();
+				var num = Min + Math.round(Rand * Range); //四舍五入
+					return num;
+			},
+			getTigerInfo:function(){
+				let data={cid:sessionStorage.currSession};
+				this.$axios.post('http://01.coinunio.com/api/horse/getJincaiTigerList/',data).then(res=>{
+					var result=res.data;
+					if(result.IsSuccess==true){
+						if(result.Result.length>0){
+							this.tigerinfo=result.Result;
+						}
+					}else{
+						this.$tips("请手动刷新页面");
+					}
+				},error=>{
+					this.$tips("请求异常");
+				});
+			},
+			tigerMove() {
+				this.isBackgroundMove = true;
+				this.isDeerScroll = true;
+			},
+			betChangeSessionNum(obj){
+				sessionStorage.currSession=obj[0];
+				this.closeChooseSession();
+				this.sessionNumText=sessionStorage.currSession;
+				var times=2;
+				this.timeOpen=true;
+				this.timeOpenText='切换中...';
+				var timer=setInterval(()=>{
+					if(times<=1){
+						this.timeOpen=false;
+						this.timeOpenText='';
+						clearInterval(timer);
+						return;
+					}
+					times--;
+					this.getTigerInfo();
+				},1000);
+			},
+			confirmBet(obj){
+				this.totalSession=obj[0];
+				this.totalAmount=obj[1];
+				this.totalParamAmount[this.totalSession-1]=this.totalAmount;
+				this.competitionMakeSure=true;
+			},
+			sureToCompetition(){
+				this.competitionMakeSure = false;
+				if(sessionStorage.currId==null){
+					this.$tips("本场次已结束，请返回参赛页面");
+					return;
+				}
+				let data={betId:sessionStorage.currId,count:this.totalParamAmount};
+				this.$axios.post('http://01.coinunio.com/api/battle/compete/bet/',data).then(
+				  res=>{
+				    let result = res.data;
+				    if(result.IsSuccess){
+				      this.$tips('竞猜成功！');
+				    }else{
+				      this.$get_error('tips',result.Code,result.Message);
+				    }
+				  },error=>{
+				    this.$get_error('reload');
+				  }
+				);
+			},
+			betMove() {
+				if (this.startBetMove) {
+					this.animateStill = 'running';
+					this.timerPaused(this.animateStill)
+					return;
+				}
+				this.startBetMove = true;
+				this.timerPaused('paused');
+				this.closeChooseSession();//关闭场次
+			},
+			timerPaused(data) {
+				var time = 500;
+				var timer = setInterval(() => {
+					if (time == 500) {
+						this.animateStill = data;
+						if (data == 'running') {
+							this.startBetMove = false;
+						}
+						clearInterval(timer);
+						return;
+					}
+					time = time - 250;
+				}, 250);
+			},
+			chooseSession() {
+				//关闭竞猜面板
+				if (this.startBetMove) {
+					this.animateStill = 'running';
+					this.timerPaused(this.animateStill)
+				}
+				
+				let data={};
+				this.$axios.post('http://01.coinunio.com/api/horse/getCidTigerList/',data).then(res=>{
+					var result=res.data;
+					if(result.IsSuccess==true){
+						if(result.Result.length>0){
+							this.sessionList=result.Result;
+							this.sessionCanBeSeed = true;
+							this.sessionTimerPaused('paused');
+						}else{
+							this.$tips("暂无可用场次");
+						}
+					}else{
+						this.$tips("请手动刷新页面");
+					}
+				},error=>{
+					this.$tips("请求异常");
+				});
+			},
+			closeChooseSession() {
+				if (this.sessionCanBeSeed) {
+					this.sessionStill = 'running';
+					this.sessionTimerPaused(this.sessionStill)
+				}
+			},
+			sessionTimerPaused(data) {
+				var time = 1000;
+				var timer = setInterval(() => {
+					if (time == 1000) {
+						this.sessionStill = data;
+						if (data == 'running') {
+							this.sessionCanBeSeed = false;
+						}
+						clearInterval(timer);
+						return;
+					}
+					time = time - 500;
+				}, 500);
+			},
+		},
+	}
+</script>
+
+<style>
+	.raceStart{
+		font-size: 1rem;
+		width:4rem;
+		height:2rem;
+		color:white;
+		position: relative;
+		top:50%;
+		left:50%;
+		margin-left:-2rem;
+		margin-top:-1rem;
+	}
+	.sessionPosition {
+		width:4rem;
+		position: relative;
+		top: -200%;
+		left: 70%;
+		z-index: 2200;
+		padding-top: 5%;
+		border-radius: 0.2rem;
+		overflow: auto;
+		/*overflow-x: hidden;
+		overflow-y: hidden;*/
+	}
+	.sessionAnitation {
+		-webkit-animation: sessionMove 1s linear 1 forwards;
+		-moz-animation: sessionMove 1s linear 1 forwards;
+		animation: sessionMove 1s linear 1 forwards;
+	}
+
+	@keyframes sessionMove {
+
+		0%,
+		100% {
+			height:0;
+		}
+		50% {
+			height:10rem;
+		}
+	}
+
+	.moves {
+		width: 10rem;
+		height: 70%;
+		position: fixed;
+		top: 20%;
+	}
+
+	.controllerBtn {
+		width: 1.2rem;
+		height: 20%;
+		border-top-right-radius: 1.2rem;
+		border-bottom-right-radius: 1.2rem;
+		border-right: 2px solid white;
+		background-image: url(../../assets/img/race/bet_open.png);
+		background-size:100% 100%;
+		-moz-background-size:100% 100%;
+		float: left;
+		margin-top: 45%;
+	}
+	.bet_back_img_css{
+		background-image: url(../../assets/img/race/bet_back.png);
+	}
+
+	.tigerBet {
+		width: 0;
+		height: 100%;
+		float: left;
+	}
+
+	.tigerAnitation {
+		-webkit-animation: tigerMove 0.5s linear 1 forwards;
+		-moz-animation: tigerMove 0.5s linear 1 forwards;
+		animation: tigerMove 0.5s linear 1 forwards;
+	}
+
+	@keyframes tigerMove {
+
+		0%,
+		100% {
+			width: 0;
+		}
+
+		50% {
+			width: 60%;
+		}
+	}
+
+	@-webkit-keyframes tigerMove {
+
+		0%,
+		100% {
+			background: none;
+		}
+
+		50% {
+			width:  60%;;
+		}
+	}
+
+	@-moz-keyframes tigerMove {
+
+		0%,
+		100% {
+			background: none;
+		}
+
+		50% {
+			width: 60%;;
+		}
+	}
+
+	.raceArea {
+		width: 100%;
+		height: 100vh;
+		overflow: auto;
+		overflow-x: hidden;
+		overflow-y: hidden;
+	}
+
+	.raceTigerContent {
+		width: 100%;
+		height: 100%;
+		position: relative;
+		top: -100%;
+	}
+
+	.raceTitle {
+		width: 100%;
+		height: 30%;
+		font-size: 0px;
+	}
+
+	.raceSeat {
+		width: 30%;
+		height: 25%;
+		float: left;
+	}
+
+	.amountPool,
+	.raceItem {
+		height: 25%;
+		color: white;
+		float: left;
+		font-size: 0.6rem;
+		padding-top: 5%;
+	}
+
+	.amountPool {
+		width: 40%;
+		/*text-align: center;
+		background-color: black;
+		border-radius: 0.2rem;
+		background: rgba(0, 0, 0, 0.6);*/
+	}
+
+	.raceItem {
+		width: 30%;
+	}
+
+	.sesionBtn {
+		width: 100%;
+		height: 100%;
+		padding-top: 0.3rem;
+		border-radius: 0.2rem;
+		background-color: white;
+		font-size: 0.5rem;
+		text-align: center;
+		color: orange;
+	}
+	
+
+	.raceTimer {
+		width: 100%;
+		height: 70%;
+	}
+
+	.timeInfo {
+		width: 70%;
+		height: 50%;
+		position: relative;
+		left: 50%;
+		top: 50%;
+		margin-left: -30%;
+		margin-top: -7%;
+		font-size: 0.6rem;
+		color: white;
+	}
+
+	.tigerRace {
+		padding-top:0.5rem;
+		width: 100%;
+		height: 60%;
+	}
+
+	.tigerTrack {
+		width: 100%;
+		margin-top: -19%;
+	}
+
+	.tigerImgData {
+		margin-left: 70%;
+		width: 30%;
+		height: 30%;
+	}
+
+	.deerImg {
+		position: fixed;
+		margin-left: -3rem;
+		margin-top: -0.5rem;
+		width: 3rem;
+		height: 3rem;
+	}
+
+	.deerImgMove {
+		-webkit-animation: deerScroll 5s linear 1 forwards;
+		-moz-animation: deerScroll 5s linear 1 forwards;
+		animation: deerScroll 5s linear 1 forwards;
+	}
+
+	.raceTigerScroll {
+		width: 361%;
+		height: 100%;
+		background-image: url('../../assets/img/race/scene.png');
+	}
+
+	.raceBackgroundMove {
+		-webkit-animation: scrollGood 5s linear 1 forwards;
+		-moz-animation: scrollGood 5s linear 1 forwards;
+		animation: scrollGood 5s linear 1 forwards;
+	}
+
+	@-webkit-keyframes scrollGood {
+		0% {
+			transform: translateX(-40%);
+		}
+
+		100% {
+			transform: translateX(0);
+		}
+	}
+
+	@-moz-keyframes scrollGood {
+		0% {
+			transform: translateX(-40%);
+		}
+
+		100% {
+			transform: translateX(0);
+		}
+	}
+
+	@keyframes scrollGood {
+		0% {
+			transform: translateX(-40%);
+		}
+
+		100% {
+			transform: translateX(0);
+		}
+	}
+
+	@-webkit-keyframes deerScroll {
+		0% {
+			transform: translateX(0);
+		}
+
+		100% {
+			transform: translateX(100%);
+		}
+	}
+
+	@-moz-keyframes deerScroll {
+		0% {
+			transform: translateX(0);
+		}
+
+		100% {
+			transform: translateX(100%);
+		}
+	}
+
+	@keyframes deerScroll {
+		0% {
+			transform: translateX(0);
+		}
+
+		100% {
+			transform: translateX(100%);
+		}
+	}
+
+	@media (min-width:1024px) {
+		.raceTigerScroll {
+			width: 200%;
+			height: 100%;
+			background-image: url('../../assets/img/race/scene.png');
+			background-size: 100% 100%;
+			-moz-background-size: 100% 100%;
+		}
+
+		.tigerTrack {
+			margin-top: -15.2%;
+		}
+
+		.controllerBtn {
+			margin-top:60%;
+		}
+			
+		@-webkit-keyframes scrollGood {
+			0% {
+				transform: translateX(-50%);
+			}
+
+			100% {
+				transform: translateX(0);
+			}
+		}
+
+		@-moz-keyframes scrollGood {
+			0% {
+				transform: translateX(-50%);
+			}
+
+			100% {
+				transform: translateX(0);
+			}
+		}
+
+		@keyframes scrollGood {
+			0% {
+				transform: translateX(-50%);
+			}
+
+			100% {
+				transform: translateX(0);
+			}
+		}
+		
+		
+			@keyframes tigerMove {
+		
+			0%,
+			100% {
+				width: 0;
+			}
+		
+			50% {
+				width: 70%;
+			}
+		}
+		
+		@-webkit-keyframes tigerMove {
+		
+			0%,
+			100% {
+				background: none;
+			}
+		
+			50% {
+				width:  70%;;
+			}
+		}
+		
+		@-moz-keyframes tigerMove {
+		
+			0%,
+			100% {
+				background: none;
+			}
+		
+			50% {
+				width: 70%;;
+			}
+		}
+		
+	}
+
+
+	.tigerMoveItem1 {
+		-webkit-animation: tigerScroll1 5s linear 1 forwards;
+		-moz-animation: tigerScroll1 5s linear 1 forwards;
+		animation: tigerScroll1 5s linear 1 forwards;
+	}
+
+	@-webkit-keyframes tigerScroll1 {
+		0% {
+			transform: translateX(0);
+		}
+
+		100% {
+			transform: translateX(-190%);
+		}
+	}
+
+	@-moz-keyframes tigerScroll1 {
+		0% {
+			transform: translateX(0);
+		}
+
+		100% {
+			transform: translateX(-190%);
+		}
+	}
+
+	@keyframes tigerScroll1 {
+		0% {
+			transform: translateX(0);
+		}
+
+		100% {
+			transform: translateX(-190%);
+		}
+	}
+
+
+	.tigerMoveItem2 {
+		-webkit-animation: tigerScroll2 5s linear 1 forwards;
+		-moz-animation: tigerScroll2 5s linear 1 forwards;
+		animation: tigerScroll2 5s linear 1 forwards;
+	}
+
+	@-webkit-keyframes tigerScroll2 {
+		0% {
+			transform: translateX(0);
+		}
+
+		100% {
+			transform: translateX(-175%);
+		}
+	}
+
+	@-moz-keyframes tigerScroll2 {
+		0% {
+			transform: translateX(0);
+		}
+
+		100% {
+			transform: translateX(-175%);
+		}
+	}
+
+	@keyframes tigerScroll2 {
+		0% {
+			transform: translateX(0);
+		}
+
+		100% {
+			transform: translateX(-175%);
+		}
+	}
+
+
+	.tigerMoveItem3 {
+		-webkit-animation: tigerScroll3 5s linear 1 forwards;
+		-moz-animation: tigerScroll3 5s linear 1 forwards;
+		animation: tigerScroll3 5s linear 1 forwards;
+	}
+
+	@-webkit-keyframes tigerScroll3 {
+		0% {
+			transform: translateX(0);
+		}
+
+		100% {
+			transform: translateX(-160%);
+		}
+	}
+
+	@-moz-keyframes tigerScroll3 {
+		0% {
+			transform: translateX(0);
+		}
+
+		100% {
+			transform: translateX(-160%);
+		}
+	}
+
+	@keyframes tigerScroll3 {
+		0% {
+			transform: translateX(0);
+		}
+
+		100% {
+			transform: translateX(-160%);
+		}
+	}
+
+
+	.tigerMoveItem4 {
+		-webkit-animation: tigerScroll4 5s linear 1 forwards;
+		-moz-animation: tigerScroll4 5s linear 1 forwards;
+		animation: tigerScroll4 5s linear 1 forwards;
+	}
+
+	@-webkit-keyframes tigerScroll4 {
+		0% {
+			transform: translateX(0);
+		}
+
+		100% {
+			transform: translateX(-145%);
+		}
+	}
+
+	@-moz-keyframes tigerScroll4 {
+		0% {
+			transform: translateX(0);
+		}
+
+		100% {
+			transform: translateX(-145%);
+		}
+	}
+
+	@keyframes tigerScroll4 {
+		0% {
+			transform: translateX(0);
+		}
+
+		100% {
+			transform: translateX(-145%);
+		}
+	}
+
+
+	.tigerMoveItem5 {
+		-webkit-animation: tigerScroll5 5s linear 1 forwards;
+		-moz-animation: tigerScroll5 5s linear 1 forwards;
+		animation: tigerScroll5 5s linear 1 forwards;
+	}
+
+	@-webkit-keyframes tigerScroll5 {
+		0% {
+			transform: translateX(0);
+		}
+
+		100% {
+			transform: translateX(-130%);
+		}
+	}
+
+	@-moz-keyframes tigerScroll5 {
+		0% {
+			transform: translateX(0);
+		}
+
+		100% {
+			transform: translateX(-130%);
+		}
+	}
+
+	@keyframes tigerScroll5 {
+		0% {
+			transform: translateX(0);
+		}
+
+		100% {
+			transform: translateX(-130%);
+		}
+	}
+
+
+	.tigerMoveItem6 {
+		-webkit-animation: tigerScroll6 5s linear 1 forwards;
+		-moz-animation: tigerScroll6 5s linear 1 forwards;
+		animation: tigerScroll6 5s linear 1 forwards;
+	}
+
+	@-webkit-keyframes tigerScroll6 {
+		0% {
+			transform: translateX(0);
+		}
+
+		100% {
+			transform: translateX(-115%);
+		}
+	}
+
+	@-moz-keyframes tigerScroll6 {
+		0% {
+			transform: translateX(0);
+		}
+
+		100% {
+			transform: translateX(-115%);
+		}
+	}
+
+	@keyframes tigerScroll6 {
+		0% {
+			transform: translateX(0);
+		}
+
+		100% {
+			transform: translateX(-115%);
+		}
+	}
+
+
+	.tigerMoveItem7 {
+		-webkit-animation: tigerScroll7 5s linear 1 forwards;
+		-moz-animation: tigerScroll7 5s linear 1 forwards;
+		animation: tigerScroll7 5s linear 1 forwards;
+	}
+
+	@-webkit-keyframes tigerScroll7 {
+		0% {
+			transform: translateX(0);
+		}
+
+		100% {
+			transform: translateX(-100%);
+		}
+	}
+
+	@-moz-keyframes tigerScroll7 {
+		0% {
+			transform: translateX(0);
+		}
+
+		100% {
+			transform: translateX(-100%);
+		}
+	}
+
+	@keyframes tigerScroll7 {
+		0% {
+			transform: translateX(0);
+		}
+
+		100% {
+			transform: translateX(-100%);
+		}
+	}
+
+
+	.tigerMoveItem8 {
+		-webkit-animation: tigerScroll8 5s linear 1 forwards;
+		-moz-animation: tigerScroll8 5s linear 1 forwards;
+		animation: tigerScroll8 5s linear 1 forwards;
+	}
+
+	@-webkit-keyframes tigerScroll8 {
+		0% {
+			transform: translateX(0);
+		}
+
+		100% {
+			transform: translateX(-110%);
+		}
+	}
+
+	@-moz-keyframes tigerScroll8 {
+		0% {
+			transform: translateX(0);
+		}
+
+		100% {
+			transform: translateX(-110%);
+		}
+	}
+
+	@keyframes tigerScroll8 {
+		0% {
+			transform: translateX(0);
+		}
+
+		100% {
+			transform: translateX(-110%);
+		}
+	}
+
+
+	.tigerMoveItem9 {
+		-webkit-animation: tigerScroll9 5s linear 1 forwards;
+		-moz-animation: tigerScroll9 5s linear 1 forwards;
+		animation: tigerScroll9 5s linear 1 forwards;
+	}
+
+	@-webkit-keyframes tigerScroll9 {
+		0% {
+			transform: translateX(0);
+		}
+
+		100% {
+			transform: translateX(-100%);
+		}
+	}
+
+	@-moz-keyframes tigerScroll9 {
+		0% {
+			transform: translateX(0);
+		}
+
+		100% {
+			transform: translateX(-100%);
+		}
+	}
+
+	@keyframes tigerScroll9 {
+		0% {
+			transform: translateX(0);
+		}
+
+		100% {
+			transform: translateX(-100%);
+		}
+	}
+</style>

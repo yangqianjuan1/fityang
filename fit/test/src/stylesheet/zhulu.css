@@ -1,0 +1,308 @@
+/*背景animate*/
+.tiger_bg_ani{
+	-webkit-animation: bg 5s linear infinite forwards;
+	-moz-animation: bg 5s linear infinite forwards;
+	animation: bg 5s linear infinite forwards;
+}
+
+@keyframes bg{
+	0%{
+		transform: translateX(0);
+		/*background-position: 0 0;*/
+	}
+	100%{
+		/*background-position: 100% 0;*/
+		transform: translateX(100%);
+	}
+}
+@-moz-keyframes bg{
+	0%{
+		transform: translateX(0);
+		/*background-position: 0 0;*/
+	}
+	100%{
+		/*background-position: 100% 0;*/
+		transform: translateX(100%);
+	}
+}
+@-webkit-keyframes bg{
+	0%{
+		transform: translateX(0);
+		/*background-position: 0 0;*/
+	}
+	100%{
+		/*background-position: 100% 0;*/
+		transform: translateX(100%);
+	}
+}
+
+/*阶段一老虎跑动效果*/
+.tigerMoveSpeed1_num1{
+	-webkit-animation: speed1 5s linear 1 forwards;
+	-moz-animation: speed1 5s linear 1 forwards;
+	animation: speed1 5s linear 1 forwards;
+}
+@keyframes speed1{
+	0%{
+		transform: translateX(0);
+	}
+	100%{
+		transform: translateX(-100%);
+	}
+}
+@-moz-keyframes speed1{
+	0%{
+		transform: translateX(0);
+	}
+	100%{
+		transform: translateX(-100%);
+	}
+}
+@-webkit-keyframes speed1{
+	0%{
+		transform: translateX(0);
+	}
+	100%{
+		transform: translateX(-100%);
+	}
+}
+
+.tigerMoveSpeed1_num2{
+	-webkit-animation: speed2 5s linear 1 forwards;
+	-moz-animation: speed2 5s linear 1 forwards;
+	animation: speed2 5s linear 1 forwards;
+}
+@keyframes speed2{
+	0%{
+		transform: translateX(0);
+	}
+	100%{
+		transform: translateX(-90%);
+	}
+}
+@-moz-keyframes speed2{
+	0%{
+		transform: translateX(0);
+	}
+	100%{
+		transform: translateX(-90%);
+	}
+}
+@-webkit-keyframes speed2{
+	0%{
+		transform: translateX(0);
+	}
+	100%{
+		transform: translateX(-90%);
+	}
+}
+
+.tigerMoveSpeed1_num3{
+	-webkit-animation: speed3 5s linear 1 forwards;
+	-moz-animation: speed3 5s linear 1 forwards;
+	animation: speed3 5s linear 1 forwards;
+}
+@keyframes speed3{
+	0%{
+		transform: translateX(0);
+	}
+	100%{
+		transform: translateX(-80%);
+	}
+}
+@-moz-keyframes speed3{
+	0%{
+		transform: translateX(0);
+	}
+	100%{
+		transform: translateX(-80%);
+	}
+}
+@-webkit-keyframes speed3{
+	0%{
+		transform: translateX(0);
+	}
+	100%{
+		transform: translateX(-80%);
+	}
+}
+
+.tigerMoveSpeed1_num4{
+	-webkit-animation: speed4 5s linear 1 forwards;
+	-moz-animation: speed4 5s linear 1 forwards;
+	animation: speed4 5s linear 1 forwards;
+}
+@keyframes speed4{
+	0%{
+		transform: translateX(0);
+	}
+	100%{
+		transform: translateX(-70%);
+	}
+}
+@-moz-keyframes speed4{
+	0%{
+		transform: translateX(0);
+	}
+	100%{
+		transform: translateX(-70%);
+	}
+}
+@-webkit-keyframes speed4{
+	0%{
+		transform: translateX(0);
+	}
+	100%{
+		transform: translateX(-70%);
+	}
+}
+
+.tigerMoveSpeed1_num5{
+	-webkit-animation: speed5 5s linear 1 forwards;
+	-moz-animation: speed5 5s linear 1 forwards;
+	animation: speed5 5s linear 1 forwards;
+}
+@keyframes speed5{
+	0%{
+		transform: translateX(0);
+	}
+	100%{
+		transform: translateX(-60%);
+	}
+}
+@-moz-keyframes speed5{
+	0%{
+		transform: translateX(0);
+	}
+	100%{
+		transform: translateX(-60%);
+	}
+}
+@-webkit-keyframes speed5{
+	0%{
+		transform: translateX(0);
+	}
+	100%{
+		transform: translateX(-60%);
+	}
+}
+
+.tigerMoveSpeed1_num6{
+	-webkit-animation: speed6 5s linear 1 forwards;
+	-moz-animation: speed6 5s linear 1 forwards;
+	animation: speed6 5s linear 1 forwards;
+}
+@keyframes speed6{
+	0%{
+		transform: translateX(0);
+	}
+	100%{
+		transform: translateX(-50%);
+	}
+}
+@-moz-keyframes speed6{
+	0%{
+		transform: translateX(0);
+	}
+	100%{
+		transform: translateX(-50%);
+	}
+}
+@-webkit-keyframes speed6{
+	0%{
+		transform: translateX(0);
+	}
+	100%{
+		transform: translateX(-50%);
+	}
+}
+
+.tigerMoveSpeed1_num7{
+	-webkit-animation: speed7 5s linear 1 forwards;
+	-moz-animation: speed7 5s linear 1 forwards;
+	animation: speed7 5s linear 1 forwards;
+}
+@keyframes speed7{
+	0%{
+		transform: translateX(0);
+	}
+	100%{
+		transform: translateX(-40%);
+	}
+}
+@-moz-keyframes speed7{
+	0%{
+		transform: translateX(0);
+	}
+	100%{
+		transform: translateX(-40%);
+	}
+}
+@-webkit-keyframes speed7{
+	0%{
+		transform: translateX(0);
+	}
+	100%{
+		transform: translateX(-40%);
+	}
+}
+
+.tigerMoveSpeed1_num8{
+	-webkit-animation: speed8 5s linear 1 forwards;
+	-moz-animation: speed8 5s linear 1 forwards;
+	animation: speed8 5s linear 1 forwards;
+}
+@keyframes speed8{
+	0%{
+		transform: translateX(0);
+	}
+	100%{
+		transform: translateX(-30%);
+	}
+}
+@-moz-keyframes speed8{
+	0%{
+		transform: translateX(0);
+	}
+	100%{
+		transform: translateX(-30%);
+	}
+}
+@-webkit-keyframes speed8{
+	0%{
+		transform: translateX(0);
+	}
+	100%{
+		transform: translateX(-30%);
+	}
+}
+
+.tigerMoveSpeed1_num9{
+	-webkit-animation: speed9 5s linear 1 forwards;
+	-moz-animation: speed9 5s linear 1 forwards;
+	animation: speed9 5s linear 1 forwards;
+}
+@keyframes speed9{
+	0%{
+		transform: translateX(0);
+	}
+	100%{
+		transform: translateX(-20%);
+	}
+}
+@-moz-keyframes speed9{
+	0%{
+		transform: translateX(0);
+	}
+	100%{
+		transform: translateX(-20%);
+	}
+}
+@-webkit-keyframes speed9{
+	0%{
+		transform: translateX(0);
+	}
+	100%{
+		transform: translateX(-20%);
+	}
+}

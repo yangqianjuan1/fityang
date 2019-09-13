@@ -1,0 +1,243 @@
+<template>
+  <div class="foot"  flex="box:mean cross:center"  :style="{'max-width':$store.state.maxWidth}">
+    <li class="item bg1"
+        :class="getMoveCur()"
+        @click="router(data[0])">
+    </li>
+    <li
+      :class="getTransCur()"
+      class="item bg2"
+      @click="router(data[1])">
+      
+    </li>
+    <li class="item bg3"
+        :class="getHorseCur()"
+        @click="router(data[2])">
+        
+    </li>
+    <!--<li class="item bg4"
+        :class="getComCur()"
+        @click="router(data[3])"
+        >
+    </li>-->
+    <li class="item bg5"
+        :class="getMyCur()"
+        @click="router(data[4])"
+				>
+    </li>
+  </div>
+</template>
+
+<script>
+  import FootSecond from "./footSecond";
+  export default{
+    components: {FootSecond},
+    name:"footNav",
+		mounted() {
+			if(localStorage.getItem('accesstoken')==null){
+				sessionStorage.clear();
+				localStorage.clear();
+				console.log("未检测到登录信息");
+				this.$store.commit('SET_LOGIN', false);
+				this.$router.push('/login');
+			}
+		},
+    data(){
+      return{
+        show:false,
+        second:false,
+        data:[
+          {router:'/activity',name:"活动",img:require('../assets/img/index/jiaoyi.png')},
+          {router:'/transaction',name:"交易",img:require('../assets/img/index/jiaoyi.png')},
+          {router:'/tigers',name:"捕虎",img:require('../assets/img/index/taoma.png')},
+          {router:'/Fomo3D',name:"竞猜",img:require('../assets/img/index/jingcai.png')},
+          {router:'/user?type=0',name:"我的",img:require('../assets/img/index/jingcai.png')},
+        ],
+      }
+    },
+    methods:{
+			close:function () {
+			  this.login = false;
+			},
+			getBasic:function () {
+			  this.$axios.get('/api/getsystemconfiguration/').then(
+			    res=>{
+			      let result = res.data;
+			      if(result.IsSuccess){
+			        if(result.Result.DailySend){
+			          this.login = true;//每日奖励
+			        }
+			        this.beginnersGuide =result.Result.IsNew;
+			        if(result.Result.IsNew){
+			          this.$nextTick(()=>{
+			            this.showBeginnersGuide();
+			          })
+			          this.setNewAccount();
+			        }
+			
+			      }else{
+			        // this.$tips('获取系统配置失败，请重新尝试')
+			      }
+			    },error=>{
+			      // this.$tips('获取登录信息失败，请先登录')
+			    }
+			  );
+			},
+        getShaDow:function () {
+          if(this.$route.name==='Horses'){
+              return "shadow-two"
+          }else if(this.$route.name==='fuse'){
+              return ""
+          }
+          else if(this.$route.meta.Release){
+              return "shadow-two"
+          }
+          else{
+              return "shadow-one"
+          }
+        },
+      getMoveCur(){
+        let index= this.$route.meta.index;
+        switch (index){
+          case 6:return'bg1-2';
+          default :return ''
+        }
+      },
+      getTransCur(){
+        let index= this.$route.meta.index;
+        switch (index){
+          case 1:return'bg2-2';
+          case 2:return'bg2-3';
+          default :return ''
+        }
+      },
+      getHorseCur(){
+        let index= this.$route.meta.index;
+        switch (index){
+          case 3:return'bg3-2';
+          default :return ''
+        }
+      },
+      getComCur(){
+        let index= this.$route.meta.index;
+        switch (index){
+          case 4:return'bg4-3';
+          case 8:return'bg4-2';
+          default :return ''
+        }
+      },
+      getMyCur(){
+        let index= this.$route.meta.index;
+        switch (index){
+          case 5:return'bg5-2';
+          default :return ''
+        }
+      },
+      router:function (item) {
+        /*if(item.name ==='竞猜'){
+          this.second= true;
+        }else{*/
+          this.$router.replace(item.router);
+        /*}*/
+      }
+    },
+  }
+</script>
+
+<style scoped>
+  .bg1{
+    background-image: url("../assets/img/foot/1-1.png");
+  }
+  .bg1-2{
+    background-image: url("../assets/img/foot/1-2.png");
+  }
+	
+  .bg2{
+    background-image: url("../assets/img/foot/2-1.png");
+  }
+  .bg2-2{
+    background-image: url("../assets/img/foot/2-2.png");
+  }/*
+  .bg2-3{
+    background-image: url("../assets/img/foot/2-3.png");
+  }*/
+  .bg3{
+    background-image: url("../assets/img/foot/3-1.png");
+  }
+  .bg3-2{
+    background-image: url("../assets/img/foot/3-2.png");
+  }
+  .bg4{
+    background-image: url("../assets/img/foot/4-1.png");
+  }
+  .bg4-2{
+    background-image: url("../assets/img/foot/4-2.png");
+  }
+  /*.bg4-3{
+    background-image: url("../assets/img/foot/4-3.png");
+  }*/
+  .bg5{
+    background-image: url("../assets/img/foot/5-1.png");
+  }
+  .bg5-2{
+    background-image: url("../assets/img/foot/5-2.png");
+  }
+  .bg6{
+    background-image: url("../assets/img/foot/6-1.png");
+  }
+  .bg6-2{
+    background-image: url("../assets/img/foot/6-2.png");
+  }
+  .shadow-one{
+    box-shadow:0 -10px 10px 0 #87c975 ;
+  }
+  .shadow-two{
+    box-shadow:0 -10px 10px 0 #9EC353 ;
+  }
+  .foot{
+
+    position: fixed;
+    bottom: 0;
+    margin: 0 auto;
+    width: 100%;
+    /*border-top: 1px solid #f0eff4;*/
+    text-align: center;
+    color: #858585;
+  }
+
+  .cur{
+    color:  #598691;
+  }
+  .item{
+    height: 2rem;
+    background-size: 90% auto ;
+    background-repeat: no-repeat ;
+    background-position: center;
+  }
+  .icon{
+    width: 0.5rem;
+    height: 0.5rem;
+  }
+  .second{
+    /*z-index: 10;*/
+    position: absolute;
+    width: 100%;
+    top: -200%;
+    /*box-shadow: 0 0 100px #F4F4F8;*/
+    /*-webkit-box-shadow: 0 0 100px #F4F4F8;*/
+    /*-moz-box-shadow: 0 0 100px #F4F4F8;*/
+  }
+  .yuan{
+    /*border-radius: 50%;*/
+    /*border: 2px solid #A85D38;*/
+    /*background: #EFE9D7;*/
+    width:0.9rem;
+    /*height: 0.7rem;*/
+    line-height: 0.6rem;
+    text-align: center;
+    /*color: #A85D38;*/
+    position: absolute;
+    right: 0 ;
+    top: -0.1rem;
+  }
+</style>

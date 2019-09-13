@@ -1,0 +1,160 @@
+<template>
+	<div class="raceBet">
+		<div class="img_seat"></div>
+		<center>选择竞猜赛道</center>
+		<div class="betItems">
+			<div class="betItem" :class="{betChecked:item.checked}" v-for="(item,key) in nums" :key="key" @click="chooseBetItem(item.id)">
+				{{item.text}}
+			</div>
+		</div>
+		<center class="textTips">&nbsp;<br/>选择竞猜份数</center>
+		<div class="amountItems">
+			<div class="amountItem" :class="{amountChecked:item.checked}" v-for="(item,key) in amounts" :key="key" @click="chooseAmountItem(item.id)">
+				{{item.num}}
+			</div>
+		</div>
+		<div class="btns">
+			<div class="clsBtn" @click="clearSub">重置</div>
+			<div class="subBtn" @click="confirmSub">确认</div>
+		</div>
+		<div class="img_seat"></div>
+	</div>
+</template>
+
+<script>
+	export default{
+		data(){
+			return {
+				nums:[{id:1,text:'1',checked:false},{id:2,text:'2',checked:false},{id:3,text:'3',checked:false},{id:4,text:'4',checked:false},{id:5,text:'5',checked:false},{id:6,text:'6',checked:false},{id:7,text:'7',checked:false},{id:8,text:'8',checked:false},{id:9,text:'9',checked:false}],
+				amounts:[{id:1,num:1,checked:false},{id:2,num:5,checked:false},{id:3,num:8,checked:false},{id:4,num:10,checked:false}],
+				lastNumChecked:200,
+				lastAmountChecked:200,
+			}
+		},
+		methods:{
+			confirmSub(){
+				if(this.lastNumChecked==200||this.lastAmountChecked==200){
+					this.$tips("赛道和竞猜份数为必选项");
+					return;
+				}
+				var session=this.nums[this.lastNumChecked].text;
+				var amount=this.amounts[this.lastAmountChecked].num;
+				this.$emit("confirmSub",[session,amount]);
+			},
+			clearSub(){
+				if(this.lastNumChecked!=200){
+					this.nums[this.lastNumChecked].checked=false;
+				}
+				if(this.lastAmountChecked!=200){
+					this.amounts[this.lastAmountChecked].checked=false;
+				}
+				this.lastAmountChecked=200;
+				this.lastNumChecked=200;
+			},
+			chooseBetItem(data){
+				if(this.lastNumChecked!=200){
+					this.nums[this.lastNumChecked].checked=false;
+				}
+				this.nums[data-1].checked=true;
+				this.lastNumChecked=data-1;
+			},
+			chooseAmountItem(data){
+				if(this.lastAmountChecked!=200){
+					this.amounts[this.lastAmountChecked].checked=false;
+				}
+				this.amounts[data-1].checked=true;
+				this.lastAmountChecked=data-1;
+			},
+		},
+	}
+</script>
+
+<style>
+	center{
+		color:white;
+	}
+	.img_seat{
+		width:100%;
+		height:1rem;
+	}
+	.textTips{
+		margin-top:6%;
+	}
+	.raceBet{
+		width:100%;
+		height:100%;
+		border-top-right-radius: 1rem;
+		border-bottom-right-radius: 1rem;
+		background-image: url(../../assets/img/race/bet.png);
+		background-size: 100% 100%;
+		-moz-background-size:100% 100%;
+		float:left;
+	}
+	.betItems{
+		width:100%; 
+		height:30%;
+	}
+	.betItem{
+		width:25%;
+		height:30%;
+		background-image: url(../../assets/img/dialog/btn-blue.png);
+		background-size:100% 100%;
+		-moz-background-size:100% 100%;
+		border-radius: 0.3rem;
+		float:left;
+		margin-top:5%;
+		margin-left:6%;
+		text-align: center;
+		padding-top:2%;
+		color:white;
+		font-size: 0.8rem;
+	}
+	
+	.betChecked{
+		background-image: url(../../assets/img/dialog/btn-disabled.png);
+	}
+	
+	.amountItems{
+		width:100%;
+		height:30%;
+	}
+	.amountItem{
+		width:40%;
+		height:30%;
+		background-image: url(../../assets/img/dialog/btn-violet.png);
+		background-size:100% 100%;
+		-moz-background-size:100% 100%;
+		border-radius: 0.3rem;
+		margin-left:5%;
+		margin-top:5%;
+		float:left;
+		color:white;
+		text-align: center;
+		padding-top:2%;
+		font-size: 0.6rem;
+	}
+	
+	.amountChecked{
+		background-image: url(../../assets/img/dialog/btn-disabled.png);
+	}
+	
+	.btns{
+		width:100%;
+		height:10%;
+		margin-top:-0.5rem;
+	}
+	.clsBtn,.subBtn{
+		width:40%;
+		height:75%;
+		background-image: url(../../assets/img/dialog/btn-yellow.png);
+		background-size:100% 100%;
+		-moz-background-size:100% 100%;
+		border-radius: 0.3rem;
+		float:left;
+		margin-left:5%;
+		color:white;
+		text-align: center;
+		padding-top:2%;
+		font-size: 0.5rem;
+	}
+</style>

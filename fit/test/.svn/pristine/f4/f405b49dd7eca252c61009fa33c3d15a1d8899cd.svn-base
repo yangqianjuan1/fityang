@@ -1,0 +1,13 @@
+
+battle_star.png
+size: 1024,256
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+battle_star
+  rotate: false
+  xy: 1, 1
+  size: 522, 140
+  orig: 522, 140
+  offset: 0, 0
+  index: -1

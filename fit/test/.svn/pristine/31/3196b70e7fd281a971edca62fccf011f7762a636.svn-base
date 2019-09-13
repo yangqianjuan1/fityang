@@ -1,0 +1,203 @@
+<template>
+    <div class="userInfo borAshow">
+      <div class="top " >
+        <ul class="numbers cl ">
+          <li  class="item left Linel">
+            <p class="title">余额</p>
+            <p class="price">0</p>
+          </li>
+          <li  class="item left ">
+            <p class="title">冻结</p>
+            <p class="price">0</p>
+          </li>
+          <li  class="item right Liner ">
+            <p class="title">选美收益</p>
+            <p class="price ">0</p>
+          </li>
+          <li  class="item right">
+            <p class="title">赌马收益</p>
+            <p class="price">0</p>
+          </li>
+        </ul>
+      </div>
+      <!--<div class="bg"></div>-->
+      <div class="info ">
+      <div class="cl"  style="text-align: center;top: -62px;">
+        <img :src="userInfo.icon" class="icon " :style="{'background':userInfo.bg}">
+        <p class="name">{{userInfo.name}}</p>
+        <button class="button" style="margin-right: 23px;">提现</button>
+        <button class="button">充值</button>
+      </div>
+       <div class="cl" style="bottom: 0;">
+         <button  @click="changeRecode(index)" class="recode " :style="{'border-bottom':(horseCur===index)?'2px solid #434343':'none','margin-right':index===0?'75px':'0'}" v-for="(item,index) in recode">{{item.text}}</button>
+      </div>
+      </div>
+      <div class="detail borAshow">
+        <tiger-info v-if="this.horseCur  ===0"></tiger-info>
+        <recode-list v-if="this.horseCur  ===1"></recode-list>
+      </div>
+    </div>
+</template>
+
+<script>
+  import Selection from "../../components/index/select";
+  import Transaction from "../transaction/transaction";
+  import RecodeList from "./recodeList";
+  import TigerInfo from "../../components/tigerInfo";
+    export default{
+      components: {
+        TigerInfo,
+        RecodeList,
+        Transaction,
+        Selection},
+      name: "userInfo",
+        data(){
+            return {
+            horseCur:0,
+              items:[
+                {name:'余额',num:'0'},
+                {name:'余额',num:'0'},
+                {name:'余额',num:'0'},
+                {name:'余额',num:'0'},
+              ],
+              userInfo:{icon:require('../../assets/img/transactin/horse.png'),name:'用户w792oy',bg:"#E7E7E7"},
+              recode:[
+                {text:'我的马匹'},
+                {text:'收支记录'},
+              ]
+            }
+        },
+      created(){
+            if(typeof(this.$route.query.type) !='undefined' ){
+              this.horseCur =   parseInt(this.$route.query.type);
+            }
+      },
+      methods:{
+        changeRecode:function (index) {
+          this.horseCur = index;
+        }
+      }
+    }
+</script>
+
+<style scoped>
+  .userInfo {
+    position: relative;
+    margin: 0 auto;
+    width: 90%;
+    /*min-width: 38.75rem;
+     */
+    height: 14.3125rem;
+  }
+  .top{
+    background-image: url("../../assets/img/index/bg-1.png");
+    background-repeat:no-repeat;
+    background-size:100% 100%;
+    height: 50%;
+    position: relative;
+    border-radius: 0.625rem 0.625rem 0 0;
+    -webkit-border-radius: 0.625rem 0.625rem 0 0 ;
+    -moz-border-radius: 0.625rem 0.625rem 0 0 ;
+  }
+  .numbers{
+    bottom: 0.625rem;
+    width: 1.5625rem ;
+    min-width: 31.0625rem;
+    overflow: hidden;
+  }
+  .numbers li{
+    text-align: center;
+  }
+  .title{
+    color: #2D6D7B;
+    font-size: 14px;
+  }
+  .price{
+    margin-top: 0.375rem;
+    color: #2D6D7B;
+    font-size: 24px;
+  }
+  .bg{
+    background: #ffffff;
+    position: absolute;
+    width: 100%;
+    height: 50%;
+    bottom: 0;
+    left: 0;
+  }
+  .item{
+    width: 6.75rem;
+    position: relative;
+  }
+  .Linel:after{
+    position:absolute;
+    right: 0;
+    top:50%;
+    transform: translateY(-50%);
+    content: '';
+    width: 0.0625rem;
+    height: 1rem;
+    background:#2D6D7B ;
+  }
+  .Liner:after{
+    position:absolute;
+    left: 0;
+    top:50%;
+    transform: translateY(-50%);
+    content: '';
+    width: 0.0625rem;
+    height: 1rem;
+    background:#2D6D7B ;
+  }
+  .info{
+    position: relative;
+    width: 100%;
+    height: 50%;
+    background: #ffffff;
+    border-radius: 0 0 0.625rem 0.625rem;
+    -webkit-border-radius: 0 0 0.625rem 0.625rem;
+    -moz-border-radius: 0 0 0.625rem 0.625rem;
+  }
+  .icon{
+    width: 3.75rem ;
+    /*height: 3.75rem;
+     */
+    margin: 0 auto;
+    border-radius: 50%;
+    -webkit-border-radius: 50%;
+    -moz-border-radius: 50%;
+    border: 2px solid #ffffff;
+  }
+  .name{
+    width: 100%;
+    line-height: 0.875rem;
+    margin: 0.625rem 0;
+    font-size: 20px;
+    color: #333333;
+    text-align: center;
+  }
+  button{
+    cursor: pointer;
+  }
+  .button{
+    min-width: 3rem;
+    padding: 0 0.3125rem;
+    height: 1.125rem;
+    background: #2D6D7B;
+    color: #ffffff;
+    border-radius: 0.15625rem;
+    -webkit-border-radius: 0.15625rem;
+    -moz-border-radius: 0.15625rem;
+  }
+  .recode{
+    width: 2.15625rem;
+    font-size: 16px;
+    color: #999999;
+    background: #ffffff;
+    padding-bottom: 0.3125rem;
+  }
+  .mar{
+    margin-right: 2.34375rem;
+  }
+
+</style>

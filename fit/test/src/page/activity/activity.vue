@@ -1,0 +1,130 @@
+<template>
+  <div class="activity">
+    <scroll>
+      <div>
+        <ul style="margin:0 1rem;position: relative">
+          <li v-for="item in list"
+              class="items"
+              @click="detail(item)"
+              :key="item.id">
+            <!-- <img src="../../assets/img/user/new.png" class="new" v-if="item.Tag===1"> -->
+            <img :src="item.Image"
+                 style="width: 100%;min-height: 3.5rem">
+            <div flex="main:justify cross:center"
+                 style="padding: 0.3rem"
+                 class="info">
+              <div style="width: 60%;display: inline-block"
+                   class="usual">
+                <h3>{{item.Title}}</h3>
+                <p class="text_nowarp">{{item.Content}}</p>
+              </div>
+              <button style="display: inline-block"
+                      class="btn-violet">查看详情</button>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </scroll>
+  </div>
+</template>
+
+<script>
+import Scroll from "../../components/scroll/scroll";
+export default {
+  components: { Scroll },
+  name: "activity",
+  data () {
+    return {
+      pageSize: 20,
+      offset: 0,
+      list: []
+    }
+  },
+  mounted () {
+    this.getActiveList();
+    if (localStorage.getItem('accesstoken') == null) {
+      sessionStorage.clear();
+      localStorage.clear();
+      console.log("未检测到登录信息");
+      this.$store.commit('SET_LOGIN', false);
+      this.$router.push('/login');
+      return;
+    }
+
+
+  },
+
+  methods: {
+    // 老代码
+
+    // getActiveList: function () {
+    //   let data = { pageSize: this.pageSize, offset: this.offset };
+    //   this.$axios.post('/api/activity/getlist/', data).then(res => {
+    //     let result = res.data;
+    //     if (result.IsSuccess) {
+    //       this.list = result.Result.Data;
+    //       console.log(res, '1111');
+
+    //  下面代码,不知道干嘛的
+    //     } else {
+    //       this.$get_error('tips', result.Code, result.Message);
+    //     }
+    //   }, error => {
+    //     this.$get_error('network');
+    //   })
+    // },
+
+    //  改进代码 :杨前亮写
+    getActiveList: function () {
+      let data = { pageSize: this.pageSize, offset: this.offset };
+      this.$axios.post('/api/activity/getlist/', data).then(res => {
+        this.list = res.data.Result.Data
+      })
+
+    },
+    detail: function (item) {
+      this.$router.push({ name: item.Url, query: { key: item.key } });
+    }
+  }
+}
+</script>
+
+<style scoped>
+.new {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 1.8rem;
+}
+.items {
+  position: relative;
+  margin-top: 0.5rem;
+  background: #612c0b;
+  border-radius: 0.2rem;
+}
+.items img {
+  border-radius: 0.2rem 0.2rem 0 0;
+}
+.items h3 {
+  color: #ffffff;
+  font-size: 0.43rem;
+}
+.items p {
+  color: #ffffff;
+  font-size: 0.26rem;
+}
+.items button {
+  width: 2.1867rem;
+  height: 0.693rem;
+  line-height: 0.693rem;
+  font-size: 0.26rem;
+}
+.info {
+  position: absolute;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  color: #ffffff;
+  width: 100%;
+  border-radius: 0 0 0.2rem 0.2rem;
+}
+</style>

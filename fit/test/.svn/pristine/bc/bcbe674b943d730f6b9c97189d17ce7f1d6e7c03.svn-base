@@ -1,0 +1,122 @@
+<!DOCTYPE html><html><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no"><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=apple-mobile-web-app-capable content=yes><meta content="telephone=no" name=format-detection><meta name=full-screen content=true><meta name=screen-orientation content=portrait><meta name=x5-fullscreen content=true><meta name=360-fullscreen content=true><meta name=renderer content=webkit><title>驯兽师</title><meta name=keywords content=驯兽师,欢乐四选一,前5%,变革者><script>! function(N, M) { //js会写入viewport 的meta标签
+				function uaVersions() {
+					let u = navigator.userAgent,
+						app = navigator.appVersion;
+					return { //移动终端浏览器版本信息
+						trident: u.indexOf("Trident") > -1, //IE内核
+						presto: u.indexOf("Presto") > -1, //opera内核
+						webKit: u.indexOf("AppleWebKit") > -1, //苹果、谷歌内核
+						gecko: u.indexOf("Gecko") > -1 && u.indexOf("KHTML") == -1, //火狐内核
+						mobile: !!u.match(/AppleWebKit.*Mobile.*/), //是否为移动终端
+						ios: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), //ios终端
+						android: u.indexOf("Android") > -1 || u.indexOf("Linux") > -1, //android终端或者uc浏览器
+						iPhone: u.indexOf("iPhone") > -1, //是否为iPhone或者QQHD浏览器
+						iPad: u.indexOf("iPad") > -1, //是否iPad
+						webApp: u.indexOf("Safari") == -1 //是否web应该程序，没有头部与底部
+					};
+				}
+				function L() {
+					var UA = uaVersions();
+					var a = I.getBoundingClientRect().width;
+					var h = document.documentElement.clientHeight;
+					var max;
+					if (UA.mobile && !UA.iPad) {
+						max = 540
+					} else {
+						if (h < 749) {
+							max = h * 0.47226
+						} else {
+							max = 540
+						}
+					}
+
+					a / F > max && (a = max * F);
+					var d = a / 10;
+					I.style.fontSize = d + "px", D.rem = N.rem = d
+				}
+
+				var K, J = N.document,
+					I = J.documentElement,
+					H = J.querySelector('meta[name="viewport"]'),
+					G = J.querySelector('meta[name="flexible"]'),
+					F = 0,
+					E = 0,
+					D = M.flexible || (M.flexible = {});
+				if (H) {
+					console.warn("将根据已有的meta标签来设置缩放比例");
+					var C = H.getAttribute("content").match(/initial\-scale=([\d\.]+)/);
+					C && (E = parseFloat(C[1]), F = parseInt(1 / E))
+				} else {
+					if (G) {
+						var B = G.getAttribute("content");
+						if (B) {
+							var A = B.match(/initial\-dpr=([\d\.]+)/),
+								z = B.match(/maximum\-dpr=([\d\.]+)/);
+							A && (F = parseFloat(A[1]), E = parseFloat((1 / F).toFixed(2))), z && (F = parseFloat(z[1]), E = parseFloat((1 /
+								F).toFixed(2)))
+						}
+					}
+				}
+				if (!F && !E) {
+					var y = N.navigator.userAgent,
+						x = (!!y.match(/android/gi), !!y.match(/iphone/gi)),
+						w = x && !!y.match(/OS 9_3/),
+						v = N.devicePixelRatio;
+					F = x && !w ? v >= 3 && (!F || F >= 3) ? 3 : v >= 2 && (!F || F >= 2) ? 2 : 1 : 1, E = 1 / F
+				}
+				if (I.setAttribute("data-dpr", F), !H) {
+					if (H = J.createElement("meta"), H.setAttribute("name", "viewport"), H.setAttribute("content",
+							"width=device-width,initial-scale=" + E + ", maximum-scale=" + E + ", minimum-scale=" + E + ", user-scalable=no"
+						), I.firstElementChild) {
+						I.firstElementChild.appendChild(H)
+					} else {
+						var u = J.createElement("div");
+						u.appendChild(H), J.write(u.innerHTML)
+					}
+				}
+				N.addEventListener("resize", function() {
+						clearTimeout(K), K = setTimeout(L, 300)
+					}, !1),
+					N.addEventListener("pageshow", function(b) {
+						b.persisted && (clearTimeout(K), K = setTimeout(L, 300))
+					}, !1), "complete" === J.readyState ? J.body.style.fontSize = 12 * F + "px" : J.addEventListener(
+						"DOMContentLoaded",
+						function() {
+							J.body.style.fontSize = 12 * F + "px"
+						}, !1), L(), D.dpr = N.dpr = F, D.refreshRem = L, D.rem2px = function(d) {
+						var c = parseFloat(d) * this.rem;
+						return "string" == typeof d && d.match(/rem$/) && (c += "px"), c
+					}, D.px2rem = function(d) {
+						var c = parseFloat(d) / this.rem;
+						return "string" == typeof d && d.match(/px$/) && (c += "rem"), c
+					}
+			}(window, window.lib || (window.lib = {}));</script><link href=./static/css/app.3554546721eb29a4d07f83da1617a765.css rel=stylesheet></head><body><div id=app></div><script src=static/jquery-3.1.1.js></script><script src=static/md5.js></script><script src=https://cdn.jsdelivr.net/npm/vue></script><script src=static/qrcode.js></script><script src=static/html2canvas.min.js></script><script src=static/pixi.js></script><script src=static/pixi-spine.js></script><script>window.onload =
+				function() {
+					document.addEventListener('gesturestart',
+						function(e) {
+							e.preventDefault();
+						});
+					document.addEventListener('dblclick',
+						function(e) {
+							e.preventDefault();
+						});
+					document.addEventListener('touchstart',
+						function(event) {
+							if (event.touches.length >
+								1) {
+								event.preventDefault();
+							}
+						});
+					var
+						lastTouchEnd = 0;
+					document.addEventListener('touchend',
+						function(event) {
+							var
+								now = (new Date()).getTime();
+							if (now - lastTouchEnd <= 300) {
+								event.preventDefault();
+							}
+							lastTouchEnd = now;
+						},
+						false);
+				};</script><script type=text/javascript src=./static/js/manifest.85a9ce4be74034929873.js></script><script type=text/javascript src=./static/js/vendor.aba526ab5ffab6793d43.js></script><script type=text/javascript src=./static/js/app.af7c5ce8305b8f240e8a.js></script></body></html>

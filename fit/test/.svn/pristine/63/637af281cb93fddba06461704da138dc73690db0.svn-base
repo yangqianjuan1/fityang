@@ -1,0 +1,313 @@
+<template>
+  <div class="shop">
+    <div>
+      <div class="top">
+        <img src="../../assets/img/activity/suipain.png" style="height: 0.5rem;margin-right: 0.1rem">万利碎片：{{info.wlPicesCount}}
+      </div>
+      <img src="../../assets/img/activity/peng.png" style="height: 1rem;width: 100%;">
+    </div>
+    <scroll
+      top="2.4"
+      ref="shopScroll"
+      bottom="1.6" class="list"
+      :pullUpLoad="setPullUpLoad"
+      :pullUpLoadFuc="getList"
+      pullUpLoadFucParam="UpLoad">
+      <shop-type v-for="item in info.Data" key="shop" @click.native="choose(item)"  :info="item"></shop-type>
+    </scroll>
+    <comfire-dialog v-model="inputDialog" class="inputDialog" :sure="commit">
+      <p class="inputTitle">兑换<span>"{{getType}}"</span></p>
+      <div flex="cross:center " class="input">
+        <p>兑换数量</p>
+        <input type="number" v-model="num"/>
+      </div>
+      <p class="input-tips" style="">需<span>{{getPrice}}</span>个万利碎片</p>
+    </comfire-dialog>
+    <my-dialog :dialogOpen="success">
+      <div class="Check takeCenter" >
+        <p>获得{{getResultTitle}}X{{result.total}}</p>
+        <img :src="'/static/img/shop/shop-result-'+result.type+'.png'" style="width: 80%;">
+        <button class="checkSure cancel cl " @click="closeSuccess">确认</button>
+      </div>
+    </my-dialog>
+    <my-dialog :dialogOpen="newHorse">
+      <div  class="born takeCenter" flex=" dir:top main:center cross:center">
+        <horse-info :Info="newHorseInfo[HorseInfoIndex]" id="bronResult" style="width: 5rem;" :type="4"></horse-info>
+        <button class="sure miaobian-green" @click="sure">确认领取</button>
+      </div>
+    </my-dialog>
+  </div>
+</template>
+
+<script>
+  import Scroll from "../../components/scroll/scroll";
+  import ShopType from "./shopType";
+  import MyDialog from "../../components/dialog";
+  import ComfireDialog from "../../components/comfireDialog";
+  import common from "../../components/common"
+  import HorseInfo from "../../components/tigerInfo";
+  export default{
+    components: {
+      HorseInfo,
+      ComfireDialog,
+      MyDialog,
+      ShopType,
+      Scroll},
+    name: "shop",
+    data(){
+      return {
+        offset:0,
+        size:30,
+        success:false,//套马卷弹窗
+        inputDialog:false,//输入框
+        newHorse:false,//新马弹窗
+        newHorseInfo:{},//新马信息
+        HorseInfoIndex:0,
+        info:{
+          wlPicesCount:0,
+          Data:[
+          ],
+        },
+        result:{
+          count:1,
+          type:2,
+        },
+        num:"",
+        chooseInfo:{
+          WanLiPiecesPrice:0,
+        }
+      }
+    },
+    mounted(){
+      this.getList();
+    },
+    computed:{
+      getPrice:function () {
+        return  Math.ceil(this.num*this.chooseInfo.WanLiPiecesPrice)
+      },
+      getResultTitle:function(){
+        switch (this.result.type){
+          case 2:return "套马卷";
+        }
+      },
+      setPullUpLoad:function () {
+        return {
+          threshold:-60,
+        }
+      },//上拉设置
+      getType:function () {
+        switch (this.chooseInfo.Type){
+          case 1:return "创世马";
+          case 2:return "套马卷";
+        }
+      },
+
+    },
+    methods:{
+
+      getList:function (type) {
+        let offset;
+        if(type ==='UpLoad'){
+          offset = this.offset;
+        }else{
+          offset =0;
+        }
+        let data = {size:this.size,offset:offset};
+        this.$axios.post('http://01.coinunio.com/api/shop/getmerchandiselist/',data).then(res=>{
+          let result= res.data;
+          if(result.IsSuccess){
+            this.info.wlPicesCount = result.Result.wlPicesCount;
+            if(type ==='UpLoad'){
+              this.info.Data = this.info.Data.concat(result.Result.Data);
+            }else{
+              this.info.Data = result.Result.Data
+            }
+            this.offset = this.info.Data.length;
+            if(this.$refs.shopScroll){
+              this.$refs.shopScroll.finishiPullUp();
+            }
+          }else{
+            if(this.$refs.shopScroll){
+              this.$refs.shopScroll.finishiPullUp();
+            }
+            this.$get_error('tips',result.Code,result.Message);
+          }
+        },error=>{
+          if(this.$refs.shopScroll){
+            this.$refs.shopScroll.finishiPullUp();
+          }
+          this.$get_error('network');
+        })
+      },
+      sure:function () {//购买多匹马时，一个一个显示
+        this.newHorse =false;
+        if(this.HorseInfoIndex < this.newHorseInfo.length-1)
+        {
+          this.HorseInfoIndex++;
+          this.newHorse =true;
+        }else{
+          this.HorseInfoIndex = 0;
+        }
+      },
+
+      choose:function (item) {
+        this.chooseInfo = item;
+        this.inputDialog = true;
+      },
+      closeSuccess:function () {
+        this.success =false;
+      },
+      tips:function (text) {
+        this.$tips(text)
+      },
+      horseResult:function (horseInfo) {
+        this.newHorseInfo = horseInfo;
+        for(let index in this.newHorseInfo){
+          this.newHorseInfo[index].horse= common.svgApi+horseInfo[index].HorseKey;
+        }
+        this.newHorse =true;
+      },//购买马匹时的弹窗
+      countResult:function (result) {//只有图片标题时，根据类型选择图片和相应的标题
+        this.result = result;
+        this.success = true;
+      },
+      dialogType:function (result) {//购买成功后的弹窗选择
+        switch (result.type){
+          case 1:return this.horseResult(result.horses);
+          default:return this.countResult(result)
+        }
+      },
+      commit:function () {//提交购买申请
+        if(!common.filterPositiveInteger(this.num,this.tips))return;
+        let data={merchandiseNo:this.chooseInfo.MerchandiseNo,count:this.num};
+        this.inputDialog = false;
+        this.$axios.post('http://01.coinunio.com/api/shop/wlpiecesexchange/',data).then(res=>{
+          let result= res.data;
+          if(result.IsSuccess){
+              this.info.wlPicesCount=result.Result.remainWLPCount;
+              this.dialogType(result.Result);
+            this.getList();
+          }else{
+            this.$get_error('tips',result.Code,result.Message);
+            this.getList();
+          }
+        },error=>{
+          this.$get_error('network');
+        })
+      }
+    },
+    watch:{
+      inputDialog(){
+        this.num = "";
+      }
+    }
+  }
+</script>
+
+<style scoped>
+  .shop {
+  }
+  .top{
+    z-index: 2;
+    text-align: center;
+    height: 1.32rem;
+    line-height: 1.32rem;
+    box-shadow: 0 5px  10px  #7e7b75;
+    color: #ffffff;
+    background: #F07765;
+  }
+  .top img{
+    vertical-align: middle;
+  }
+  .list{
+    text-align: left;
+
+  }
+  .Check{
+    text-align: center;
+    padding: 0.5rem;
+    background-image: url("../../assets/img/activity/diabg.png");
+    background-size: 100% 100%;
+    width: 80%;
+    border-radius: 5px;
+    color: #fff;;
+  }
+  .checkSure{
+    background-image: url("../../assets/img/transactin/querenanniu.png");
+    background-size: 100% 100%;
+    border-radius: 0.3rem;
+    font-size: 0.5rem;
+  }
+  .cancel{
+    position: absolute;
+    bottom: -0.6rem;
+    color: #D07416;
+  }
+  button{
+    width:2.5rem;
+    height: 1.125rem;
+    cursor:pointer ;
+    -webkit-border-radius:0.15625rem;
+    -moz-border-radius:0.15625rem;
+    border-radius:0.15625rem;
+  }
+  .inputDialog{
+    text-align: center;
+  }
+  .input{
+    width: auto;
+    text-align: center;
+    height: 0.85rem;
+    background: #ffffff;
+    border: 1px solid #8C8C8C;
+    border-radius: 0.2rem;
+    margin-top: 0.5rem ;
+  }
+  .input input{
+    text-indent: 1em;
+    padding-left: 0.2rem;
+    width: 100%;
+  }
+  .input p{
+    color: #8C8C8C;
+    border-right: 2px solid #8C8C8C;
+    height:0.75rem;
+    text-align: center;
+    line-height: 0.75rem;
+    width: 2.5rem;
+    font-size: 0.37rem;
+
+  }
+  .inputTitle{
+    font-size: 0.42rem;
+  }
+  p{
+    color: #ffffff;
+  }
+  p span{
+    color: #FFE94B;
+  }
+  .input-tips{
+    text-align: left;
+    margin-top: 0.1rem;
+    font-size: 0.2667rem;
+  }
+  .input-tips span{
+    font-size: 0.2667rem;
+  }
+  .born{
+    text-align: center;
+    width: 80%;
+    /*background-image: url('../../assets/img/dialog/bornBg.png');*/
+    /*background-size: 100% 100%;*/
+  }
+  .sure{
+    margin-top: 0.2rem;
+    padding: 0.3rem 0.5rem;
+    color:#ffffff;
+    font-size: 0.32rem;
+    background-image: url("../../assets/img/dialog/sell-cur.png");
+    background-size: 100% 100%;
+    border-radius: 0.2rem;
+  }
+</style>

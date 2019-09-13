@@ -1,0 +1,351 @@
+<template>
+  <div class="dispositionPersonal ">
+
+    <div class="label bottom-shadow" flex="main:justify cross:center">
+      <div  flex="main:justify cross:center"> <span class="label-left">类型:</span><selection :values="selectValue" :selectFunc="selectFunc" ref="selectTrans"></selection></div>
+      <button class="btn-green com" @click="confirm">确认参赛</button>
+    </div>
+    <scroll top="7.3" style="margin-top: 0.5rem">
+    <div flex="main:center cross:center" class="name"><p>对手昵称</p><input placeholder="请输入昵称" v-model="name" /></div>
+    <red-table :titleList="titleList" style="margin: 0.2rem 0.2rem;">
+
+        <div   v-for="(item,index) in comList">
+          <li  flex="main:center cross:center box:mean" class="item">
+            <span>{{item.num}}</span>
+            <span>{{item.HorseNo?'#'+item.HorseNo:'—'}}</span>
+            <span>{{item.Disposition?item.Disposition:'—'}}</span>
+            <button class="btn-yellow" style="height: 0.8rem" @click="edit(index)">添加马匹</button>
+          </li>
+          <div class="under-line" v-if="index!==4"></div>
+        </div>
+
+    </red-table>
+    </scroll>
+    <my-dialog  :dialogOpen="chooseDlg">
+      <div class="Check takeCenter" style="text-align: center">
+        <div class="synthesis-title ">
+          <p  style="transform: skewX(15deg);">{{getType}}专区</p>
+        </div>
+        <scroll
+          ref="scroll2"
+          style="height: 7.5rem;position: relative;margin-top: 0.2rem"
+          :pullUpLoad="setPullUpLoad"
+          :pullUpLoadFuc="getHorseList"
+          pullUpLoadFucParam="UpLoad" warpId="scroll2">
+          <ul >
+            <li v-for="item in horseList" @click="choose(item)">
+              <div flex="main:center cross:center box:mean"  class="synthesis-item " >
+                <img :src="item.horse" >
+                <div style="width: 30%">
+                  <p>马匹号：{{item.HorseNo}}</p>
+                  <p>性格：{{item.Disposition}}</p>
+                  <p>马种：{{item.Breeds}}</p>
+                </div>
+                <div>
+                </div>
+              </div>
+              <div class="under-line-white"></div>
+            </li>
+            <div style="text-align: center" v-if="empty">
+              <img style="width: 2.5rem;padding: 1rem" src="../../assets/img/dialog/empty.png" >
+            </div>
+          </ul>
+        </scroll>
+        <button @click="onceCheckCancle"  class="checkCancle cl">取消</button>
+      </div>
+    </my-dialog>
+    <comfire-dialog v-model="comDialog" :sure="sure">
+      <p class="comTitle">确认挑战</p>
+      <p class="comText">确认支付<span>{{getPrice}}GXS</span>向<span>{{name}}</span>发起挑战申请？</p>
+    </comfire-dialog>
+  </div>
+</template>
+
+<script>
+  import Selection from "../../components/index/select";
+  import RedTable from "../../components/red-table";
+  import MyDialog from "../../components/dialog";
+  import ComfireDialog from "../../components/comfireDialog";
+  import Scroll from "../../components/scroll/scroll";
+  import common from '../../components/common'
+  export default{
+    components: {
+      Scroll,
+      ComfireDialog,
+      MyDialog,
+      RedTable,
+      Selection},
+    name: "dispositionPersonal",
+    data(){
+      return {
+        pageSize:30,
+        offset:0,
+        comList:[
+          {num:1,HorseNo:'',Disposition:''},
+          {num:2,HorseNo:'',Disposition:''},
+          {num:3,HorseNo:'',Disposition:''},
+          {num:4,HorseNo:'',Disposition:''},
+          {num:5,HorseNo:'',Disposition:''},
+        ],
+        chooseIndex:-1,
+        chooseDlg:false,
+        titleList:['参赛位','马匹编号','马匹性格','操作'],
+        selectValue:[
+          {value:"骏马专区"},
+          {value:"神马专区"},
+        ],
+        type:0,//0骏马专区 1神马专区
+        horseList:[],
+        empty:false,
+        comDialog:false,
+        name:''//昵称
+      }
+    },
+    computed:{
+      getType:function () {
+        switch (this.type){
+          case 0:return "骏马";
+          case 1:return "神马";
+        }
+      },
+      getPrice:function () {
+        switch (this.type){
+          case 0:return "0.01";
+          case 1:return "0.2";
+        }
+      },
+      setPullUpLoad:function () {
+        return {
+          threshold:-30,
+
+        }
+      },
+    },
+    mounted(){
+
+    },
+    methods:{
+      reset:function () {//重置参赛马匹
+        this.name='';
+        for(let item of this.comList){
+          item.HorseNo="";
+          item.Disposition="";
+        }
+      },
+      selectFunc:function (val) {//筛选
+        this.reset();
+        if(val ==='骏马专区'){
+          this.type = 0;
+        }else if(val ==='神马专区'){
+          this.type = 1;
+        }
+      },
+      onceCheckCancle:function () {
+        this.chooseDlg = false;
+      },
+      edit:function (index) {//选择马匹
+        this.chooseDlg = true;
+        this.chooseIndex = index;
+        this.getHorseList();
+      },
+      getHorseList:function (type) {
+        let offset;
+        if(type ==='UpLoad'){
+          offset = this.offset;
+        }else
+        {
+          offset = 0;
+          this.horseList = [];
+        }
+        let data={size:this.pageSize,offset:offset,gameType:this.type};
+        this.$axios.post('http://01.coinunio.com/api/battle/character/horselist/',data).then(
+          res=>{
+            let result = res.data;
+            if(result.IsSuccess){
+              if(!result.Result.Data) return;
+              if(result.Result.Data.length>0){
+                let self = this;
+                let list = result.Result.Data.filter(function (item,index,arr) {
+                  for(let index2 in self.comList){
+                    if(item.HorseNo === self.comList[index2].HorseNo){
+                      return false
+                    }
+                  }
+                  return true
+                });
+                for(let index in list){
+                  list[index].horse =common.svgApi+list[index].HorseKey
+                }
+                if(type ==='UpLoad'){
+                  this.horseList =  this.horseList.concat(list);
+                }else{
+                  this.horseList= list;
+                }
+              }else{
+                if(type ==='UpLoad')
+                {
+                  // this.$tips('暂无更多提现记录');
+                }else{
+                  this.empty = true;
+                }
+              }
+              if(this.$refs.scroll2){
+                this.$refs.scroll2.finishiPullUp();
+              }
+              this.offset = this.horseList.length;
+            }else{
+              if(this.$refs.scroll2){
+                this.$refs.scroll2.finishiPullUp();
+              }
+              this.$get_error('tips',result.Code,result.Message);
+            }
+          },error=>{
+            if(this.$refs.scroll2){
+              this.$refs.scroll2.finishiPullUp();
+            }
+            this.$get_error('reload');
+          }
+        );
+      },//获取添加马匹列表
+      choose:function (item) {
+        this.comList[this.chooseIndex].HorseNo = item.HorseNo;
+        this.comList[this.chooseIndex].Disposition = item.Disposition;
+        this.comList[this.chooseIndex].HorseKey = item.HorseKey;
+        this.chooseDlg = false;
+      },
+      sure:function () {
+        this.comDialog = false;
+        this.commit();
+      },
+      commit:function () {
+        let list = this.comList.map(function (item) {
+          return item.HorseKey = item.HorseKey
+        });
+        let data={gameType:this.type,horseKeys:list,nick:this.name};
+        this.$axios.post('http://01.coinunio.com/api/horse/battle/singlecharacter/',data).then(
+          res=>{
+            let result = res.data;
+            if(result.IsSuccess){
+              this.$tips('发起挑战成功！');
+              this.reset();
+            }else{
+              this.$get_error('tips',result.Code,result.Message);
+            }
+          },error=>{
+            this.$get_error('reload');
+          }
+        );
+      },
+      confirm:function () {
+          if(!this.name){
+            return this.$tips('请输入对手昵称')
+          }
+        for(let index in this.comList){
+          if(!this.comList[index].HorseNo ||!this.comList[index].Disposition ){
+            let set= parseInt(index)+1;
+            return this.$tips('请选择'+set+'参赛位')
+          }
+        }
+        this.comDialog =true;
+      }
+    },
+  }
+</script>
+
+<style scoped>
+  .Check{
+    padding: 0.5rem;
+    background-image: url("../../assets/img/fuse/choose-bg.png");
+    background-size: 100% 100%;
+    width: 80%;
+    border-radius: 5px;
+    color: #fff;;
+    height: 10rem;
+  }
+  .name{
+    font-size: 0.373rem;
+    color: #666666;
+    height: 0.85rem;
+    margin-top: 0.3rem;
+  }
+  .name input{
+    margin-left: 0.2rem;
+    text-align: center;
+    height: 100%;
+    border-radius: 0.1rem;
+    border: 1px solid #B9C8D0;
+  }
+  input::placeholder{
+    font-size: 0.373rem;
+  }
+  .synthesis-title{
+    text-align: center;
+    margin: 0 auto;
+    padding: 0.2rem ;
+    transform: skewX(-15deg);
+    color: #000000;
+    background-color: #ffffff;
+    display: inline-block;
+    font-size: 0.32rem;
+  }
+  .synthesis-item{
+    position: relative;
+    padding: 0.2rem 0;
+  }
+  .checkCancle{
+    position: absolute;
+    bottom: -0.6rem;
+    color: #ffffff;
+    padding: 0.3rem 0.9rem;
+    font-size: 0.4rem;
+    background-image: url("../../assets/img/transactin/quxiaoanniu.png");
+    background-size: 100% 100%;
+    border-radius: 0.3rem;
+  }
+  .under-line-white{
+    height: 2px;
+    /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#f1806f+0,f1806f+14,ffffff+25,ffffff+71,ffffff+71,ffffff+75,f1806f+100 */
+    background: #f1806f; /* Old browsers */
+    background: -moz-linear-gradient(left, #f1806f 0%, #f1806f 14%, #ffffff 25%, #ffffff 71%, #ffffff 71%, #ffffff 75%, #f1806f 100%); /* FF3.6-15 */
+    background: -webkit-linear-gradient(left, #f1806f 0%,#f1806f 14%,#ffffff 25%,#ffffff 71%,#ffffff 71%,#ffffff 75%,#f1806f 100%); /* Chrome10-25,Safari5.1-6 */
+    background: linear-gradient(to right, #f1806f 0%,#f1806f 14%,#ffffff 25%,#ffffff 71%,#ffffff 71%,#ffffff 75%,#f1806f 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f1806f', endColorstr='#f1806f',GradientType=1 ); /* IE6-9 */
+  }
+  .label{
+    height: 1.16rem;
+    background: #F07765;
+    width: 100%;
+    padding: 0 0.42rem;
+  }
+  .label-left{
+    color: #ffffff;
+    margin-right: 0.5rem;
+  }
+  .com{
+    width: 1.92rem;
+    height: 0.7333rem;
+    font-size: 0.2933rem;
+  }
+  .item{
+    text-align: center;
+    font-size: 0.333rem;
+    color: #666666;
+    padding: 0.2rem 0;
+    line-height: 1rem;
+  }
+  .comTitle{
+    text-align: center;
+    color: #ffffff;
+    font-size: 0.48rem;
+  }
+  .comText{
+    text-align: center;
+    color: #ffffff;
+    font-size: 0.37rem;
+    margin-top: 0.3rem;
+  }
+  .comText span{
+    color: #FFF719;
+  }
+</style>
+

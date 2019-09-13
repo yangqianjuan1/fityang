@@ -1,0 +1,93 @@
+{
+"skeleton": { "hash": "HsKajjPWo1Wrd9pSyM7TUc0a7Sk", "spine": "2.1.27", "width": 552.2, "height": 536.21, "images": "./images/" },
+"bones": [
+	{ "name": "root" },
+	{ "name": "XH_attack_01", "parent": "root", "length": 186.92, "x": 2.17, "y": 18.77, "rotation": 90.45 }
+],
+"slots": [
+	{ "name": "XH_attack_01", "bone": "XH_attack_01", "attachment": "XH_attack_01" },
+	{ "name": "XH_behit_1", "bone": "XH_attack_01" }
+],
+"skins": {
+	"default": {
+		"XH_attack_01": {
+			"XH_attack_01": { "x": 170.77, "y": 13.01, "rotation": -90.45, "width": 552, "height": 536 },
+			"XH_attack_02": { "x": 170.77, "y": 13.01, "rotation": -90.45, "width": 552, "height": 536 },
+			"XH_attack_03": { "x": 170.77, "y": 13.01, "rotation": -90.45, "width": 552, "height": 536 },
+			"XH_attack_04": { "x": 170.77, "y": 13.01, "rotation": -90.45, "width": 552, "height": 536 },
+			"XH_attack_05": { "x": 170.77, "y": 13.01, "rotation": -90.45, "width": 552, "height": 536 },
+			"XH_attack_06": { "x": 170.77, "y": 13.01, "rotation": -90.45, "width": 552, "height": 536 },
+			"XH_attack_07": { "x": 170.77, "y": 13.01, "rotation": -90.45, "width": 552, "height": 536 },
+			"XH_attack_08": { "x": 170.77, "y": 13.01, "rotation": -90.45, "width": 552, "height": 536 },
+			"XH_attack_09": { "x": 170.77, "y": 13.01, "rotation": -90.45, "width": 552, "height": 536 },
+			"XH_attack_10": { "x": 170.77, "y": 13.01, "rotation": -90.45, "width": 552, "height": 536 }
+		},
+		"XH_behit_1": {
+			"XH_behit_02": { "x": 76.69, "y": 1.19, "rotation": -90.45, "width": 553, "height": 454 },
+			"XH_behit_03": { "x": 76.69, "y": 1.19, "rotation": -90.45, "width": 553, "height": 454 },
+			"XH_behit_04": { "x": 76.69, "y": 1.19, "rotation": -90.45, "width": 553, "height": 454 },
+			"XH_behit_05": { "x": 76.69, "y": 1.19, "rotation": -90.45, "width": 553, "height": 454 },
+			"XH_behit_06": { "x": 76.69, "y": 1.19, "rotation": -90.45, "width": 553, "height": 454 }
+		}
+	}
+},
+"animations": {
+	"attack": {
+		"slots": {
+			"XH_attack_01": {
+				"attachment": [
+					{ "time": 0, "name": "XH_attack_01" },
+					{ "time": 0.0333, "name": "XH_attack_02" },
+					{ "time": 0.0666, "name": "XH_attack_03" },
+					{ "time": 0.1, "name": "XH_attack_04" },
+					{ "time": 0.1333, "name": "XH_attack_05" },
+					{ "time": 0.1666, "name": "XH_attack_06" },
+					{ "time": 0.2, "name": "XH_attack_07" },
+					{ "time": 0.2333, "name": "XH_attack_08" },
+					{ "time": 0.2666, "name": "XH_attack_09" },
+					{ "time": 0.3, "name": "XH_attack_10" },
+					{ "time": 0.3333, "name": "XH_attack_01" },
+					{ "time": 0.4333, "name": "XH_attack_01" }
+				]
+			}
+		},
+		"bones": {
+			"XH_attack_01": {
+				"rotate": [
+					{ "time": 0, "angle": 0 }
+				],
+				"translate": [
+					{ "time": 0, "x": 0, "y": 0 }
+				],
+				"scale": [
+					{ "time": 0, "x": 1, "y": 1 }
+				]
+			}
+		}
+	},
+	"behit": {
+		"slots": {
+			"XH_attack_01": {
+				"attachment": [
+					{ "time": 0, "name": "XH_attack_01" },
+					{ "time": 0.0333, "name": null },
+					{ "time": 0.2, "name": "XH_attack_01" },
+					{ "time": 0.3, "name": "XH_attack_01" }
+				]
+			},
+			"XH_behit_1": {
+				"attachment": [
+					{ "time": 0, "name": null },
+					{ "time": 0.0333, "name": "XH_behit_02" },
+					{ "time": 0.0666, "name": "XH_behit_03" },
+					{ "time": 0.1, "name": "XH_behit_04" },
+					{ "time": 0.1333, "name": "XH_behit_05" },
+					{ "time": 0.1666, "name": "XH_behit_06" },
+					{ "time": 0.2, "name": null },
+					{ "time": 0.3, "name": null }
+				]
+			}
+		}
+	}
+}
+}

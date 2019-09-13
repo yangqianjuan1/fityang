@@ -1,0 +1,221 @@
+<template>
+  <div >
+    <div class="content"  :style="{'max-width':$store.state.maxWidth}"></div>
+    <scroll>
+      <div >
+        <img src="../../assets/img/activity/top1.png" style="width: 100%;height: 4.1733rem">
+        <div class="info">
+          <p >购买详情</p>
+          <p>1、每花费{{price}}FMVP可抢购一只猛虎；</p>
+          <p>2、抢购猛虎的体重为正常老虎数值的±20区间随机；</p>
+          <p>3、抢购猛虎的战斗力较弱于正常老虎（B级：200、A级：205、S级：205、SR级：210、SR级：220）；</p>
+          <img src="../../assets/img/activity/tiger.png" style="width: 3.28rem;margin-top: 0.5rem ">
+          <button class="buy btn-violet" @click="buy">立即抢购</button>
+        </div>
+
+        <!--<div flex="main:center cross:center">-->
+        <!--<div class="sell" style="margin-left: 0;margin-right: 0.5rem">-->
+        <!--<p>售价：{{tigerInfo.SteedPrice}}GXS</p>-->
+        <!--<p>原价：{{tigerInfo.InitSteedPrice}}GXS</p>-->
+        <!--</div>-->
+        <!--<img src="../../assets/img/activity/junma.png" style="width: 3.5rem">-->
+
+        <!--</div>-->
+        <!--<button class="buy font-huangdi" @click="buySteed">立即抢购</button>-->
+      </div>
+    </scroll>
+
+    <my-dialog :dialogOpen="newTiger">
+
+      <div  class="born takeCenter" flex=" dir:top main:center cross:center">
+        <tiger-info :Info="newTigerInfo" id="bronResult" style="width: 5rem;" :type="4"></tiger-info>
+
+        <img src="../../assets/img/activity/star.png" style="position: absolute;width: 5rem;">
+        <button class="sure btn-yellow" @click="sure">确认领取</button>
+      </div>
+    </my-dialog>
+    <comfire-dialog v-model="buyDialog" :sure="onceCheckSure">
+      <p class="takeCenter" style="width: 100%;text-align: center;padding: 0 0.2rem;font-size: 0.4rem">确认支付<span style="display: inline-block;font-size: 0.4rem" class="special-color">{{price}}</span>FMVP购买猛虎?</p>
+    </comfire-dialog>
+    <!--<login-register-find v-model="dialogOpen"></login-register-find>-->
+  </div>
+</template>
+
+<script>
+  import common from '../../components/common'
+  import Contain from "../../components/contain";
+  import Foot from "../../components/footer";
+  import Copy from "../../components/copy";
+  import LoginRegisterFind from "../../components/loginRegisterFind";
+  import Scroll from "../../components/scroll/scroll";
+  import MyDialog from "../../components/dialog";
+  import TigerInfo from "../../components/tigerInfo";
+  import ComfireDialog from "../../components/comfireDialog";
+  export default{
+    components: {
+      ComfireDialog,
+      TigerInfo,
+      MyDialog,
+      Scroll,
+      LoginRegisterFind,
+      Copy,
+      Foot,
+      Contain},
+    name: "sellTiger",
+    data(){
+      return {
+        newTiger:false,
+        buyDialog:false,
+        newTigerInfo:'',
+        price:10
+      }
+    },
+    mounted(){
+//      let key = this.$route.query.key;
+//      this.getInfo(key);
+    },
+    destroyed(){
+      if(this.Interval )
+        clearInterval(this.Interval )
+    },
+    methods:{
+//      getInfo:function (key) {
+//
+//        this.$axios.get('http://01.coinunio.com/api/activity/ydsmpageinfo/?key='+key).then(res=>{
+//          let result= res.data;
+//          if(result.IsSuccess){
+//            this.tigerInfo = result.Result;
+//            this.dayBetween(result.Result.SystemTimeNow,result.Result.EndTime)
+//          }else{
+//            this.$get_error('tips',result.Code,result.Message);
+//          }
+//        },error=>{
+//          this.$get_error('network');
+//        })
+//      },
+      buy:function () {
+        this.type = 0;
+        this.buyDialog = true;
+      },
+//      buySteed:function () {
+//        if(!this.tigerInfo.SteedPrice) return;
+//        this.type = 1;
+//        this.buyDialog = true;
+//      },
+      sure:function () {
+        this.newTiger = false;
+      },
+      onceCheckSure:function () {
+        this.buyDialog = false;
+        this.$axios.get('http://01.coinunio.com/api/horse/selletiger/').then(
+          res=>{
+            let result = res.data;
+            if(result.IsSuccess){
+              this.newTigerInfo = result.Result;
+//              this.newTigerInfo.tiger= common.svgApi+result.Result.tiger.Id;
+              this.newTiger = true;
+
+            }else{
+              this.$get_error('tips',result.Code,result.Message);
+            }
+          },
+          error=>{
+            this.$get_error('reload');
+          }
+        )
+      },//dlg确认
+//      dayBetween :function (sysTime,endTime){
+//        let beginString = sysTime.replace(/-/g, "/");
+//        let endString = endTime.replace(/-/g, "/");
+//        let begin = new Date(beginString);
+//        let end = new Date(endString);
+//        this.countDownDate = end.getTime() - begin.getTime();
+//        let self = this;
+//        if(this.Interval ){
+//          clearInterval(this.Interval );
+//        }
+//        if(this.countDownDate>0)
+//        {
+//          this.Interval = setInterval(this.countLoop,1000);
+//        }
+//
+//
+//      },//倒计时
+//      countLoop:function () {
+//        if(this.countDownDate<=0) return;
+//        this.countDownDate = this.countDownDate-1000;
+//        let countDown = new Date( this.countDownDate);
+//        let d,h,m,s;
+//        if (this.countDownDate>=0) {
+//          d = Math.floor(this.countDownDate/1000/60/60/24);
+//          if(d<10)d='0'+d;
+//          h = Math.floor(this.countDownDate/1000/60/60%24);
+//          if(h<10)h='0'+h;
+//          m = Math.floor(this.countDownDate/1000/60%60);
+//          if(m<10)m='0'+m;
+//          s = Math.floor(this.countDownDate/1000%60);
+//          if(s<10)s='0'+s;
+//        }
+//        this.time =  d+'天'+h+'时'+m+'分'+s+'秒';
+//      },
+    }
+  }
+</script>
+
+<style scoped>
+
+  .info{
+    padding: 0 1rem;
+    text-align: center;
+  }
+  .info p:first-child{
+    font-size: 0.5rem ;
+    font-weight: 600;
+    margin: 0.5rem 0;
+    text-align: center;
+  }
+  .info p{
+    text-align: left;
+  }
+  .content{
+    background-image: url("../../assets/img/activity/activity-bg.png");
+    background-size: 100% 100%;
+    position: fixed;
+    top:0;
+
+    bottom: 0;
+    width: 100%;
+  }
+  .sure{
+    margin-top: 0.2rem;
+    padding: 0.2rem 0.5rem;
+  }
+  .time{
+    position: absolute;
+    bottom: -0.4rem;
+    background-image: url("../../assets/img/activity/time.png");
+    background-size: 100% 100% ;
+    height: 0.8rem ;
+    font-size: 0.3rem;
+    color: #ffffff;
+    border-radius: 0.2rem;
+    padding: 0 0.5rem;
+    white-space:nowrap;
+    line-height: 0.8rem;
+  }
+  .sell p{
+    font-size: 0.5rem;
+    line-height: 1rem;
+    margin-left: 0.5rem;
+  }
+  .sell p:nth-child(2){
+    text-decoration:line-through
+  }
+  .buy{
+    height: 1rem;
+    line-height: 1rem;
+    padding: 0 0.5rem;
+    margin: 0.5rem auto;
+    display: block;
+  }
+</style>

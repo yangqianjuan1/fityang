@@ -1,0 +1,340 @@
+<template>
+  <div>  <div class="recodeList" v-loading="load">
+    <contain>
+      <!--<table style="width: 100%;padding: 0 0.5rem">-->
+        <!--<tr >-->
+          <!--&lt;!&ndash;<td style="width: 2.5rem;vertical-align:bottom"><p class="leftTitle miaobian-lan usual">倍数：</p></td>&ndash;&gt;-->
+          <!--<div style="position: relative">-->
+
+            <!--<table class="tab"  cellspacing="0" cellpadding="0">-->
+              <!--<tr class="title">-->
+                <!--<th  class="miaobian-hong" ></th>-->
+                <!--<th  class="miaobian-hong" >喂养花费</th>-->
+                <!--<th  class="miaobian-hong" >喂养奖励</th>-->
+                <!--<th  class="miaobian-hong" >师徒奖励</th>-->
+              <!--</tr>-->
+              <!--<tr>-->
+                <!--<td>昨日:</td>-->
+                <!--<td ><div class="tab-text ">{{DailyProfits.YesterdayFeedFee}}</div></td>-->
+                <!--<td ><div class="tab-text">{{DailyProfits.YesterdayFeedProfit}}</div></td>-->
+                <!--<td ><div class="tab-text">{{DailyProfits.YesterdayFamilyProfit}}</div></td>-->
+              <!--</tr>-->
+              <!--<tr>-->
+                <!--<td>今日:</td>-->
+                <!--<td><div class="tab-text">{{DailyProfits.FeedFee}}</div></td>-->
+                <!--<td><div class="tab-text">{{DailyProfits.FeedProfit}}</div></td>-->
+                <!--<td><div class="tab-text">{{DailyProfits.FamilyProfit}}</div></td>-->
+              <!--</tr>-->
+            <!--</table>-->
+          <!--</div>-->
+        <!--</tr>-->
+      <!--</table>-->
+      <!--<selection :values="selectValue" :selectFunc="selectFunc" style="margin-bottom: 0.2rem"></selection>-->
+      <!--<div class="contain" style="margin:  0 auto;padding-top: 0.9375rem" v-if="!empty">-->
+
+      <ul>
+        <li flex=" main:justify cross:center" style="padding: 0.3rem" class="usual title">
+          <P  class="left num-abc-warp listItem "  style="width: 40%;"  >时间</P>
+          <P class="left num-abc-warp listItem ">类型</P>
+          <P  class="left num-abc-warp listItem ">金额</P>
+        </li>
+        <li v-for="(Record,index) in Records" :style="{'overflow': 'hidden'}" >
+          <div flex=" main:justify cross:center" style="padding: 0.3rem" class="usual">
+            <P  class="left num-abc-warp listItem "  style="width: 40%;"  >{{Record.CreateTime}}</P>
+            <P class="left num-abc-warp listItem ">{{getTypes(Record.FirstType,Record.SecondType)}}<span v-if="getNoShow(Record.FirstType,Record.SecondType)">(#{{Record.RelatedDataId1}})</span></P>
+            <!--<P class="left num-abc-warp listItem" >{{Record.Description}}</P>-->
+            <P  class="left num-abc-warp listItem ">{{Record.Amount}}</P>
+          </div>
+          <p class="under-line"></p>
+        </li>
+      </ul>
+      <!--</div>-->
+
+    </contain>
+    <!--<paging  :pageFunc="getRecodeList" :totalPage="totalPage"></paging>-->
+    <div style="text-align: center;margin-top: 1rem"  ><img style="width: 2rem;" src="../../assets/img/dialog/empty.png" v-if="empty"/></div>
+
+  </div>
+    <foot></foot>
+  </div>
+</template>
+
+<script>
+  import Selection from "../../components/index/select";
+  import Contain from "../../components/contain";
+  import Foot from "../../components/footer";
+  import Paging from "../../components/paging";
+  import LoginRegisterFind from "../../components/loginRegisterFind";
+  export default{
+    components: {
+      LoginRegisterFind,
+      Paging,
+      Foot,
+      Contain,
+      Selection},
+    name: "recodeList",
+    props:{
+      recodeFunc:{
+
+      },
+
+      empty:{
+
+      },
+      Records:[
+      ]
+    },
+    data(){
+      return {
+
+        dialogOpen:'',
+        // empty:true,
+        pageSize:10,
+        pageIndex:1,
+        totalPage:0,
+        DailyProfits:{
+          FeedFee:0,
+          FeedProfit:0,
+          FamilyProfit:0,
+          YesterdayFeedFee :0,
+          YesterdayFeedProfit :0,
+          YesterdayFamilyProfit :0,
+        },
+        selectValue:[
+          {value:"全部"},
+          {value:"充值"},
+          {value:"提现"},
+          {value:"喂养"},
+          {value:"喂养奖励"},
+          // {value:"竞猜"},
+          {value:"联盟奖励"},
+          {value:"捕虎"},
+          {value:"交易"},
+          // {value:"足彩"},
+
+        ],
+
+      }
+    },
+    mounted(){
+      this.recodeFunc();
+//      this.getDailyProfits();
+    },
+    destroyed(){
+      this.$store.commit('SET_TIGER_RECODE_TYPE','-1,-1');
+    },
+    methods:{
+      formatNum : function(f, digit) {
+        let m = Math.pow(10, digit);
+        return parseInt(f * m, 10) / m;
+      },
+      getDailyProfits:function () {//获取喂养收益等总计
+        this.$axios.get('http://01.coinunio.com/api/account/dailyprofits/').then(
+          res=>{
+            let result = res.data;
+            if(result.IsSuccess){
+              this.DailyProfits= result.Result;
+            }else{
+              this.$get_error('tips',result.Code,result.Message);
+            }
+          },error=>{
+            this.$get_error('reload');
+          }
+        );
+      },
+      getRecodeList:function (index) {
+        this.load = true;
+        let data={pageSize:this.pageSize,pageIndex:index,type:this.type};
+        this.$axios.post('http://01.coinunio.com/api/user/getaccountdetaillsit/',data).then(
+          res=>{
+            let result = res.data;
+            if(result.IsSuccess){
+              if(!result.Result.Data) return;
+              if(result.Result.Data.length>0){
+                this.Records= result.Result.Data;
+
+                this.empty = false;
+              }else{
+                this.empty = true;
+              }
+              // this.totalPage= Math.ceil(result.Result.total/this.pageSize);
+              // this.load = false;
+            }else{
+              this.$get_error('tips',result.Code,result.Message);
+              // this.load = false;
+            }
+          },error=>{
+            this.$get_error('reload');
+            // this.load = false;
+          }
+        );
+      },
+      getNoShow:function (firstType,secondType) {
+          switch (firstType){
+            case 4:switch (secondType){
+              case 1: return true;
+              case 2: return true;
+              case 128: return true;
+              case 2048: return true;
+              default: return false
+            }
+            default: return false
+          }
+      },
+      getTypes:function (firstType,secondType) {
+        switch (firstType){
+          case 1:switch (secondType){
+            case 1: return '充值成功';
+            case 2: return '系统补偿';
+            case 4: return '活动奖励';
+            case 8: return '注册邀请返利';
+          }
+          case 2:switch (secondType){
+            case 1: return '提现申请';
+            case 2: return '提现成功';
+            case 4: return '提现驳回';
+            case 8: return '提现手续费';
+          }
+          case 16:switch (secondType){
+            case 4: return '喂养';
+            case 1: return '捕虎';
+
+          }
+          case 8:switch (secondType){
+            case 1: return '竞猜';
+            case 2: return '竞猜收益';
+            case 4: return '开局';
+            case 8: return '弃局';
+            case 16: return '开局收益';
+            case 32: return '逐鹿竞猜';
+            case 64: return '逐鹿竞猜收益';
+          }
+          case 4:switch (secondType){
+            case 1: return '买虎';
+            case 2: return '卖虎';
+            case 4: return '卖虎手续费';
+            case 8: return '竞拍冻结';
+            case 16: return '竞拍返还';
+            case 32: return '竞拍成功';
+            case 64: return '抢购';
+            case 128: return '联盟买虎';
+            case 256: return '拍卖费';
+            case 512: return '拍卖手续费';
+            case 1024: return '拍卖';
+            case 2048: return '官方买虎';
+          }
+          case 32:switch (secondType){
+            case 2: return '联盟返利';
+            case 4: return '联盟返利';
+            case 1: return '喂养奖励';
+          }
+          case 64:switch (secondType) {
+            // case 1:return'足彩投注';
+            // case 2:return'足彩获利';
+          }
+          case 256:switch (secondType) {
+            case 1:return'修改昵称';
+          }
+          case 512:switch (secondType) {
+            case 1:return'PK参赛费';
+            case 2:return'PK费用返还';
+            case 4:return'逐鹿参赛费';
+            case 8:return'逐鹿奖金';
+          }
+          case 1024:switch (secondType) {
+            case 1:return'购买动物';
+            case 4:return'空投奖励';
+            case 8:return'最终赢家';
+            case 16:return'团队分红';
+          }
+        }
+
+      },
+      getType:function (val) {
+        switch (val){
+          case '全部':return '-1,-1';
+          case '充值':return '1,-1';
+          case '提现':return '2,-1';
+          case '喂养':return '16,4';
+          case '喂养奖励':return '32,1';
+          case '竞猜':return '8,-1';
+          case '联盟奖励':return '32,6';
+          case '捕虎':return '16,1';
+          case '交易':return '4,-1';
+          // case '足彩':return '64,-1';
+        }
+      },
+      selectFunc:function (value) {
+        let type = this.getType(value);
+        this.$store.commit('SET_TIGER_RECODE_TYPE',type);
+        this.recodeFunc();
+      }
+    },
+
+
+  }
+</script>
+
+<style scoped>
+
+  .recodeList{
+    margin-top: 0.5rem;
+    position: relative;
+  }
+  .listItem{
+    /*line-height: 1.375rem;*/
+    width: 30%;
+    text-align: center;
+    /*text-align: center;*/
+    padding: 0.1rem 0.1rem;
+  }
+  .leftTitle{
+    line-height: 0.6rem;
+    height: 0.8rem;
+    text-align: right;
+    font-size: 0.4rem;
+  }
+  .tab{
+    border-collapse: collapse;
+    border: none;
+    width: 100%;
+  }
+  .tab td{
+    /*border: 1px solid #f5f5f5;*/
+    padding: 0.2rem 0;
+    text-align: center;
+    color: #666666;
+
+  }
+  .title{
+    height: 0.62rem;
+    line-height: 0.62rem;
+    color: #4F2111;
+    padding: 0 1rem;
+    width: 100%;
+    background:#D3AA6D;
+
+    border-radius: 0.31rem ;
+  }
+  .title p{
+    font-size: 0.37rem;
+    font-weight: 600;
+  }
+  .title th:first-child{
+    border-radius: 0.31rem 0 0 0.31rem;
+  }
+  .title th:last-child{
+    border-radius:0 0.31rem  0.31rem 0;
+  }
+  .tab-text{
+    background: #ebebeb;
+    color: #4F2111;
+    border-radius: 0.1rem;
+    min-height: 0.56rem;
+    border: 1px solid #7E7E7E;
+    line-height: 0.56rem;
+    width: 90%;
+    margin: 0 auto;
+    font-size: 0.37rem;
+  }
+</style>

@@ -1,0 +1,271 @@
+<template>
+  <div style="position: relative">
+    <img src="../../assets/img/ranking/rank-top.png" style="width: 100%;height: 4.1rem">
+    <ul flex="main:center cross:center box:mean" :class="getCur" class="usual label">
+      <li class="title"   @click="family"></li>
+      <li class="title"   @click="feed"></li>
+      <li class="title"   @click="com"></li>
+    </ul>
+    <div class="content" :style="{'max-width':$store.state.maxWidth}"></div>
+    <scroll
+    top="5.2">
+      <div>
+        <div flex="main:center:cross:center">
+          <ul  style="color: #ffffff;width: 100%" class="">
+            <li class="table-title " flex="main:center cross:center box:mean">
+              <div v-for="title in detailList.titleList">{{title}}</div>
+            </li>
+            <div  class=" miaobian-lan"  v-for="(item,index) in detailList.familyDetails" v-if="type===0">
+              <ul flex="main:center cross:center box:mean" style="width: 100%;padding: 0 1.2rem" class="usual">
+                <li  class="items" style="min-width: 25%" v-for="(items,index2) in item">
+                  <img src="../../assets/img/ranking/first.png" v-if="index===0 &&index2===0" >
+                  <img src="../../assets/img/ranking/second.png" v-if="index===1 &&index2===0">
+                  <img src="../../assets/img/ranking/thired.png" v-if="index===2 &&index2===0" >
+                  <span v-if="textShow(index,index2)">{{items}}</span></li>
+              </ul>
+              <div class="under-line" style="width:auto;margin: 0 0.5rem"></div>
+            </div>
+
+            <div  class=" miaobian-lan"  v-for="(item,index) in detailList.feedDetails" v-if="type===1">
+              <ul flex="main:center cross:center box:mean" style="width: 100%;padding: 0 1.2rem" class="usual">
+                <li  class="items" style="min-width: 33.3%" v-for="(items,index2) in item">
+                  <img src="../../assets/img/ranking/first.png" v-if="index===0 &&index2===0" >
+                  <img src="../../assets/img/ranking/second.png" v-if="index===1 &&index2===0" >
+                  <img src="../../assets/img/ranking/thired.png" v-if="index===2 &&index2===0" >
+                  <span v-if="textShow(index,index2)">{{items}}</span></li>
+
+              </ul>
+              <div class="under-line" style="width:auto;margin: 0 0.5rem"></div>
+            </div>
+
+            <div  class=" miaobian-lan"  v-for="(item,index) in detailList.comDetails" v-if="type===2">
+              <ul flex="main:center cross:center box:mean" style="width: 100%;padding: 0 1.2rem" class="usual">
+                <li  class="items" style="min-width: 33.3%" v-for="(items,index2) in item">
+                  <img src="../../assets/img/ranking/first.png" v-if="index===0 &&index2===0" >
+                  <img src="../../assets/img/ranking/second.png" v-if="index===1 &&index2===0" >
+                  <img src="../../assets/img/ranking/thired.png" v-if="index===2 &&index2===0" >
+                  <span v-if="textShow(index,index2)">{{items}}</span>
+                </li>
+
+              </ul>
+              <div class="under-line" style="width:auto;margin: 0 0.5rem"></div>
+            </div>
+          </ul>
+        </div>
+      </div>
+    </scroll>
+  </div>
+</template>
+
+<script>
+  import Scroll from "../../components/scroll/scroll";
+
+  export default {
+    components: {Scroll},
+    name: "ranking",
+    data(){
+      return{
+        type:0,
+        detailList:
+          {
+            titleList:['排名','用户名','联盟财富'],
+            familyDetails:[],
+            feedDetails:[],
+            comDetails:[],
+          },
+        familyTitle:['排名','用户名','联盟财富'],
+        feedTitle:['排名','用户名','喂养奖励'],
+         comTitle:['排名','用户名','胜场数'],
+    }
+    },
+    computed:{
+      getCur:function () {
+        switch (this.type){
+          case 0: return 'nav_0';
+          case 1: return 'nav_1';
+           case 2: return 'nav_2';
+        }
+      },
+    },
+    mounted(){
+      this.getFamilyRankList();
+    },
+    methods:{
+      textShow:function (index,index2) {
+        if(index2) return true;
+        if(index===0 || index===1||index===2){
+          return false
+        }else{
+          return true
+        }
+      },
+      jsonArrToArr:function (jsonArr) {
+        let self = this;
+        let Arr =  jsonArr.map(json=>{
+          let list=[];
+          Object.keys(json).forEach(function(item, index) {
+            if(self.type===0)
+            {
+              if(item !=='AccountKey'){
+                list[0] = json['Rank'];
+                list[1] = json['NickName'];
+                list[2] = json['Amount'];
+              }
+            }else if(self.type===1){
+              if(item !=='AccountKey'){
+                list[0] = json['Rank'];
+                list[1] = json['NickName'];
+                list[2] = json['Amount'];
+              }
+            }else if(self.type===2){
+              if(item !=='AccountKey'){
+                list[0] = json['Rank'];
+                list[1] = json['NickName'];
+                list[2] = json['BetTotalWin'];
+              }
+            }
+          });
+          return list
+        });
+        return Arr;
+      },
+      getFamilyRankList:function () {
+        this.$axios.get('http://01.coinunio.com/api/activity/familyrank/').then(
+          res=>{
+            let result= res.data;
+            if(result.IsSuccess)
+            {
+              this.detailList.familyDetails=   this.jsonArrToArr(result.Result)
+            }else{
+              this.$get_error('tips',result.Code,result.Message);
+            }
+          },error=>{
+            this.$get_error('reload');
+          }
+        )
+      },//家族排行榜
+      getFeedRewardRankList:function () {
+        this.$axios.get('http://01.coinunio.com/api/activity/feedrewardrank/').then(
+          res=>{
+            let result= res.data;
+            if(result.IsSuccess)
+            {
+              this.detailList.feedDetails=   this.jsonArrToArr(result.Result)
+            }else{
+              this.$get_error('tips',result.Code,result.Message);
+            }
+          },error=>{
+            this.$get_error('reload');
+          }
+        )
+      },//喂养排行榜
+      getDispositionList:function () {
+         this.$axios.get('http://01.coinunio.com/api/activity/betrank/').then(
+           res=>{
+             let result= res.data;
+             if(result.IsSuccess)
+             {
+               this.detailList.comDetails=   this.jsonArrToArr(result.Result)
+             }else{
+               this.$get_error('tips',result.Code,result.Message);
+             }
+           },error=>{
+             this.$get_error('reload');
+           }
+         )
+      },//比拼排行榜
+      reSet:function () {
+        this.familyDetails=[];
+          this.feedDetails=[];
+          this.comDetails=[];
+      },
+      family:function () {
+        this.type = 0;
+        this.detailList.titleList = this.familyTitle;
+        this.reSet();
+        this.getFamilyRankList();
+      },
+      feed:function () {
+        this.type = 1;
+        this.detailList.titleList = this.feedTitle;
+        this.reSet();
+        this.getFeedRewardRankList();
+      },
+      com:function () {
+        this.type = 2;
+        this.detailList.titleList = this.comTitle;
+        this.reSet();
+         this.getDispositionList();
+      }
+    }
+  }
+</script>
+
+<style scoped>
+  .title{
+    font-size:0.4rem;
+    padding: 10px;
+    margin-bottom: 0.2rem;
+    /*width: 33.3%;*/
+  }
+  .content{
+    position: fixed;
+    top:4.8rem;
+    bottom: 0;
+    background-image: url("../../assets/img/ranking/bg.png");
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    width: 100%;
+  }
+  .table-title{
+    background-image: url("../../assets/img/ranking/title-bg.png");
+    background-size: 100% 100%;
+    padding: 0 1.5rem;
+    background-repeat: no-repeat;
+  }
+  .table-title div{
+    text-align: center;
+    font-size: 0.4rem;
+    margin: 0 1px;
+    height: 1.5rem;
+    line-height: 1.3rem;
+
+  }
+  .items{
+    text-align: center;
+    height: 1.5rem;
+    position: relative;
+  }
+  .items img{
+    height: 0.74rem;
+    line-height: 1.5rem;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform:  translate(-50%,-50%);
+  }
+  .items span{
+    font-weight: 600;
+    height: 1.5rem;
+    line-height: 1.5rem;
+    display: inline-block;
+    font-size: 0.33rem;
+  }
+  .label{
+    background-size: 100% auto;
+    text-align: center;
+    padding: 0 0.5rem;
+    height: 1.2rem;
+    position: relative;
+    top:-0.3rem;
+  }
+  .nav_0{
+    background-image: url("../../assets/img/ranking/nav_0.png");
+  }
+  .nav_1{
+    background-image: url("../../assets/img/ranking/nav_1.png");
+  }
+  .nav_2{
+    background-image: url("../../assets/img/ranking/nav_2.png");
+  }
+</style>

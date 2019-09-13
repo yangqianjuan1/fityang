@@ -1,0 +1,452 @@
+
+wanlihu_xiaolu.png
+size: 1024,1024
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+xiaolu-xiaolu_run_0
+  rotate: true
+  xy: 2, 814
+  size: 201, 213
+  orig: 201, 213
+  offset: 0, 0
+  index: -1
+xiaolu-xiaolu_run_1
+  rotate: true
+  xy: 217, 814
+  size: 201, 213
+  orig: 201, 213
+  offset: 0, 0
+  index: -1
+xiaolu-xiaolu_run_10
+  rotate: true
+  xy: 432, 408
+  size: 201, 213
+  orig: 201, 213
+  offset: 0, 0
+  index: -1
+xiaolu-xiaolu_run_11
+  rotate: true
+  xy: 647, 408
+  size: 201, 213
+  orig: 201, 213
+  offset: 0, 0
+  index: -1
+xiaolu-xiaolu_run_12
+  rotate: true
+  xy: 2, 205
+  size: 201, 213
+  orig: 201, 213
+  offset: 0, 0
+  index: -1
+xiaolu-xiaolu_run_13
+  rotate: true
+  xy: 217, 205
+  size: 201, 213
+  orig: 201, 213
+  offset: 0, 0
+  index: -1
+xiaolu-xiaolu_run_14
+  rotate: true
+  xy: 432, 205
+  size: 201, 213
+  orig: 201, 213
+  offset: 0, 0
+  index: -1
+xiaolu-xiaolu_run_15
+  rotate: true
+  xy: 647, 205
+  size: 201, 213
+  orig: 201, 213
+  offset: 0, 0
+  index: -1
+xiaolu-xiaolu_run_16
+  rotate: true
+  xy: 2, 2
+  size: 201, 213
+  orig: 201, 213
+  offset: 0, 0
+  index: -1
+xiaolu-xiaolu_run_17
+  rotate: true
+  xy: 217, 2
+  size: 201, 213
+  orig: 201, 213
+  offset: 0, 0
+  index: -1
+xiaolu-xiaolu_run_18
+  rotate: true
+  xy: 432, 2
+  size: 201, 213
+  orig: 201, 213
+  offset: 0, 0
+  index: -1
+xiaolu-xiaolu_run_19
+  rotate: true
+  xy: 647, 2
+  size: 201, 213
+  orig: 201, 213
+  offset: 0, 0
+  index: -1
+xiaolu-xiaolu_run_2
+  rotate: true
+  xy: 432, 814
+  size: 201, 213
+  orig: 201, 213
+  offset: 0, 0
+  index: -1
+xiaolu-xiaolu_run_3
+  rotate: true
+  xy: 647, 814
+  size: 201, 213
+  orig: 201, 213
+  offset: 0, 0
+  index: -1
+xiaolu-xiaolu_run_4
+  rotate: true
+  xy: 2, 611
+  size: 201, 213
+  orig: 201, 213
+  offset: 0, 0
+  index: -1
+xiaolu-xiaolu_run_5
+  rotate: true
+  xy: 217, 611
+  size: 201, 213
+  orig: 201, 213
+  offset: 0, 0
+  index: -1
+xiaolu-xiaolu_run_6
+  rotate: true
+  xy: 432, 611
+  size: 201, 213
+  orig: 201, 213
+  offset: 0, 0
+  index: -1
+xiaolu-xiaolu_run_7
+  rotate: true
+  xy: 647, 611
+  size: 201, 213
+  orig: 201, 213
+  offset: 0, 0
+  index: -1
+xiaolu-xiaolu_run_8
+  rotate: true
+  xy: 2, 408
+  size: 201, 213
+  orig: 201, 213
+  offset: 0, 0
+  index: -1
+xiaolu-xiaolu_run_9
+  rotate: true
+  xy: 217, 408
+  size: 201, 213
+  orig: 201, 213
+  offset: 0, 0
+  index: -1
+
+wanlihu_xiaolu2.png
+size: 1024,1024
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+wanlihu_run-wanlihu_run_0
+  rotate: false
+  xy: 2, 686
+  size: 300, 226
+  orig: 300, 226
+  offset: 0, 0
+  index: -1
+wanlihu_run-wanlihu_run_15
+  rotate: false
+  xy: 2, 686
+  size: 300, 226
+  orig: 300, 226
+  offset: 0, 0
+  index: -1
+wanlihu_run-wanlihu_run_1
+  rotate: false
+  xy: 2, 458
+  size: 300, 226
+  orig: 300, 226
+  offset: 0, 0
+  index: -1
+wanlihu_run-wanlihu_run_16
+  rotate: false
+  xy: 2, 458
+  size: 300, 226
+  orig: 300, 226
+  offset: 0, 0
+  index: -1
+wanlihu_run-wanlihu_run_10
+  rotate: false
+  xy: 606, 230
+  size: 300, 226
+  orig: 300, 226
+  offset: 0, 0
+  index: -1
+wanlihu_run-wanlihu_run_11
+  rotate: false
+  xy: 606, 2
+  size: 300, 226
+  orig: 300, 226
+  offset: 0, 0
+  index: -1
+wanlihu_run-wanlihu_run_2
+  rotate: false
+  xy: 304, 686
+  size: 300, 226
+  orig: 300, 226
+  offset: 0, 0
+  index: -1
+wanlihu_run-wanlihu_run_17
+  rotate: false
+  xy: 304, 686
+  size: 300, 226
+  orig: 300, 226
+  offset: 0, 0
+  index: -1
+wanlihu_run-wanlihu_run_3
+  rotate: false
+  xy: 2, 230
+  size: 300, 226
+  orig: 300, 226
+  offset: 0, 0
+  index: -1
+wanlihu_run-wanlihu_run_18
+  rotate: false
+  xy: 2, 230
+  size: 300, 226
+  orig: 300, 226
+  offset: 0, 0
+  index: -1
+wanlihu_run-wanlihu_run_4
+  rotate: false
+  xy: 304, 458
+  size: 300, 226
+  orig: 300, 226
+  offset: 0, 0
+  index: -1
+wanlihu_run-wanlihu_run_19
+  rotate: false
+  xy: 304, 458
+  size: 300, 226
+  orig: 300, 226
+  offset: 0, 0
+  index: -1
+wanlihu_run-wanlihu_run_5
+  rotate: false
+  xy: 606, 686
+  size: 300, 226
+  orig: 300, 226
+  offset: 0, 0
+  index: -1
+wanlihu_run-wanlihu_run_20
+  rotate: false
+  xy: 606, 686
+  size: 300, 226
+  orig: 300, 226
+  offset: 0, 0
+  index: -1
+wanlihu_run-wanlihu_run_6
+  rotate: false
+  xy: 2, 2
+  size: 300, 226
+  orig: 300, 226
+  offset: 0, 0
+  index: -1
+wanlihu_run-wanlihu_run_21
+  rotate: false
+  xy: 2, 2
+  size: 300, 226
+  orig: 300, 226
+  offset: 0, 0
+  index: -1
+wanlihu_run-wanlihu_run_7
+  rotate: false
+  xy: 304, 230
+  size: 300, 226
+  orig: 300, 226
+  offset: 0, 0
+  index: -1
+wanlihu_run-wanlihu_run_22
+  rotate: false
+  xy: 304, 230
+  size: 300, 226
+  orig: 300, 226
+  offset: 0, 0
+  index: -1
+wanlihu_run-wanlihu_run_8
+  rotate: false
+  xy: 606, 458
+  size: 300, 226
+  orig: 300, 226
+  offset: 0, 0
+  index: -1
+wanlihu_run-wanlihu_run_23
+  rotate: false
+  xy: 606, 458
+  size: 300, 226
+  orig: 300, 226
+  offset: 0, 0
+  index: -1
+wanlihu_run-wanlihu_run_9
+  rotate: false
+  xy: 304, 2
+  size: 300, 226
+  orig: 300, 226
+  offset: 0, 0
+  index: -1
+
+wanlihu_xiaolu3.png
+size: 1024,1024
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+wanlihu_run-wanlihu_run_12
+  rotate: false
+  xy: 2, 686
+  size: 300, 226
+  orig: 300, 226
+  offset: 0, 0
+  index: -1
+wanlihu_run-wanlihu_run_13
+  rotate: false
+  xy: 2, 458
+  size: 300, 226
+  orig: 300, 226
+  offset: 0, 0
+  index: -1
+wanlihu_run-wanlihu_run_14
+  rotate: false
+  xy: 304, 686
+  size: 300, 226
+  orig: 300, 226
+  offset: 0, 0
+  index: -1
+wanlihu_run-wanlihu_run_24
+  rotate: false
+  xy: 2, 230
+  size: 300, 226
+  orig: 300, 226
+  offset: 0, 0
+  index: -1
+wanlihu_run-wanlihu_run_25
+  rotate: false
+  xy: 304, 458
+  size: 300, 226
+  orig: 300, 226
+  offset: 0, 0
+  index: -1
+wanlihu_run-wanlihu_run_26
+  rotate: false
+  xy: 606, 686
+  size: 300, 226
+  orig: 300, 226
+  offset: 0, 0
+  index: -1
+wanlihu_run-wanlihu_run_27
+  rotate: false
+  xy: 2, 2
+  size: 300, 226
+  orig: 300, 226
+  offset: 0, 0
+  index: -1
+wanlihu_run-wanlihu_run_28
+  rotate: false
+  xy: 304, 230
+  size: 300, 226
+  orig: 300, 226
+  offset: 0, 0
+  index: -1
+wanlihu_run-wanlihu_run_29
+  rotate: false
+  xy: 606, 458
+  size: 300, 226
+  orig: 300, 226
+  offset: 0, 0
+  index: -1
+wanlihu_run-wanlihu_run_30
+  rotate: false
+  xy: 304, 2
+  size: 300, 226
+  orig: 300, 226
+  offset: 0, 0
+  index: -1
+xiaolu-xiaolu_run_20
+  rotate: false
+  xy: 606, 243
+  size: 201, 213
+  orig: 201, 213
+  offset: 0, 0
+  index: -1
+xiaolu-xiaolu_run_25
+  rotate: false
+  xy: 606, 243
+  size: 201, 213
+  orig: 201, 213
+  offset: 0, 0
+  index: -1
+xiaolu-xiaolu_run_23
+  rotate: false
+  xy: 606, 243
+  size: 201, 213
+  orig: 201, 213
+  offset: 0, 0
+  index: -1
+xiaolu-xiaolu_run_27
+  rotate: false
+  xy: 606, 243
+  size: 201, 213
+  orig: 201, 213
+  offset: 0, 0
+  index: -1
+xiaolu-xiaolu_run_22
+  rotate: false
+  xy: 606, 243
+  size: 201, 213
+  orig: 201, 213
+  offset: 0, 0
+  index: -1
+xiaolu-xiaolu_run_30
+  rotate: false
+  xy: 606, 243
+  size: 201, 213
+  orig: 201, 213
+  offset: 0, 0
+  index: -1
+xiaolu-xiaolu_run_26
+  rotate: false
+  xy: 606, 243
+  size: 201, 213
+  orig: 201, 213
+  offset: 0, 0
+  index: -1
+xiaolu-xiaolu_run_24
+  rotate: false
+  xy: 606, 243
+  size: 201, 213
+  orig: 201, 213
+  offset: 0, 0
+  index: -1
+xiaolu-xiaolu_run_21
+  rotate: false
+  xy: 606, 243
+  size: 201, 213
+  orig: 201, 213
+  offset: 0, 0
+  index: -1
+xiaolu-xiaolu_run_29
+  rotate: false
+  xy: 606, 243
+  size: 201, 213
+  orig: 201, 213
+  offset: 0, 0
+  index: -1
+xiaolu-xiaolu_run_28
+  rotate: false
+  xy: 606, 243
+  size: 201, 213
+  orig: 201, 213
+  offset: 0, 0
+  index: -1

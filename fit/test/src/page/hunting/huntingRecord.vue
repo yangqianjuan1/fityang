@@ -1,0 +1,203 @@
+<template>
+	<div class="dispositionRecord">
+		<red-table :titleList="titleList" style="margin-top: 1.2rem">
+			<scroll top="6.5" style="margin:  0 auto;padding: 0 0.5rem" ref="scroll2" :pullUpLoad="setPullUpLoad" :pullUpLoadFuc="getRecordList"
+			 pullUpLoadFucParam="UpLoad" warpId="scroll2">
+				<div v-for="(item,index) in comList">
+					<li flex="main:center cross:center box:mean" class="item">
+						<span>#{{item.HorseNo}}</span>
+						<span>{{item.CompeteNo?item.CompeteNo:'--'}}</span>
+						<span>{{getRunaway(item)}}</span>
+						<span>{{getState(item)}}
+							<interval-until @listDataRefresh="ceshi" v-if="item.Runaway==0" :indexNum="index" :isRaced="item.CompeteKey" :index="item.HorseNo"></interval-until>
+						</span>
+						<div><button class="btn-yellow" style="padding: 0.1rem 0.3rem " @click="details(item)" :disabled="!item.CompeteKey">查看</button></div>
+					</li>
+					<div class="under-line"></div>
+				</div>
+			</scroll>
+		</red-table>
+	</div>
+</template>
+
+<script>
+	import RedTable from "../../components/red-table";
+	import MyDialog from "../../components/dialog";
+	import OneCancelDialog from "../../components/tips/oneCancelDialog";
+	import Scroll from "../../components/scroll/scroll";
+	import ComfireDialog from "../../components/comfireDialog";
+	import intervalUntil from "./intervaluntil";
+
+	export default {
+		components: {
+			ComfireDialog,
+			Scroll,
+			OneCancelDialog,
+			MyDialog,
+			RedTable,
+			intervalUntil
+		},
+		name: "dispositionRecord",
+		data() {
+			return {
+				pageSize: 30,
+				offset: 0,
+				titleList: ['老虎ID','场次','赛道', '状态', '操作'],
+				comList: [],
+				detail: false,
+				detailList: [],
+				detailAccountNick: "",
+				detailOpponentNick: "",
+			}
+		},
+		computed: {
+			setPullUpLoad: function() {
+				return {
+					threshold: -30,
+				}
+			},
+		},
+		created() {
+			this.getRecordList();
+		},
+		methods: {
+			ceshi:function(val){
+				var datas=this.comList;
+					datas[val].Runaway=-1;
+					datas[val].Status=4;
+				this.comList=datas;
+			},
+			getTime: function(item) {
+				return item.slice(5, 16)
+			},
+			getRunaway:function(item){
+				switch (item.Runaway) {
+					case -1:
+						return '--';
+					case 0:
+						return '匹配中';
+					default:
+						return item.Runaway;
+				}
+			},
+			getState: function(item) {
+				switch (item.Status) {
+					case 0:
+						return '';
+					case 1:
+						return '胜';
+					case 2:
+						return '负';
+					case 3:
+						return '竞猜中';
+					case 4:
+						if(item.Runaway){
+							return '分配中';
+						}
+						return '竞猜中';
+				}
+			},
+			details: function(item) {
+				this.$emit("detail", item.CompeteKey)
+			},
+			getRecordList: function(type) {
+				let offset;
+				if (type === 'UpLoad') {
+					offset = this.offset;
+				} else {
+					offset = 0;
+				}
+				let data = {
+					size: this.pageSize,
+					offset: offset
+				};
+				this.$axios.post('/api/battle/compete/loglist/', data).then(
+					res => {
+						let result = res.data;
+						if (result.IsSuccess) {
+							if (!result.Result.Data) return;
+							var datas = [];
+							if (result.Result.Data.length > 0) {
+								let list = result.Result.Data;
+								if (type === 'UpLoad') {
+									datas = this.comList.concat(list);
+								}else{
+									datas = list;
+								}
+								this.comList=datas;
+							} else {
+								if (type === 'UpLoad') {
+									// this.$tips('暂无更多提现记录');
+								}else{
+									this.empty = true;
+								}
+							}
+							if (this.$refs.scroll2) {
+								this.$refs.scroll2.finishiPullUp();
+							}
+							this.offset = this.comList.length;
+						} else {
+							if (this.$refs.scroll2) {
+								this.$refs.scroll2.finishiPullUp();
+							}
+							this.$get_error('tips', result.Code, result.Message);
+						}
+					}, error => {
+						if (this.$refs.scroll2) {
+							this.$refs.scroll2.finishiPullUp();
+						}
+						this.$get_error('reload');
+					}
+				);
+			}, //获取添加老虎列表
+		},
+	}
+</script>
+
+<style scoped>
+	.dispositionRecord {
+		padding: 0 0.5rem;
+	}
+
+	.name span {
+		display: inline-block;
+		width: 45%;
+		text-align: center;
+		word-break: break-all;
+		height: 100%;
+		font-size: 0.45rem;
+	}
+
+	.item {
+		text-align: center;
+		padding: 0.2rem 0;
+		line-height: 1rem;
+	}
+
+	.item span,
+	.detailItem span {
+		word-wrap: break-word;
+	}
+
+	.detailItem {
+		padding: 0.1rem 0;
+	}
+
+	.table {
+		width: 100%;
+		text-align: center;
+		font-size: 0.2933rem;
+		margin-top: 0.5rem;
+	}
+
+	.title {
+		background: #ffffff;
+		border-radius: 0.15rem;
+		color: #666666;
+		padding: 0.1rem;
+	}
+
+	.title p {
+		font-size: 0.2933rem;
+	}
+</style>

@@ -1,0 +1,75 @@
+<template>
+	<div class="sessionDiv">
+		<div class="sessionCloseBtn" :style="{width:widthFunction}" @click="closeSessionBtn">收起</div>
+		<div class="sessionSeat">&nbsp;</div>
+		<div class="sessionBtn" v-for="(item,key) in btns" :key="key" @click="changeSessionNum(item.CompeteNo,item.BetId)" >第{{item.CompeteNo}}场</div>
+	</div>
+</template>
+
+<script>
+	export default {
+		data() {
+			return {
+			}
+		},
+		props:{
+			btns:[],
+		},
+		mounted(){
+			if(this.btns.length==0){
+				this.closeSessionBtn();
+			}
+		},
+		computed:{
+			widthFunction:function(){
+				var maxWidth=this.$store.state.maxWidth;
+				var widthVal=parseInt(maxWidth.split("px")[0])*0.28;
+				return widthVal+'px';
+			},
+		},
+		methods:{
+			closeSessionBtn(){
+				this.$emit("closeSessionBtn");
+				this.btns=[];
+			},
+			changeSessionNum(no,id){
+				this.$emit("sessionNum",[no,id]);
+			},
+		},
+	}
+</script>
+
+<style>
+	.sessionDiv{
+		width:100%;
+		height:100%;
+	}
+	.sessionBtn{
+		width:80%;
+		height:13%;
+		margin-top:5%;
+		background-color: blue;
+		border-radius:0.2rem;
+		color:white;
+		font-size: 0.5rem;
+		padding-top:5%;
+		text-align: center;
+		float:left;
+	}
+	.sessionCloseBtn{
+		border-radius:0.2rem;
+		text-align: center;
+		
+		padding-top:0.5%;
+		font-size: 0.6rem;
+		height:5.5%;
+		margin-top:0;
+		position: fixed;
+		color:orange;
+		background-color: white;
+	}
+	.sessionSeat{
+		width:100%;
+		height:15%;
+	}
+</style>

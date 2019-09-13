@@ -1,0 +1,337 @@
+<template>
+  <div>
+    <scroll
+      :pullUpLoad="setPullUpLoad"
+      :pullDownRefresh="setPullDown"
+      :pullDownFuc="getRecordList"
+      :pullUpLoadFuc="getRecordList"
+      pullUpLoadFucParam="UpLoad"
+      pullDownFucParam="fresh"
+      top="4"
+      ref="scroll">
+    <div :style="setScrollMinHeight()" style="position: relative">
+      <div v-for="(item) in list" style="padding:  0 0.5rem" >
+        <div style="position: relative;padding-top: 0.5rem">
+        <!--<img src="../../assets/img/user/list-before.png" style="height: 1rem;position: absolute;left:-0.5rem;top: 0.5rem;" >-->
+        <table cellspacing="0"  class="list ">
+          <tr class="first">
+        <th class="miaobian-hong">场次</th>
+        <th class="miaobian-hong">下单</th>
+        <th class="miaobian-hong">奖励</th>
+        <th class="miaobian-hong">操作</th>
+          </tr>
+        <tr class="usual list-detail">
+          <td class="miaobian-lan">#{{item.BetId}}</td>
+          <td class="miaobian-lan">{{item.BetTotalCost}}</td>
+          <td class="miaobian-lan">{{item.BetTotalReward}}</td>
+          <td><button class="btn btn-violet " @click="detail(item)">查看详情</button></td>
+        </tr>
+      </table>
+        <!--<img src="../../assets/img/user/list-after.png" style="height: 1rem;position: absolute;right: -0.5rem;top:0.5rem;">-->
+        </div>
+        <div class="under-line" style="margin-top: 0.2rem"></div>
+      </div>
+     <img class="takeCenter" style="width: 2.5rem;padding: 2rem" src="../../assets/img/dialog/empty.png"  v-if="empty"/>
+    </div>
+
+    </scroll>
+    <my-dialog :dialogOpen="detailDlg">
+      <div class="takeCenter detaildlg">
+        <p style="text-align: center;font-size: 0.5rem;font-weight: 600" >竞猜详情</p>
+        <table cellspacing="0" cellpadding="0">
+          <tr class="first">
+            <th></th>
+            <th >信息比率</th>
+            <th >竞猜数</th>
+          </tr>
+          <!--<tr class="first">-->
+          <!--<td v-for="(item2,index) in detailType">{{item2.name}}</td>-->
+          <!--</tr>-->
+          <!--<tr>-->
+            <!--<td v-for="(item3,index) in detailNum" :class="index===detailCur?'cur':''">{{item3.num}}</td>-->
+          <!--</tr>-->
+          <tr v-for="(item3,index) in detailType" :class="index===detailCur?'cur':''">
+            <td>{{item3.name}}</td>
+            <td>{{item3.Odds}}</td>
+            <td>{{item3.BetSections}}</td>
+          </tr>
+        </table>
+        <p class="under-line" style="margin: 0.2rem 0"></p>
+        <div flex="main:justify cross:center">
+          <p >竞猜位：<span class="special-color">{{detailIndex}}</span></p>
+        </div>
+        <p class="num-abc-warp " style="margin-top: 0.2rem;text-align: left">竞猜区块：<span>{{detailHashFront}}</span><span class="special-color">{{detailHashMid}}</span><span>{{detailHashLast}}</span></p>
+        <button class="cancel cl btn-violet" @click="closeDialog">取消</button>
+      </div>
+
+    </my-dialog>
+  </div>
+</template>
+
+<script>
+  import Scroll from "../../components/scroll/scroll";
+  import MyDialog from "../../components/dialog";
+
+  export default {
+    components: {
+      MyDialog,
+      Scroll},
+    name: "record",
+    data(){
+      return{
+        offset:0,
+        pageSize:20,
+        empty:true,
+        detailDlg:false,
+        detailType:[],
+        detailType1:[
+          {name:'奇数'},
+          {name:'偶数'},
+        ],
+        detailType2:[
+          {name:'奇数'},
+          {name:'字母'},
+          {name:'偶数'},
+        ],
+        detailType3:[
+          {name:'0-3'},
+          {name:'4-7'},
+          {name:'8-B'},
+          {name:'C-F'},
+        ],
+        detailNum:[],
+        detailCur:-1,
+        stateText:"查看详情",
+        detailHashFront:'',
+        detailHashMid:'',
+        detailHashLast:'',
+        detailIndex:'',
+        list:[]
+      }
+    },
+    mounted(){
+      this.getRecordList();
+    },
+    computed:{
+      setPullUpLoad:function () {
+        return {
+          threshold:-60,
+        }
+      },
+      setPullDown:function () {
+        return  {
+          threshold:100,
+          stop:50
+        }
+      },
+    },
+    methods:{
+      setScrollMinHeight:function () {
+        if(document.getElementById('warp'))
+        {
+          return 'min-height:'+(document.getElementById('warp').offsetHeight+1)+'px'
+        }
+      },
+      getRecordList:function (type) {
+        let offset;
+        if(type ==='UpLoad'){
+          offset = this.offset;
+        }else{
+          offset = 0;
+        }
+
+        let data = {offset:offset,size :this.pageSize};
+        this.$axios.post('/api/betgame/getbetlogs/',data).then(
+          res => {
+            let result = res.data;
+            if (result.IsSuccess) {
+              if(type ==='UpLoad'){
+                  if(this.$refs.scroll){
+                    this.$refs.scroll.finishiPullUp();
+                  }
+
+
+              }else{
+                if(this.$refs.scroll){
+                  this.$refs.scroll.finishPullDown();
+                }
+
+              }
+              if(!result.Result.Data){
+                if(type ==='UpLoad'){
+                  // offset = this.offset;
+                }else{
+                  this.empty =true;
+                }
+                return;
+              }
+              this.empty =false;
+              if(type ==='UpLoad'){
+                this.list =  this.list.concat(result.Result.Data)
+              }else{
+                this.list =result.Result.Data;
+              }
+              this.offset = this.offset +result.Result.Data.length;
+
+            } else {
+              if(type ==='UpLoad'){
+                if(this.$refs.scroll){
+                  this.$refs.scroll.finishiPullUp();
+                }
+              }else{
+                if(this.$refs.scroll){
+                  this.$refs.scroll.finishPullDown();
+                }
+              }
+              this.$get_error('tips',result.Code,result.Message);
+            }
+          }, error => {
+            if(type ==='UpLoad'){
+              if(this.$refs.scroll){
+                this.$refs.scroll.finishiPullUp();
+              }
+            }else{
+              if(this.$refs.scroll){
+                this.$refs.scroll.finishPullDown();
+              }
+            }
+            this.$get_error('reload');
+          }
+        )
+      },
+      getBtn:function (item) {
+        if(!item) return;
+        switch (item.Status){
+          case 0:return '结算中';
+          case 1:return '查看详情';
+          case 2:return '结算中';
+          case 4:return '查看详情';
+          case 8:return '已弃局';
+          case 16:return'查看详情';
+          case 32:return'查看详情';
+          case 64:return'查看详情';
+        }
+      },
+      reSetDetail:function(){
+        this.detailHashFront = '';
+        this.detailHashMid = '';
+        this.detailHashLast = '';
+        this.detailIndex = '';
+        this.detailNum = [];
+        this.detailCur = -1;
+      },
+      detail:function (item) {
+          this.reSetDetail();
+        if(!item.Odds)return;
+        switch(item.Odds.length){
+          case 2:this.detailType = this.detailType1;break;
+          case 3:this.detailType = this.detailType2;break;
+          case 4:this.detailType = this.detailType3;break
+        }
+        for(let index in this.detailType){
+            this.detailType[index].Odds = item.Odds[index];
+            this.detailType[index].BetSections = item.BetSections[index];
+        }
+        this.detailIndex= item.UnitIndex;
+        if(item.Hash){
+          if(item.UnitIndex ===0)
+          {
+            this.detailHashFront = "";
+            this.detailHashMid = item.Hash.charAt(item.UnitIndex);
+            this.detailHashLast = item.Hash.substring(item.UnitIndex,item.Hash.length);
+          }else{
+            this.detailHashFront = item.Hash.substring(0,item.UnitIndex-1);
+            this.detailHashMid = item.Hash.charAt(item.UnitIndex-1);
+            this.detailHashLast = item.Hash.substring(item.UnitIndex,item.Hash.length);
+          }
+
+        }
+
+        this.detailNum = item.nums;
+        if(item.Status ===32){
+          this.detailCur = item.Result;
+        }else{
+          this.detailCur = -1;
+        }
+
+        this.detailDlg = true;
+      },
+      closeDialog:function () {
+        this.detailDlg = false;
+      }
+    }
+  }
+</script>
+
+<style scoped>
+  table{
+    width: 100%;
+    font-size: 0.4rem;
+    /*padding-top:  0.5rem;*/
+  }
+  th{
+    padding:0;
+  }
+  .list th{
+   height:1rem;
+    line-height: 1rem;
+    /*background-image: url("../../assets/img/transactin/goumaixiangqing.png");*/
+    /*background-size: 100% 100%;*/
+  }
+  .btn{
+    padding: 0.2rem 0.3rem;
+  }
+  .detaildlg{
+    padding: 1rem;
+    background-image: url("../../assets/img/competition/guideBg.png");
+    background-size: 100% 100%;
+    width: 80%;
+    border-radius: 5px;
+  }
+  .detaildlg th{
+    margin-bottom: 0.2rem;
+    padding: 0.1rem 0;
+    background:#D7AF71 ;
+  }
+  .detaildlg table{
+    padding: 0;
+    margin-top: 0.3rem;
+
+  }
+  .first th:nth-child(1) {
+    border-radius: 0.21rem  0   0 0.21rem ;
+
+  }
+  .first th:last-child{
+    border-radius: 0  0.21rem   0.21rem 0 ;
+
+  }
+  .detaildlg td:first-child {
+    border-radius: 0.21rem  0   0 5px ;
+  }
+  .detaildlg td:last-child{
+    border-radius: 0  0.21rem   0.21rem 0 ;
+  }
+  .detaildlg td:last-child{
+    border-right: none;
+  }
+  .detaildlg td{
+    padding: 0.1rem;
+/*border-radius: 5px;*/
+  }
+  .cur td:nth-child(2){
+    border-radius: 0.21rem  0   0 0.21rem ;
+  }
+  .cur td:nth-child(2),.cur td:last-child{
+    background:  #8B5735 50% 50%;
+    color: #ffffff;
+  }
+  .cancel{
+    position: absolute;
+    bottom: 0.36rem;
+    width:2.5rem;
+    height:0.6933rem;
+    line-height: 0.6933rem;
+    cursor:pointer ;
+  }
+</style>

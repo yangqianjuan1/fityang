@@ -1,0 +1,114 @@
+<template>
+  <div id="app" :style="{'max-width':$store.state.maxWidth}">
+    <div>
+     <my-magquee :text="notice" v-if="notice"></my-magquee>
+      <htitle v-if="this.$route.meta.title"></htitle>
+      <router-view v-if="!this.$route.meta.keepAlive"></router-view>
+      <keep-alive>
+        <router-view v-if="this.$route.meta.keepAlive"></router-view>
+      </keep-alive>
+    </div>
+    <back v-if="!this.$route.meta.back"></back>
+    <foot-nav v-if="!this.$route.meta.noFoot"></foot-nav>
+
+    <!--<football v-if="this.$route.meta.FootBall"></football>-->
+  </div>
+</template>
+
+<script>
+  import FootNav from "./components/foot";
+  import Htitle from "./components/title";
+  import Football from "./components/football";
+  import Back from "./components/back";
+  import MyMagquee from "./components/myMagquee";
+  import ComfireDialog from "./components/comfireDialog";
+  export default {
+    components: {
+      ComfireDialog,
+      MyMagquee,
+      Back,
+      Football,
+      Htitle,
+      FootNav,
+		},
+    name: 'App',
+    data(){
+      return{
+        login:false,
+        notice:"",
+        Interval:null,
+      }
+    },
+    mounted(){
+      this.setMaxWidth();
+      this.Interval =setInterval(()=>{
+        this.getNotice();
+      },5000)
+    },
+    destroyed(){
+      if(this.Interval){
+        clearInterval(this.Interval)
+      }
+    },
+    methods:{
+      getNotice:function () {
+        this.$axios.get('http://01.coinunio.com/api/notice/gethomepagenotice/').then(
+          res=>{
+            let result = res.data;
+            if(result.IsSuccess){
+              this.notice = result.Result
+            }else{
+            }
+          },error=>{
+
+          }
+        );
+      },
+      uaVersions:function () {
+        let u = navigator.userAgent, app = navigator.appVersion;
+        return {//移动终端浏览器版本信息
+          trident: u.indexOf("Trident") > -1, //IE内核
+          presto: u.indexOf("Presto") > -1, //opera内核
+          webKit: u.indexOf("AppleWebKit") > -1, //苹果、谷歌内核
+          gecko: u.indexOf("Gecko") > -1 && u.indexOf("KHTML") == -1, //火狐内核
+          mobile: !!u.match(/AppleWebKit.*Mobile.*/), //是否为移动终端
+          ios: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), //ios终端
+          android: u.indexOf("Android") > -1 || u.indexOf("Linux") > -1, //android终端或者uc浏览器
+          iPhone: u.indexOf("iPhone") > -1 , //是否为iPhone或者QQHD浏览器
+          iPad: u.indexOf("iPad") > -1, //是否iPad
+          webApp: u.indexOf("Safari") == -1 //是否web应该程序，没有头部与底部
+        };
+      },
+      setMaxWidth:function () {
+        let UA = this.uaVersions();
+        let h = document.documentElement.clientHeight;
+        let max ;
+        if(UA.mobile && !UA.iPad)
+        {//手机端
+
+          max = 540
+        }else{
+          //pc或平板
+          if(h <749){
+            max = h*0.47226
+          }else{
+            max = 540
+          }
+        }
+        this.$store.commit('SET_MAX_WIDTH',max+'px');
+        document.getElementsByTagName('body')[0].style.maxWidth = this.$store.state.maxWidth;
+      },
+      close:function () {
+        this.login = false;
+      }
+    },
+  }
+</script>
+
+<style>
+  @import './stylesheet/common.css';
+  @import './stylesheet/flex.css';
+  .app{
+    width: 100%;
+  }
+</style>

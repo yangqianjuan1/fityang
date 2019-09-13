@@ -1,0 +1,429 @@
+<template>
+	<div>
+		<img src="../../assets/img/index/index-1.png" class="cl" style="height: 2.36rem;position: relative;bottom: -1.2rem;z-index: 5;">
+
+		<div class="logo-content " flex="dir:top main:center cross:center">
+			<money :total="total"></money>
+			<div class="Label" :class="'nav_'+type" flex="box:mean">
+				<p @click="type = 1"></p>
+				<p @click="type = 0"></p>
+			</div>
+			<input placeholder="请输入用户名" v-model="userName" />
+			<input placeholder="请输入手机号码" v-if="type" v-model="phone" />
+			<input placeholder="请输入邮箱" v-else="type" v-model="email" />
+			<div flex="main:justify cross:center" style="width: 80%">
+				<input placeholder="请输入验证码" style="width: 60%" v-model="code" />
+				<send-code class="code  btn-blue" :userName="type?phone:email" :isPhone="type" :type="1" ref="code"></send-code>
+			</div>
+			<input placeholder="请输入6-16位数字加字母密码" type="password" v-model="password" />
+			<div flex="main:left" style="width: 80%;cursor: pointer;position: relative;">
+				<div class='checkbox'>
+					<input type='checkbox' id='accept' :value="accept" v-model="accept" ref="checkbox">
+					<label for='accept' class="ct"></label>
+				</div>
+				<p class="accept">我已阅读并接受<span class="special-color" style="color: #3d38fb;" @click="rule = true">《FUNMVP产品服务条款》</span></p>
+			</div>
+			<button class="btn   btn-yellow" @click="Register" :disabled="!accept">注册</button>
+			<p style="cursor: pointer;" @click="$router.replace('/login')">已有账号，<span class="special-color" style="color: #3d38fb;">立即登录</span></p>
+		</div>
+		<rule v-model="rule">
+			<register-agreement></register-agreement>
+		</rule>
+	</div>
+</template>
+
+<script>
+	import gt from '../../assets/js/gt'
+	import SendCode from "../../components/sendCode";
+	import Rule from "../../components/tips/rule";
+	import Money from "./money";
+	import RegisterAgreement from "./registerAgreement";
+	export default {
+		components: {
+			RegisterAgreement,
+			Money,
+			Rule,
+			SendCode
+		},
+		name: "register",
+		data() {
+			return {
+				userName: null,
+				phone: null,
+				email: null,
+				code: null,
+				password: null,
+				type: 1, //1 phone 0:email
+				rule: false,
+				accept: false,
+				total: '00000.00万'
+			}
+		},
+		mounted() {
+			this.getInfo();
+		},
+		methods: {
+			getInfo: function() {
+				this.$axios.get('http://01.coinunio.com/api/fomo3d/querygameinfoamount/').then(
+					res => {
+						let result = res.data;
+						if (result.IsSuccess) {
+							this.total = result.Result + '万';
+						} else {
+							this.$get_error('tips', result.Code, result.Message);
+						}
+					}, error => {
+						this.$get_error('reload');
+					}
+				);
+			},
+			reSet: function() {
+				this.userName = null;
+				this.phone = null;
+				this.email = null;
+				this.code = null;
+				this.password = null;
+				this.accept = false;
+				this.$refs.code.init();
+			},
+			loadScriptString: function(code) {
+				let script = document.createElement("script");
+				script.type = "text/javascript";
+				try {
+					script.appendChild(document.createTextNode(code));
+				} catch (ex) {
+					script.text = code;
+				}
+				document.body.appendChild(script);
+			},
+			phoneFill: function(phone) { //邮箱格式验证
+				if (!phone) {
+					error = '请输入手机号码';
+					return error;
+				}
+
+				let error = null;
+				let phoneType = /^1\d{10}$/;
+				if (!phoneType.test(phone)) {
+					error = '请输入11位有效手机号码';
+					return error;
+				}
+				return null;
+
+			},
+			secretFill: function(password) {
+				let str = password;
+				if (str == ""||str==null) {
+					return '请输入密码';
+				}
+				if (str.length < 6 || str.length > 16) {
+					return '密码必须大于6位小于16位';
+				}
+				let reg = new RegExp(/[A-Za-z].*[0-9]|[0-9].*[A-Za-z]/);
+				if (reg.test(str)) {
+					return null;
+				} else {
+					return '密码必须包含数字和字母';
+				}
+			},
+			emailFill: function(email) {
+				let error = null;
+				let reg = new RegExp("[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+"); //正则表达式
+				if (!email) {
+					error = '请输入邮箱';
+					return error;
+				}
+				if (!reg.test(email)) {
+					error = '邮箱格式错误';
+					return error;
+				}
+				return null
+			},
+			init: function() {
+				let self = this;
+				this.$axios.get('http://01.coinunio.com/api/user/getcaptcha/').then(
+					res => {
+						let data = JSON.parse(res.data.Result);
+						initGeetest({
+							gt: data.gt,
+							challenge: data.challenge,
+							offline: data.success,
+							new_captcha: data.new_captcha,
+							product: 'popup',
+							width: '100%',
+							bg_color: 'black'
+						}, function(captchaObj) {
+							// 这里可以调用验证实例 captchaObj 的实例方法
+							captchaObj.appendTo('#login');
+							captchaObj.onSuccess(function() {
+								let result = captchaObj.getValidate();
+								self.geetest = {
+									challenge: result.geetest_challenge,
+									validate: result.geetest_validate,
+									seccode: result.geetest_seccode
+								};
+							})
+						})
+					}
+				);
+			},
+			Register: function() {
+				if(!this.userName){
+					this.$tips("请填写用户名");
+					return;
+				}
+				if (this.type) {
+					let result=this.phoneFill(this.phone);
+					if (result!= null) {
+						this.$tips(result);
+						return;
+					}
+				} else {
+					let result=this.emailFill(this.email);
+					if (result!= null) {
+						this.$tips(result);
+						return;
+					}
+				}
+				let secretError = this.secretFill(this.password);
+				if (secretError) {
+					return this.$tips(secretError)
+				}
+				if (!this.code) {
+					this.$tips('验证码不能为空');
+					return
+				}
+				var inviteCode = "";
+				var url = window.location.href; //url
+				var theRequest = new Object();
+				if (url.indexOf("?")>0) {
+					var str=url.split("?")[1];
+					var strs = str.split("&");
+					for (var i = 0; i < strs.length; i++) {
+						var elem = strs[i].split("=");
+						theRequest[elem[0]] = elem[1];
+					}
+					if(theRequest!=null){
+						inviteCode=theRequest.inviteCode;
+					}
+				}
+				let form = new FormData();
+				form.append("nick", this.userName);
+				form.append("loginPwd", $.md5(this.password));
+				form.append("loginName",this.type ? this.phone : this.email);
+				form.append("rid", inviteCode);
+				form.append("channel","tigergame");
+				form.append("vCode", this.code);
+				if (this.userName.indexOf('@') != -1) {
+					form.append("type", "email");
+				} else {
+					form.append("type", "phone");
+				}
+				this.$axios.post('http://01.coinunio.com/channel-server/user/doRegister.do', form) //手机注册
+					.then(res => {
+						let result = res.data;
+						if (result.errorCode=='200') {
+							this.$tips('注冊成功,请在登录页登录');
+							var time=2;
+							var timer=window.setInterval(function(){
+								if(time<=0){
+									window.clearInterval(timer);
+									top.location.href="http://01.coinunio.com/#/login";
+									return;
+								}
+								time--;
+							},1000);
+							
+						} else {
+							this.$get_error("tips", result.errorCode, result.errorMessage);
+						}
+					}, error => {
+						this.$get_error("reload");
+					})
+
+			},
+			toLogin: function() {
+				this.$router.replace({
+					name: 'login'
+				});
+			}
+		},
+		watch: {
+			type(val) {
+				this.reSet()
+			}
+		}
+	}
+</script>
+
+<style scoped>
+	.email {
+		background-image: url('../../assets/img/dialog/email.png');
+	}
+
+	.secret {
+		background-image: url('../../assets/img/dialog/secret.png');
+	}
+
+	input {
+		text-indent: 0.2rem;
+		background: #ffffff;
+		width: 80%;
+		height: 0.8rem;
+		border: 1px solid #7B613B;
+		border-radius: 0.15625rem;
+		-webkit-border-radius: 0.15625rem;
+		-moz-border-radius: 0.15625rem;
+		margin: 0.1rem auto;
+	}
+
+	input::placeholder {
+		color: #502111;
+	}
+
+	.logo-content {
+		text-align: center;
+		width: 80%;
+		padding: 1.4rem 0.5rem 2rem;
+		position: relative;
+		background-image: url("../../assets/img/index/erweimadi.png");
+		background-size: 100% 100%;
+		margin: 0 auto;
+	}
+
+	.code {
+		width: 40%;
+		height: 0.8rem;
+		border-radius: 0.3rem;
+		margin-left: 0.1rem
+	}
+
+	button {
+		cursor: pointer;
+		width: 90%;
+		height: 0.8rem;
+		line-height: 0.8rem;
+		text-align: center;
+	}
+
+	.btn {
+		font-size: 0.4rem;
+		width: 50%;
+		margin: 0.3rem 0;
+	}
+
+	.error {
+		color: #ffffff;
+		text-align: left;
+		width: 80%;
+		margin: 0 auto 0.2rem;
+
+	}
+
+	.Label {
+		background-size: 100% 100%;
+		height: 0.8133rem;
+		width: 6.4rem;
+		margin: 0 auto;
+	}
+
+	.Label p {
+		cursor: pointer;
+	}
+
+	.nav_1 {
+		background-image: url("../../assets/img/login/label_1.png");
+	}
+
+	.nav_0 {
+		background-image: url("../../assets/img/login/label_2.png");
+	}
+
+	.checkbox {
+		position: absolute;
+		height: 0.5rem;
+		left: 0;
+		right: 0;
+
+	}
+
+	.checkbox input[type='checkbox'] {
+		margin: 0;
+		width: 100%;
+		height: 100%;
+		opacity: 0;
+	}
+
+	.checkbox label {
+		left: 0;
+		height: 0.5rem;
+		width: 0.5rem;
+		line-height: 0.5rem;
+		border: 1px solid #9D4E42;
+		background-color: #ffffff;
+		border-radius: 0.1rem;
+	}
+
+	.checkbox input[type='checkbox']:checked+label:before {
+		background: #ffffff;
+		border-color: #4cd764;
+	}
+
+	.checkbox label:before {
+		content: '';
+		position: absolute;
+		width: 0.1rem;
+		height: 0.3rem;
+		left: 20%;
+		top: 31%;
+		border: 1px solid #9D4E42;
+		background-color: #ffffff;
+		border-radius: 0.1rem;
+		opacity: 0;
+		transform: rotate(145deg);
+	}
+
+	.checkbox label:after {
+		content: '';
+		position: absolute;
+		width: 6px;
+		left: 70%;
+
+		height: 0.5rem;
+		border: 0;
+		background: #fff;
+		transform: rotate(45deg);
+
+		transition: all 0.3s ease;
+		-webkit-transition: all 0.3s ease;
+		-moz-transition: all 0.3s ease;
+		opacity: 0;
+	}
+
+	.checkbox input[type='checkbox']:checked+label:before {
+
+		background: #4cd764;
+		opacity: 1;
+	}
+
+	.checkbox input[type='checkbox']:checked+label:after {
+		background: #4cd764;
+		opacity: 1;
+	}
+
+	.accept {
+		margin-left: 0.6rem;
+		height: 100%;
+		font-size: 0.24rem;
+		line-height: 0.5rem;
+		z-index: 10;
+	}
+
+	.accept span {
+		font-size: 0.24rem;
+		display: inline-block;
+
+		height: 100%;
+		line-height: 0.5rem;
+	}
+</style>

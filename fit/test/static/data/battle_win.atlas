@@ -1,0 +1,55 @@
+
+battle_win.png
+size: 1024,2048
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+guanmang
+  rotate: false
+  xy: 1, 1
+  size: 504, 506
+  orig: 512, 512
+  offset: 4, 3
+  index: -1
+daizi
+  rotate: false
+  xy: 1, 1070
+  size: 750, 55
+  orig: 750, 55
+  offset: 0, 0
+  index: -1
+dun
+  rotate: false
+  xy: 502, 832
+  size: 236, 236
+  orig: 236, 236
+  offset: 0, 0
+  index: -1
+huangguan
+  rotate: false
+  xy: 507, 378
+  size: 259, 106
+  orig: 259, 106
+  offset: 0, 0
+  index: -1
+caidai
+  rotate: false
+  xy: 507, 1
+  size: 502, 375
+  orig: 502, 375
+  offset: 0, 0
+  index: -1
+win
+  rotate: false
+  xy: 1, 832
+  size: 499, 151
+  orig: 499, 151
+  offset: 0, 0
+  index: -1
+light
+  rotate: false
+  xy: 1, 509
+  size: 595, 321
+  orig: 595, 321
+  offset: 0, 0
+  index: -1

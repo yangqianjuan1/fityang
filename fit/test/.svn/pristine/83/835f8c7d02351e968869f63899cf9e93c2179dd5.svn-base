@@ -1,0 +1,363 @@
+<template>
+  <div class="transaction">
+    <div>
+      <div flex="main:justify cross:center" class="selectTitle" >
+        <selection :values="selectValue" :selectFunc="selectFunc" ref="selectTrans"></selection>
+        <div class="ui-select" flex="main:justify cross:center">
+          <input  style="height:0.6rem;line-height:0.6rem;text-indent:0.325rem;color:#9F9F9F;width:70%;font-size: 0.37rem;" type="number"  class="noStroke" placeholder="搜索ID" v-model.number="searchValue"/>
+          <img src="../../assets/img/transactin/search.png" class="search ct" @click="search()">
+        </div>
+
+        <!--<span class="slot"  @click="beautySlot(!secondsPositiveSequence)">选美次数<span :class="secondsPositiveSequence?'arrow-up':'arrow-down' " class="arrow" style="margin-left: 5px"></span></span>-->
+        <div class="slot"  @click="priceSlot(!pricePositiveSequence)" flex="main:center cross:center">
+          <p style="font-size: 0.37rem">价格</p>
+          <p :class="pricePositiveSequence?'arrow-up':'arrow-down'" class="arrow" style="margin-left: 5px" ></p>
+        </div>
+        <img src="../../assets/img/transactin/record.png" class="ruleIcon" style="margin-right: 0" @click="$router.push('/transactionRecord')">
+      </div>
+      <!--<img src="../../assets/img/transactin/peng.png" style="height: 1rem;width: 100%">-->
+      <scroll
+        ref="scrollTrans"
+        top="1.5"
+        bottom="2">
+        <div :style="setScrollMinHeight()" >
+          <!--<div style="position: relative">-->
+          <ul   v-if="!empty"  >
+            <!--<li v-for="(info,index)tigersrses"  style="width: 33.3%;"  :style="index%2!==0?'margin-left:0.3rem':''" class="left" @click="transactionDetail(info)">-->
+            <li v-for="(info,index) in tigers"  style="width: 33.33%;display: inline-block;padding: 0 0.25rem;"   @click="transactionDetail(info)">
+              <tiger-info :Info="info" class="tigerIcon" ></tiger-info>
+              <!--<p class="price" style="">{{info.tigerPrice|ETH}}ETH</p>-->
+            </li>
+          </ul>
+          <div style="text-align: center" ><img style="width: 2.5rem;padding: 2rem" src="../../assets/img/dialog/empty.png" v-if="empty"/></div>
+          <paging :totalPage="totalPage" :pageFunc="getTigerList" ref="page"></paging>
+        </div>
+      </scroll>
+    </div>
+    <foot ></foot>
+
+
+  </div>
+</template>
+
+<script>
+  import Contain from "../../components/contain";
+  import TigerInfo from "../../components/tigerInfo";
+
+  import Foot from "../../components/footer";
+  import Selection from "../../components/index/select";
+
+  import common from '../../components/common'
+  import Scroll from "../../components/scroll/scroll";
+  import Paging from "../../components/paging";
+  export default{
+    components: {
+      Paging,
+      Scroll,
+      Selection,
+      Foot,
+      TigerInfo,
+      Contain},
+    name: "transaction",
+    data(){
+      return {
+        scrollY:0,
+        load:true,
+        empty:false,
+        dialogOpen:'',
+        pageSize:30,
+        pageIndex:1,
+        offset:0,
+        totalPage:0,
+        orderByPrise:1,//0 从大到小 1从小到大
+        tigerNo:'',     //搜索id
+        level:-1, /// 创世虎,
+        selectName:'请选择',
+        searchValue:'',
+        secondsPositiveSequence:true,
+        pricePositiveSequence:true,
+        selectValue:[
+          {value:"全部"},
+          {value:"创世虎"},
+          {value:"神虎"},
+          {value:"猛虎"},
+        ],
+        tigers:[],
+      }
+    },
+//    beforeRouteEnter (to, from, next) {
+//      next(vm=>{
+//        if(from.name ==="buyDetail"){
+//          vm .scrollY = vm .$store.state.transactionScroll;
+//
+//        }else{
+//          vm .scrollY = 0;
+//          vm.initialization();
+//          vm.getTigerList();
+//
+//        }
+//        vm.$nextTick(() => {
+//          setTimeout(()=>{
+//            vm.$refs.scrollTrans.initScroll();
+//          },100)
+//
+//        });
+//      });
+//    },
+    computed:{
+      setPullUpLoad:function () {
+        return {
+          threshold:-60,
+        }
+      },
+      setPullDown:function () {
+        return  {
+          threshold:100,
+          stop:50
+        }
+      },
+
+    },
+    mounted(){
+      this.initialization();
+      this.getTigerList();
+    },
+    methods:{
+      initialization:function(){
+        if(this.$refs.selectTrans){
+          this.$refs.selectTrans.init();
+        }
+        this.orderByPrise = 1;
+        this.pricePositiveSequence = true;
+        this.level = -1;
+        this.searchValue = ""
+      },
+      setScrollMinHeight:function () {
+        if(document.getElementById('warp'))
+        {
+          return {'min-height':(document.getElementById('warp').offsetHeight+1)+'px' }
+        }
+      },
+      getPadding:function () {
+        if(document.getElementById('warp'))
+        {
+          let number = Math.floor(document.getElementById('warp').offsetWidth%(parseFloat(document.documentElement.style.fontSize.split('px')[0])*4.15));
+          // return{ 'padding':'0 '+number/2+'px'}
+        }
+      },
+      getTigerList:function (pageIndex) {
+        let offset;
+        if(pageIndex){
+          offset = (pageIndex-1)*this.pageSize;
+        }else
+        {
+            if(this.$refs.page){
+              this.$refs.page.reSetPage();
+            }
+
+          offset = 0;
+        }
+        this.load = true;
+        let data={pageSize:this.pageSize,offset:offset,horseNo:this.searchValue,level:this.level,orderByPrice:this.orderByPrise};
+        this.$axios.post('http://01.coinunio.com/api/horse/trade/list/',data).then(
+          res=>{
+            let result = res.data;
+            let tigers=[];
+            if(result.IsSuccess){
+              if(this.beautyCountType === 1){
+                this.secondsPositiveSequence = true;
+              }else if(this.beautyCountType === 0){
+                this.secondsPositiveSequence = false;
+              }
+              if(this.orderByPrise === 1){
+                this.pricePositiveSequence = true;
+              }else if(this.orderByPrise === 0){
+                this.pricePositiveSequence = false;
+              }
+              if(!result.Result.Data) return;
+              this.totalPage = result.Result.total?Math.ceil(result.Result.total/this.pageSize):0;
+              if(result.Result.Data.length>0){
+                this.empty = false;
+                tigers = result.Result.Data;
+//                for(let tiger in tigers ){
+//                  tigers[tiger].tiger= common.svgApi+result.Result.Data[tiger].HorseKey;
+//
+//                }
+
+              }else{
+                if(pageIndex){
+                  // this.$tips('暂无更多数据');
+                }else{
+                  this.empty = true;
+                }
+              }
+              // if(pageIndex){
+                // this.tigers =  this.tigers.concat(tigers);
+              // }else{
+              this.tigers = [];
+              this.$nextTick(()=>{
+                this.tigers =tigers;
+              });
+
+              // }
+              this.load = false;
+              // if(pageIndex) {
+                this.$refs.scrollTrans.scrollYto(0);
+              // }else{
+                this.$refs.scrollTrans.finishPullDown();
+              // }
+              this.offset = this.tigers.length;
+            }else{
+              if(pageIndex) {
+                // this.$refs.scrollTrans.finishiPullUp();
+              }else{
+                this.$refs.scrollTrans.finishPullDown();
+              }
+              this.$get_error('tips',result.Code,result.Message);
+              this.load = false;
+            }
+          },error=>{
+            if(pageIndex) {
+              // this.$refs.scrollTrans.finishiPullUp();
+            }else{
+              this.$refs.scrollTrans.finishPullDown();
+            }
+            this.$get_error('reload');
+            this.load = false;
+          }
+        );
+      },
+      search:function () {//搜索
+        if(this.searchValue){
+          this.tigerNo =this.searchValue;
+          this.getTigerList();
+        }
+
+      },
+//      beautySlot:function (type) {//选美排序
+//        // this.$refs.page.reSetPage();
+//        this.beautyCountType = type?1:0;
+//        this.getTigerList();
+//      },
+      priceSlot:function (type) {//价格排序
+        this.orderByPrise = type?1:0;
+        this.getTigerList();
+      },
+      transactionDetail:function (info) {
+        this.$router.push({path:'/buyDetail',query:{tigerKey:info.HorseKey}})
+      },
+      getLevel:function (val) {//分类
+        switch (val){
+          case '全部':this.level = -1; break;
+          case '创世虎':this.level = 4; break;
+          case '神虎':this.level = 2; break;
+          case '猛虎':this.level = 1; break;
+        }
+      },
+      selectFunc:function (value) {
+        this.getLevel(value);
+        this.getTigerList();
+
+      }
+    },
+  }
+</script>
+
+<style scoped>
+  .select{
+    position: relative;
+  }
+  .transaction{
+    background-image: url("../../assets/img/transactin/bg.png");
+    background-size: 100% 100% ;
+    width: 100%;
+    height: 100vh;
+  }
+  .selectTitle{
+    padding: 0 0.5rem 0;
+    position:relative;
+    z-index:20;
+  }
+  select::-ms-expand {
+    display: none;
+  }
+  .arrow {
+    height:0.3rem;
+    width: 0.2rem;
+    display: inline-block;
+    background-size: 100% 100% ;
+
+  }
+  input::-webkit-input-placeholder{
+    font-size: 14px;
+    color: #4F2111;
+  }
+  .arrow-up {
+    background-image: url("../../assets/img/transactin/up.png");
+  }
+  .arrow-down{
+    background-image: url("../../assets/img/transactin/down.png");
+
+  }
+  .ui-select{
+    /*float: left;
+     */
+    overflow: hidden;
+    width:30%;
+    background-color:#ffffff;
+    color: #4F2111;
+    font-size: 14px;
+    height: 0.6rem;
+    text-align: left;
+    position: relative;
+    border-radius: 5px ;
+
+  }
+  .ui-select input{
+    width: 100%;
+  }
+
+  select{
+    width:100%;
+    height:1.125rem;
+    line-height:1.125rem;
+    opacity: 0;
+    position: absolute;
+    top:0;
+    left:0;
+  }
+
+  .slot{
+    position: relative;
+    cursor: pointer;
+    color: #ffffff;
+    height:0.6rem;
+    line-height: 0.6rem;
+    padding:0 0.3rem;
+    background: rgba(0, 0, 0 ,0.5);
+    border-radius: 0.2rem;
+  }
+  .search{
+    cursor: pointer ;
+    display: inline-block;
+    height: 80%;
+    position: absolute;
+    right:0;
+  }
+  .price{
+    margin: 0.3rem 0;
+    text-align: center;
+    /*height: 0.71875rem;*/
+    font-size: 0.5rem;
+    color: #333333;
+
+
+  }
+  .tiger{
+    width: 48%;
+    float: left;
+    cursor: pointer;
+  }
+
+
+</style>

@@ -1,0 +1,549 @@
+<template>
+  <div class="disposition">
+    <div class="top">
+      <div class="htitle" flex="cross:center main:right">
+        <img src="../../assets/img/activity/pk-rule.png" class="right ruleIcon" @click="open">
+      </div>
+      <p class="time cl">{{getTimeText}}{{time}}</p>
+    </div>
+    <div>
+      <div class="title" flex="main:center box:mean" :class="getCur" >
+        <div  v-for="(item,index) in listTitle"   @click="chooseTab(item,index)"></div>
+      </div>
+      <div class="content" :style="{'max-width':$store.state.maxWidth}">
+        <disposition-list
+          @index="chooseIndex"
+          :com="comList"
+          @commit="getCommit"
+          @delete="getDelete"
+          @select="getSelect"
+          v-if="$route.name==='dispositionList'"></disposition-list>
+        <disposition-record @detail="details"  v-if="$route.name==='dispositionRecord'"></disposition-record>
+      </div>
+    </div>
+    <rule v-model="rule" class="rule">
+      <p style="font-size: 0.4267rem;text-align: center">老虎PK指南</p>
+      <p>1、玩家将自己的老虎放入比赛中与其他玩家的老虎进行PK，胜利方可获得对方的老虎，输了则会失去自己的老虎；</p>
+      <p>2、参赛规则：</p>
+      <p>比赛分<span>猛虎赛区、神虎赛区</span></p>
+      <p>猛虎赛区：只能猛虎参加；每只猛虎需缴纳<span>{{$store.state.pkEntryPrice}}FMVP</span>的报名费</p>
+      <p>神虎赛区：只能神虎参加；每只猛虎需缴纳<span>{{$store.state.pkShenPrice}}FMVP</span>的报名费</p>
+      <p>比赛每10分钟一场，最后一分钟为匹配时间（报名截止），每场比赛可选择多只老虎参加；</p>
+      <p>PK对手为系统随机进行匹配；</p>
+      <p>胜利方可获得对方的参赛老虎，输的一方返回报名费；</p>
+      <p>3、胜负判断：</p>
+      <p>同品种老虎PK初始胜率定为双方50%，战斗力每超过10点将追加1%胜率，每超一个级别胜率将为±5%；</p>
+      <p>例：SR级神虎（战斗力：210） PK  SSR级神虎（战斗力：300）  胜率：36%  PK  64%</p>
+      <p>4、参赛老虎要求：</p>
+      <p>老虎当天没有进行过喂养；</p>
+      <p>交易中、具有堂主、弟子的老虎无法参与升级；</p>
+      <p>老虎一旦投入比赛，比赛结果出来之前无法进行“喂养、生育、交易、融合、放生、逐鹿”等一系列老虎相关的操作 </p>
+      <p>5、延赛</p>
+      <p>当系统无法为你报名参赛的老虎匹配到对手时，该老虎的比赛将延至下一场； </p>
+    </rule>
+    <my-dialog  :dialogOpen="chooseDlg">
+      <div class="Check takeCenter" style="text-align: center">
+        <p  style="font-size: 0.5rem;font-weight: 600;margin-top: 0.2rem">{{getType}}PK</p>
+        <scroll
+          ref="scroll2"
+          style="height: 7rem;position: relative;margin-top: 0.2rem"
+          :pullUpLoad="setPullUpLoad"
+          :pullUpLoadFuc="getTigerList"
+          pullUpLoadFucParam="UpLoad" warpId="scroll2">
+          <ul >
+            <li v-for="item in tigerList" @click="chooseTiger(item)">
+              <div flex="main:center cross:center "  class="synthesis-item " >
+                <tiger-img :Style="item.Style" style="width: 35%"></tiger-img>
+                <div >
+                  <p>ID号：{{item.HorseNo}}</p>
+                  <p>等级：{{item.RareLevel|rare}}</p>
+                  <p>战斗力：{{item.CombatPower}}</p>
+                </div>
+                <div>
+                </div>
+              </div>
+              <div class="under-line"></div>
+            </li>
+            <div style="text-align: center" v-if="empty">
+              <img style="width: 2.5rem;padding: 1rem" src="../../assets/img/dialog/empty.png" >
+            </div>
+          </ul>
+        </scroll>
+        <button @click="onceCheckCancle"  class="checkCancle btn-violet cl">取消</button>
+      </div>
+    </my-dialog>
+    <comfire-dialog v-model="detail" :sure="closeDetail" sureText="战斗录像">
+      <p class="name"  style="margin: 0.2rem 0" flex="cross:center main:center"><span class="special-color" >{{detailAccountNick}}</span><span style="width: 10%;margin: 0 0.3rem;text-align: center">vs</span><span>{{detailOpponentNick?detailOpponentNick:'—'}}</span></p>
+      <div class="table">
+        <red-table :titleList="titleList"></red-table>
+          <div v-for="(item,index) in detailList" class="detailList">
+            <div   class="detailItem">
+            <div flex=" main:center cross:center box:mean" class="special-color">
+              <p>#{{item.HorseNo1}}</p>
+              <p>{{item.RareLevel1|rare}}</p>
+              <p>{{item.Combat1}}</p>
+              <p></p>
+            </div>
+              <div style="position: relative;height: 0.5rem"><p class="cl">VS</p><p class="table-right">{{getState(item.GameResult)}}</p></div>
+              <div flex="cross:center box:mean" >
+                <p>{{item.HorseNo2?'#'+item.HorseNo2:'—'}}</p>
+                <p v-if="item.RareLevel2">{{item.RareLevel2|rare}}</p>
+                <p v-if="!item.RareLevel2">—</p>
+                <p>{{item.Combat2?item.Combat2:'—'}}</p>
+                <p></p>
+              </div>
+
+            </div>
+            <div class="under-line-white" v-if="index!==(detailList.length-1)"></div>
+          </div>
+      </div>
+    </comfire-dialog>
+    <comfire-dialog v-model="comDialog" :sure="commit">
+      <p class="comTitle">确认参赛</p>
+      <p class="comText">共<span>{{commitList.length}}</span>只老虎参加PK需支付<span>{{commitList.length*(chooseType?$store.state.pkShenPrice:$store.state.pkEntryPrice)}}</span>FMVP报名费？</p>
+    </comfire-dialog>
+
+  </div>
+</template>
+
+<script>
+  import Tab from "../../components/tab";
+  import Rule from "../../components/tips/rule";
+  import Scroll from "../../components/scroll/scroll";
+  import OneCancelDialog from "../../components/tips/oneCancelDialog";
+  import DispositionList from "./dispositionList";
+  import DispositionRecord from "./dispositionRecord";
+  import MyDialog from "../../components/dialog";
+  import common from '../../components/common'
+  import ComfireDialog from "../../components/comfireDialog";
+  import TigerImg from "../../components/tigerImg";
+  import RedTable from "../../components/red-table";
+  export default{
+    components: {
+
+      RedTable,
+      TigerImg,
+      ComfireDialog,
+      MyDialog,
+      DispositionRecord,
+      DispositionList,
+      OneCancelDialog,
+      Scroll,
+      Rule,
+      Tab},
+    name: "disposition",
+    data(){
+      return {
+        rule:false,
+        listTitle:[
+          {name:'参赛列表',routeName:'dispositionList'},
+          {name:'参赛记录',routeName:'dispositionRecord'},
+        ],
+        titleList:["老虎ID","级别","战斗力","结果"],
+        detail:false,
+        time:"00:00",
+        countDownDate:0,
+        Interval:0,
+        offset:0,
+        pageSize:30,
+        timeType:-1,//倒计时类型 false比赛时间 true报名时间
+        waitTime:4,//报名时间
+        comTime:1,//比赛时间
+        chooseDlg:false,
+        tigerList:[],
+        choose:{},
+        comList:[
+          {num:1,RareLevel:'',CombatPower:''},
+          {num:2,RareLevel:'',CombatPower:''},
+          {num:3,RareLevel:'',CombatPower:''},
+          {num:4,RareLevel:'',CombatPower:''},
+          {num:5,RareLevel:'',CombatPower:''},
+        ],
+        commitList:[],
+        detailList:[],
+        detailAccountNick:"",
+        detailOpponentNick:"",
+        chooseType:0,
+      }
+    },
+
+    destroyed(){
+      if(this.Interval){
+        clearInterval(this.Interval )
+      }
+    },
+    mounted(){
+      this.getTime();
+
+    },
+    computed:{
+      setPullUpLoad:function () {
+        return {
+          threshold:-30,
+        }
+      },
+      getType:function () {
+        switch (this.choose.type){
+          case 0:return "猛虎";
+          case 1:return "神虎";
+        }
+      },
+      getCur:function () {
+        if(this.$route.name==="dispositionList"){
+          return "dispositionNva_0"
+        }else if(this.$route.name==="dispositionRecord"){
+          return "dispositionNva_1"
+        }
+      },
+      getTimeText:function () {
+        return this.timeType?'距离比赛开始':'距离下一场开始';
+      }
+    },
+    methods:{
+      reSetComList:function () {
+        this.comList =[
+          {num:1,RareLevel:'',CombatPower:''},
+          {num:2,RareLevel:'',CombatPower:''},
+          {num:3,RareLevel:'',CombatPower:''},
+          {num:4,RareLevel:'',CombatPower:''},
+          {num:5,RareLevel:'',CombatPower:''},
+        ]
+      },
+      getState:function (GameResult) {
+        switch (GameResult){
+          case 0:return '—';
+          case 1:return '胜';
+          case 2:return '负';
+        }
+      },
+      getDelete:function (val) {
+          this.$set(this.comList,val,{num:val+1});
+      },
+      getSelect:function (val) {
+
+         this.chooseType = val
+        this.reSetComList();
+
+      },
+      onceCheckCancle:function () {
+        this.chooseDlg = false;
+      },
+      chooseIndex:function (val) {
+        this.choose = val;
+        this.chooseDlg = true;
+      },
+      chooseTiger:function (item) {
+        item.num = this.choose.index+1;
+        this.$set(this.comList, this.choose.index, item)
+        this.chooseDlg = false;
+      },
+      getTigerList:function (type) {
+        let offset;
+        if(type ==='UpLoad'){
+          offset = this.offset;
+        }else
+        {
+          offset = 0;
+          this.tigerList = [];
+        }
+        let data={size:this.pageSize,offset:offset,gameType:this.choose.type};
+        this.$axios.post('http://01.coinunio.com/api/battle/character/horselist/',data).then(
+          res=>{
+            let result = res.data;
+            if(result.IsSuccess){
+              if(!result.Result.Data) return;
+              if(result.Result.Data.length>0){
+                let self = this;
+                let list = result.Result.Data.filter(function (item,index,arr) {
+                  for(let index2 in self.comList){
+                    if(item.HorseKey === self.comList[index2].HorseKey){
+                      return false
+                    }
+                  }
+                  return true
+                });
+                if(type ==='UpLoad'){
+                  this.tigerList =  this.tigerList.concat(list);
+                }else{
+                  this.tigerList= list;
+                }
+              }else{
+                if(type ==='UpLoad')
+                {
+                  // this.$tips('暂无更多提现记录');
+                }else{
+                  this.empty = true;
+                }
+              }
+              if(this.$refs.scroll2){
+                this.$refs.scroll2.finishiPullUp();
+              }
+              this.offset = this.tigerList.length;
+            }else{
+              if(this.$refs.scroll2){
+                this.$refs.scroll2.finishiPullUp();
+              }
+              this.$get_error('tips',result.Code,result.Message);
+            }
+          },error=>{
+            if(this.$refs.scroll2){
+              this.$refs.scroll2.finishiPullUp();
+            }
+            this.$get_error('reload');
+          }
+        );
+      },//获取添加马匹列表
+      chooseTab:function (item,index) {
+        this.isCur = index;
+        this.$router.replace({name:item.routeName});
+      },
+      getTime:function () {
+        this.$axios.get('http://01.coinunio.com/api/battle/characterlastsettlingtime/').then(
+          res=>{
+            let result = res.data;
+            if(result.IsSuccess){
+              this.timeType =result.Result.isAble;
+              if(result.Result.isAble){
+                this.dayBetween(result.Result.sysTime,result.Result.settlingTime);
+              }else{
+                this.dayBetween(result.Result.sysTime,result.Result.startTime);
+              }
+
+            }else{
+              this.$get_error('tips',result.Code,result.Message);
+            }
+          },error=>{
+            this.$get_error('reload');
+          }
+        );
+      },
+      dayBetween :function (sysTime,endTime){
+        let sysString = sysTime.replace(/-/g, "/");
+        let endString = endTime.replace(/-/g, "/");
+        let system = new Date(sysString);
+        let end = new Date(endString);
+        this.countDownDate = end.getTime() - system.getTime();
+        if(this.Interval ){
+          clearInterval(this.Interval );
+        }
+        this.Interval = setInterval(this.countLoop,1000);
+      },//倒计时
+      countLoop:function () {
+        if(this.countDownDate<=0) return;
+        this.countDownDate = this.countDownDate-1000;
+        let countDown = new Date( this.countDownDate);
+        let d,h,m,s;
+        if (this.countDownDate>=0) {
+          m = Math.floor(this.countDownDate/1000/60%60);
+          if(m<10)m='0'+m;
+          s = Math.floor(this.countDownDate/1000%60);
+          if(s<10)s='0'+s;
+        }
+
+        this.time =m+':'+s;
+
+      },
+      open:function () {
+        this.rule = true;
+      },
+      closeDetail:function (item) {
+					if(this.detailList.length==0){
+						 return this.$tips('战斗录像不可用,请重试')
+					}
+          if(!this.detailList[0].GameResult){
+              return this.$tips('战斗未结束')
+          }
+        this.$spine({battle:this.detailList[0]});
+        this.detail = false
+      },
+      details:function (item) {
+        this.getDetail(item.TeamKey);
+        this.detail = true;
+      },
+      getDetail:function (TeamKey) {
+        let data={teamKey:TeamKey};
+        this.$axios.post('http://01.coinunio.com/api/battle/character/teamdetail/',data).then(
+          res=>{
+            let result = res.data;
+            if(result.IsSuccess){
+              this.detailList = result.Result.Data;
+              this.detailAccountNick = result.Result.accountNick;
+              this.detailOpponentNick = result.Result.opponentNick;
+            }else{
+              this.$get_error('tips',result.Code,result.Message);
+            }
+          },error=>{
+            this.$get_error('reload');
+          }
+        );
+      },
+      getCommit:function (val) {
+        this.commitList = this.comList.filter(item=>{
+          if(item.HorseKey){
+            return true
+          }
+        }).map(item=>{
+          return item.HorseKey
+        });
+        this.comDialog = val;
+      },
+      commit:function () {
+        this.comDialog = false;
+        let data={gameType:this.choose.type,horseKeys:this.commitList};
+        this.$axios.post('http://01.coinunio.com/api/horse/battle/character/',data).then(
+          res=>{
+            let result = res.data;
+            if(result.IsSuccess){
+                if(this.timeType)
+                {
+                  this.$tips('参赛成功！');
+                }else{
+                  this.$tips('本轮比赛报名已截止，系统已为您报名下一轮比赛');
+                }
+
+              this.reSetComList();
+            }else{
+              this.$get_error('tips',result.Code,result.Message);
+            }
+          },error=>{
+            this.$get_error('reload');
+          }
+        );
+      },
+    },
+    watch:{
+      chooseDlg:function (val) {
+        if(val){
+          this.getTigerList();
+        }
+      },
+      time(val){
+        if(val==='00:00'){
+          if(this.Interval ){
+            clearInterval(this.Interval );
+          }
+          this.timeType = !this.timeType;
+          if(this.timeType){
+            this.countDownDate = this.waitTime*60000;
+          }else{
+            this.countDownDate = this.comTime*60000;
+          }
+
+          this.Interval = setInterval(this.countLoop,1000);
+        }
+      }
+    }
+  }
+</script>
+
+<style scoped>
+  .top{
+    position: relative;
+    background: url("../../assets/img/disposition/top.png");
+    background-size: 100% 100%;
+    height:4.18rem;
+  }
+  .content{
+    background-image: url("../../assets/img/user/content-bg.png");
+    background-size: 100% 100%;
+    position: fixed;
+    top:4.7rem;
+    bottom: 0;
+    width: 100%;
+  }
+  .Check{
+    padding: 0.5rem;
+    background-image: url("../../assets/img/competition/guideBg.png");
+    background-size: 100% 100%;
+    width: 80%;
+
+    border-radius: 5px;
+    height: 10rem;
+  }
+  .synthesis-title{
+    text-align: center;
+    margin: 0 auto;
+    padding: 0.2rem ;
+    transform: skewX(-15deg);
+    color: #000000;
+    background-color: #ffffff;
+    display: inline-block;
+    font-size: 0.32rem;
+  }
+  .synthesis-item{
+    position: relative;
+    padding: 0.2rem 0;
+    text-align: left;
+  }
+  .checkCancle{
+    position: absolute;
+    bottom: 0.36rem;
+    width:2.5rem;
+    height:0.6933rem;
+    line-height: 0.6933rem;
+    cursor:pointer ;
+  }
+  .htitle {
+    width: 100%;
+    height: 1.5rem;
+    position: relative;
+  }
+  .title{
+    height: 1.76rem;
+    width: 100%;
+    position: relative;
+    top:-0.2rem;
+    background-size: 100% auto!important;
+  }
+
+  .time{
+    position: absolute;
+    text-align: center;
+    top: 1.85rem;
+    font-size: 0.37rem;
+    color: #ffffff;
+    padding: 0.2rem 0.5rem;
+    border-radius: 0.2rem;
+    background: rgba(0,0,0,0.7);
+  }
+  .rule{
+    line-height: 0.6rem;
+  }
+  .rule span{
+    color: #fe662e;
+  }
+  .dispositionNva_0{
+    background: url("../../assets/img/disposition/pk_0.png")center no-repeat ;
+  }
+  .dispositionNva_1{
+    background: url("../../assets/img/disposition/pk_1.png") center no-repeat;
+  }
+
+  .detailItem{
+    padding: 0.1rem 0;
+    text-align: center;
+  }
+
+  .table-left{
+    width: 20%;
+  }
+  .table-right{
+    width: 25%;
+    position: absolute;
+    right: 0;
+  }
+  .table-mid{
+    width: 30%;
+  }
+  .comTitle{
+    text-align: center;
+    font-size: 0.5rem;
+  }
+  .comText{
+    text-align: center;
+    margin-top: 0.5rem;
+  }
+  .comText span{
+    color: #fe662e;
+  }
+</style>

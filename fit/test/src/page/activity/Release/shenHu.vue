@@ -1,0 +1,174 @@
+<template>
+  <div class="shen">
+    <div class="content"  :style="{'max-width':$store.state.maxWidth}"></div>
+    <scroll
+      warpId="shen"
+      top="5" >
+      <div class="warp">
+        <!--<p class="name">放生次数：{{TotalCount}}</p>-->
+        <div class="cl" style="  width: 7.15rem;height: 9rem;">
+          <release-plant  :type="curInfoChuang.IsGenesis?1:0" :info="curInfoChuang"  ref="chuanshi"></release-plant>
+        </div>
+      </div>
+    <div  style="position: relative;top: -1rem;">
+      <div  flex="main:center"  >
+        <img src="../../../assets/img/activity/release-tick.png" style="height: 1.06rem;"><p class="ticks" >X{{curInfoChuang.TicketCount}}</p>
+      </div>
+      <button class="btn btn-yellow" @click="toRelease">放生</button>
+    </div>
+    </scroll>
+    <to-release v-model="releaseDialog" :Info="curInfoChuang" :type="3" :infoFun="getInfo"></to-release>
+  </div>
+</template>
+
+<script>
+  import common from '../../../components/common'
+  import ReleasePlant from "../../../components/release/release-plant";
+  import ReleaseProgress from "../../../components/progress";
+  import ToRelease from "./toRelease";
+  import Scroll from "../../../components/scroll/scroll";
+  export default{
+    components: {
+      Scroll,
+      ToRelease,
+      ReleaseProgress,
+      ReleasePlant},
+    name: "junma",
+    data(){
+      return {
+        cur:0,
+        ticks:0,
+        releaseDialog:false,
+        curInfoShen:{
+          CurrentCount: 0,
+          ReleaseCount: 1,
+          ReleaseNo: 0,
+        },
+        curInfoChuang:{
+          CurrentCount: 0,
+          ReleaseCount: 1,
+          ReleaseNo: 0,
+        }
+      }
+    },
+    mounted(){
+      this.getInfo();
+    },
+    methods:{
+      getInfo:function () {
+        let data={type:3};
+        this.$axios.post('/api/activity/releasehorseprocess/',data).then(
+          res => {
+            let result = res.data;
+            if (result.IsSuccess) {
+                this.curInfoChuang = result.Result;
+//                this.curInfoChuang.HorseInfo.horse= common.svgApi+result.Result.HorseInfo.HorseKey;
+              this.TotalCount =result.Result.TotalCount
+            } else {
+              this.$get_error('tips',result.Code,result.Message);
+            }
+          }, error => {
+            this.$get_error('reload');
+          }
+        )
+      },
+      toRelease:function () {
+        this.releaseDialog = true
+      },
+    }
+  }
+</script>
+
+<style scoped>
+  .content{
+    background-image: url("../../../assets/img/activity/release-bg.png");
+    background-size: 100% 100%;
+    position: fixed;
+    top:2.5rem;
+    bottom: 0;
+    width: 100%;
+  }
+  .name{
+    word-WRAP: break-word;
+    width: 80%;
+    font-size: 0.35rem;
+    height: 0.64rem;
+    line-height: 0.64rem;
+    background-image: url("../../../assets/img/transactin/heidi.png");
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    text-align: center;
+    color: #ffffff;
+    margin:  0 auto 0.5rem;
+  }
+  .btn{
+    width: 3.36rem;
+    height:0.667rem ;
+    display: block;
+    margin:  0.5rem auto;
+  }
+  .warp{
+    padding-top: 0.3rem;
+    position: relative;
+    height: 9rem;
+    margin-top: 0.3rem;
+  }
+  .warp>img{
+    width: 1rem;
+  }
+  .card{
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+  .release-left{
+    margin-left: 0.5rem;
+  }
+  .release-right{
+    right: 0.5rem;
+  }
+  .ticks{
+    font-size: 0.33rem;
+    margin-left: 0.2rem;
+    line-height:1.06rem;
+    height:1.06rem;
+    font-weight: 600;
+  }
+  .shenma{
+    background-image: url("../../../assets/img/activity/shenma-bg.png");
+    background-size:100% 100% ;
+    width: 7.15rem;
+    height: 9rem;
+  }
+  .front{
+    z-index: 2;
+  }
+  .back-right{
+    z-index: 1;
+    transform: scale(0.9) rotateZ(15deg) translateX(1rem);
+  }
+  .back-left{
+    z-index: 1;
+    transform: scale(0.9) rotateZ(-15deg) translateX(-1rem);
+  }
+  .front-animation{
+    animation:front 0.5s;
+  }
+  .back-animation-right{
+    animation:right 0.5s;
+  }
+  .back-animation-left{
+    animation:left 0.5s;
+  }
+  .chuanshi{
+    position: absolute;
+    background-image: url("../../../assets/img/activity/chuangshima-bg.png");
+    background-size:100% 100% ;
+    width: 7.15rem;
+    height: 9rem;
+  }
+  .junma {
+    position: relative;
+
+  }
+</style>

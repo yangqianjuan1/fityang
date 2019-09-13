@@ -1,0 +1,356 @@
+<template>
+  <div style="position: relative">
+    <img src="../assets/img/dialog/bornBg.png"
+         style="width: 170%"
+         class="takeCenter"
+         v-if="type=== 4&&getType(Info)!=='猛虎'">
+    <div class="tigerInfo"
+         :class="getBg(Info)">
+
+      <img class="new"
+           src="../assets/img/user/chushouzhong.png"
+           v-if="Info.TradeType===1">
+      <!--<img class="new" src="../assets/img/user/new.png" v-if="Info.IsNew &&(!Info.TradeStatus)">-->
+      <img class="new"
+           src="../assets/img/transactin/height.png"
+           v-if="Info.IsHighestBid">
+      <img class="new"
+           src="../assets/img/transactin/auction-icon.png"
+           v-if="Info.TradeType===8">
+      <img class="new"
+           src="../assets/img/transactin/disposition-icon.png"
+           v-if="Info.BattleType">
+
+      <!--<img v-lazy="tiger" class="tiger" >-->
+      <tiger-img :Style="Info.Style"
+                 style="top: -0.5rem;"></tiger-img>
+      <div class="cl "
+           style="width: 100%;bottom: -0.1rem "> <span class="name"
+              v-if="type===1 ">{{Info.HorsePrice}}FMVP</span>
+        <p class="name "
+           v-if="(type===2)"><span style="font-size: 0.3rem">{{Info.MaxAuctionAmount}}FMVP</span></p>
+        <span class="name"
+              v-if="type===4">{{getType(Info)}}({{Info.RareLevel|rare}})</span>
+        <span class="name "
+              v-if="type===3">联盟数：{{Info.FamilyCount}}</span>
+        <p class="price num-abc-warp miaobian-shenlan"
+           v-if="type===1||type===3">{{getType(Info)}}</p>
+        <p class="price  miaobian-shenlan"
+           v-if="type===2">{{getType(Info)}}</p>
+        <p class="price  miaobian-shenlan"
+           v-if="type===4">#{{Info.HorseNo}}</p>
+      </div>
+    </div>
+    <slot></slot>
+    <div v-if="type!==4"
+         style="padding: 0 5%"
+         class="usual">
+      <p class="detail"
+         v-if="Info.HorseNo">ID号：#{{Info.HorseNo}}</p>
+      <p class="detail"
+         v-if="type===1||type===3||type===2">体重：{{Info.Weight}}kg<span v-if="Info.IsInitSend"
+              style="font-size:0.25rem ">(不可出售)</span></p>
+      <p class="detail"
+         v-if="type===1||type===3||type===2">稀有度：{{Info.RareLevel|rare}}</p>
+      <p class="detail"
+         v-if="type===1||type===3||type===2">战斗力：{{Info.CombatPower}}</p>
+      <p class="detail"
+         v-if="type===1||type===2">堂主：{{Info.SonCount?Info.SonCount:0}} <span class="detail"
+              v-if="getType(Info)==='创世虎'">弟子：{{Info.GrandsonCount?Info.GrandsonCount:0}}</span></p>
+      <p class="detail"
+         v-if="type===1||type===2&&Info.SellerUserName">出售者：{{Info.SellerUserName}}</p>
+      <!--<p class="detail"  v-if="type===2&&Info.MaxAuctionNick">竞价者：{{Info.MaxAuctionNick}}</p>-->
+      <!--<p class="detail"  v-if="type===2">剩余时间：{{countDownTime}}</p>-->
+      <!--<p v-if="type===2&&Info.CurAmountMaxAuction" class="miaobian-lan detail">我的竞价：{{getMyAuction}}</p>-->
+    </div>
+
+  </div>
+</template>
+
+<script>
+import TigerImg from "./tigerImg";
+export default {
+  components: { TigerImg },
+  name: "tigerInfo",
+  props: {
+    reflash: {
+      type: Function,
+    },
+    type: {
+      default: 1,
+    },
+    Info: {
+      tiger: '',
+    }
+  },
+  created () {
+    if (!this.Info) return;
+    this.setImgError(this.Info.tiger);
+  },
+  mounted () {
+    if (this.Info.ServiceNowTime && this.Info.TradeEndTime) {
+      this.dayBetween(this.Info.ServiceNowTime, this.Info.TradeEndTime);
+    }
+
+  },
+  data () {
+    return {
+      countDownDate: 0,
+      countDownTime: '00:00:00',
+      Interval: 0,
+      sell: false,
+      news: true,
+      medalGold: require('../assets/img/dialog/medalGold.png'),
+      medalSilver: require('../assets/img/dialog/medalSilver.png'),
+      medalCopper: require('../assets/img/dialog/medalcopper.png'),
+      tiger: "",
+      isFlags: false,
+      tigerHeight: 0
+    }
+  },
+  destroyed () {
+    this.$Lazyload.$off('error');
+    if (this.Interval)
+      clearInterval(this.Interval)
+  },
+  computed: {
+    getMyAuction: function () {
+      if (this.Info.CurAmountMaxAuction === "未出价") {
+        return this.Info.CurAmountMaxAuction
+      } else {
+        return this.Info.CurAmountMaxAuction + "FMVP";
+      }
+    },
+    //      tigerUrl:function () {
+    //        return this.Info.tiger;
+    //      },
+    getCountDownTime: function () {
+      if (!this.Info) return;
+      return this.Info.ServiceNowTime;
+    }
+  },
+  methods: {
+    setImgError: function (val) {
+      let FinUrl = this.getQueryString(val);
+      let self = this;
+      if (FinUrl) {
+        this.tiger = FinUrl;
+        this.$Lazyload.$once('error', function ({ el, src }) {
+          setTimeout(function () {
+            self.tiger = FinUrl + "?t=" + Math.random();
+          }, 10000)
+        })
+      }
+    },
+    getQueryString: function (url) {//改url
+      if (url) {
+        return url;
+      } else {
+        return null
+      }
+    },
+    getMedal: function (Info) {
+      switch (this.getType(Info)) {
+        case '创世虎': return this.medalGold;
+        case '神虎': return this.medalSilver;
+        case '猛虎': return this.medalCopper;
+      }
+    },
+    getBg: function (Info) {
+      switch (this.getType(Info)) {
+        case '创世虎': return 'bgGold';
+        case '神虎': return 'bgSilver';
+        case '猛虎': return 'bgCopper';
+      }
+
+    },
+    getType: function (info) {
+      if (info.IsGenesis) {
+        return '创世虎'
+      } else if (info.IsStud) {
+        return '神虎'
+      } else {
+        return '猛虎'
+      }
+    },//虎种类
+    dayBetween: function (sysTime, endTime) {
+      let beginString = sysTime.replace(/-/g, "/");
+      let endString = endTime.replace(/-/g, "/");
+      let begin = new Date(beginString);
+      let end = new Date(endString);
+      this.countDownDate = end.getTime() - begin.getTime();
+
+      let self = this;
+      if (this.Interval) {
+        clearInterval(this.Interval);
+      }
+
+      this.Interval = setInterval(this.countLoop, 1000);
+
+    },//倒计时
+    countLoop: function () {
+      if (this.countDownDate <= 0) return;
+      this.countDownDate = this.countDownDate - 1000;
+      let countDown = new Date(this.countDownDate);
+      let d, h, m, s;
+      if (this.countDownDate >= 0) {
+        h = Math.floor(this.countDownDate / 1000 / 60 / 60);
+        if (h < 10) h = '0' + h;
+        m = Math.floor(this.countDownDate / 1000 / 60 % 60);
+        if (m < 10) m = '0' + m;
+        s = Math.floor(this.countDownDate / 1000 % 60);
+        if (s < 10) s = '0' + s;
+      }
+
+      this.countDownTime = h + ':' + m + ':' + s;
+    },
+
+  },
+  watch: {
+    getCountDownTime: function (val) {
+      if (val && this.Info.TradeEndTime) {
+        this.dayBetween(val, this.Info.TradeEndTime);
+      }
+    },
+    countDownTime: function (val) {
+      if (val === '0:0:0') {
+        if (this.Interval) {
+          clearInterval(this.Interval)
+        }
+        this.reflash();
+      }
+    }
+  }
+}
+</script>
+
+<style scoped>
+.detail {
+  font-size: 0.25rem;
+  white-space: nowrap;
+  text-align: left;
+}
+.bgGold {
+  background-image: url("../assets/img/dialog/jing.png");
+}
+.bgSilver {
+  background-image: url("../assets/img/dialog/ying.png");
+}
+.bgCopper {
+  background-image: url("../assets/img/dialog/tong.png");
+}
+.medal {
+  position: absolute;
+  top: 3%;
+  right: 5%;
+  width: 20%;
+  z-index: 10;
+}
+.flags {
+  position: absolute;
+  width: 30%;
+  right: 5%;
+  top: 8%;
+  z-index: 10;
+}
+.tigerInfo {
+  background-size: 90% auto;
+  background-repeat: no-repeat;
+  background-position: bottom;
+  display: inline-block;
+  position: relative;
+  width: 100%;
+  /*height: 4rem;*/
+  /*border-radius: 0.3125rem;*/
+  /*-webkit-border-radius: 0.3125rem;*/
+  /*-moz-border-radius: 0.3125rem;*/
+}
+.seconds {
+  bottom: 0.3125rem;
+  width: 3.96875rem;
+  height: 0.625rem;
+  padding: 0.1rem 0;
+  font-size: 0.4375rem;
+  color: #333333;
+  text-align: center;
+}
+.num2 {
+  z-index: 10;
+  position: absolute;
+  top: 0;
+  right: 5%;
+  display: block;
+  height: 0.7rem;
+  line-height: 0.7rem;
+  /*height: 0.5rem;*/
+  /*line-height: 0.5rem;*/
+  /*background: #ffffff;*/
+  background-image: url("../assets/img/transactin/bianhaokuang.png");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  padding: 0 0.3rem;
+  transform: rotate(-10deg);
+  /*border-radius:0 0.4375rem 0.4375rem 0;*/
+  font-size: 0.3rem;
+  color: #ffffff;
+}
+.num {
+  z-index: 10;
+  position: absolute;
+  top: 1rem;
+  right: 5%;
+  display: block;
+  height: 0.5rem;
+  line-height: 0.5rem;
+  /*height: 0.5rem;*/
+  /*line-height: 0.5rem;*/
+  /*background: #ffffff;*/
+  /*background-image: url("../assets/img/transactin/bianhaokuang.png");*/
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  padding: 0 0.3rem;
+  transform: rotate(-10deg);
+  /*border-radius:0 0.4375rem 0.4375rem 0;*/
+  font-size: 0.3rem;
+  color: #ffffff;
+}
+.price {
+  display: block;
+  font-size: 0.226rem;
+  /*width:2.5rem;*/
+  color: #ffffff;
+  white-space: nowrap;
+  /*max-width: 4rem;*/
+  text-align: center;
+  /*padding: 0.2rem 0.3rem;*/
+  margin: 0 auto;
+  height: 1rem;
+  line-height: 0.95rem;
+  background-image: url("../assets/img/transactin/dilan.png");
+  background-size: 70% 100%;
+  background-position: center;
+}
+.name {
+  display: block;
+  word-wrap: break-word;
+  width: 80%;
+  font-size: 0.226rem;
+  background-image: url("../assets/img/transactin/heidi.png");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  text-align: center;
+  color: #ffffff;
+  padding: 0.1rem 0;
+  margin: 0 auto;
+}
+.new {
+  width: 1.5rem;
+  /*height: 1rem;*/
+  position: absolute;
+  bottom: 20%;
+  right: 0;
+  z-index: 2;
+  /*background-image: url("../assets/img/user/chushouzhong.png");*/
+  /*background-size: 100% 100%;*/
+}
+</style>

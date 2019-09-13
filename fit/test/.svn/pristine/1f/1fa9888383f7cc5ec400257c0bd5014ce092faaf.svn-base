@@ -1,0 +1,246 @@
+
+/*body{*/
+  /*width: 100%;*/
+
+/*}*/
+/*使用选择器指定字体*/
+body, div, span, header, footer, nav, section, aside, article, ul, dl, dt, dd, li, a, p, h1, h2, h3, h4,h5, h6, i, b, textarea, button, input, select, figure, figcaption{
+  padding: 0;
+  margin: 0 ;
+  list-style: none;
+  font-style: normal;
+  font-size: 0.32rem;
+  text-decoration: none;
+  border: none;
+  background-repeat: no-repeat;
+  font-weight: normal;
+  /*font-family:pinghei;*/
+  font-family: Helvetica, Arial, sans-serif;
+ font-family: "Microsoft YaHei";
+  box-sizing: border-box;
+  -webkit-tap-highlight-color:transparent;
+  -webkit-font-smoothing: antialiased;
+  /*-webkit-text-stroke: 1px #384248 ;*/
+
+}
+.white{
+  color: #ffffff;
+}
+.usual{
+  color: #502111;
+}
+.font-huangdi{
+  color: #D07416;
+}
+*{
+  -webkit-touch-callout:inherit;
+
+}
+html{
+  background: #ffffff;
+  margin: 0 auto;
+}
+button:active{/*点击效果*/   /* For Firefox3.6+ */
+  -webkit-box-shadow:0 0 15px #ffffff inset;            /* For Chrome5+, Safari5+ */
+}
+body{
+
+  box-shadow: 0 0 100px #F4F4F8;
+  -webkit-box-shadow: 0 0 100px #F4F4F8;
+  -moz-box-shadow: 0 0 100px #F4F4F8;
+
+  color: #502111;
+  margin:  0 auto;
+  background-image:url("../assets/img/index/index.png");
+  background-size:100% 100% ;
+  background-repeat: no-repeat;
+}
+.noStroke{
+  -webkit-text-stroke: 0 #384248;
+}
+html,body{
+  width: 100%;
+  height:100%;
+}
+.clear:after{
+  content: '';
+  display: block;
+  clear: both;
+}
+
+.clear{
+  zoom:1;
+}
+
+img{
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+}
+
+.margin{
+  margin: 0 auto;
+}
+
+.left{
+  float: left;
+}
+
+.right{
+  float: right;
+}
+.font-white{
+  color: #ffffff;
+}
+
+
+/*//定位上下左右居中*/
+/*//定位左右居中*/
+.ct {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.cl {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.takeCenter{
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform:  translate(-50%,-50%);
+}
+.com_padding{
+  padding:  0 0.24rem;
+}
+.item_height{
+  background: #ffffff;
+  height: 1.2rem;
+}
+.font_26{
+  font-size: 0.3467rem;
+}
+.font_24{
+  font-size: 0.3467rem;
+}
+.begin_top{
+  position: relative;
+  top:1.63rem;
+}
+input,button,textarea,select{
+  outline:none;
+}
+input{
+  -webkit-appearance: none;
+}
+.mint-spinner-snake{
+  /*//mint-ui indicator 大小*/
+  height:1rem !important;
+  width: 1rem!important;
+}
+.text_nowarp{
+  white-space:nowrap;
+  /* 允许单词内断句，首先会尝试挪到下一行，看看下一行的宽度够不够，
+  不够的话就进行单词内的断句 */
+  word-wrap: break-word;
+  /* 断句时，不会把长单词挪到下一行，而是直接进行单词内的断句 */
+  word-break:break-all;
+  /* 超出部分显示省略号 */
+  text-overflow:ellipsis;overflow:hidden;
+}
+.num-abc-warp{
+  word-WRAP: break-word;
+}
+.select{
+  position: relative;
+  background: #ffffff;
+  padding: 0.5rem 0;
+  box-shadow: 0 0 100px #F4F4F8;
+  -webkit-box-shadow: 0 0 100px #F4F4F8;
+  -moz-box-shadow: 0 0 100px #F4F4F8;
+
+}
+.el-dialog__header{
+  padding: 0!important;
+}
+.el-loading-mask{
+  z-index: 0!important;
+}
+.el-message-box{
+  width: 90% !important;
+}
+.geetest_holder.geetest_wind{
+  min-width: 0!important;
+}
+/*.under-line{*/
+
+  /*width: 100%;*/
+  /*height: 2px;*/
+  /*!* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#ffffff+0,2989d8+49,ffffff+100 *!*/
+  /*!* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#b9def2+0,2989d8+49,b9def2+100 *!*/
+  /*background: #b9def2; !* Old browsers *!*/
+  /*background: -moz-linear-gradient(left, #b9def2 0%, #2989d8 49%, #b9def2 100%); !* FF3.6-15 *!*/
+  /*background: -webkit-linear-gradient(left, #b9def2 0%,#2989d8 49%,#b9def2 100%); !* Chrome10-25,Safari5.1-6 *!*/
+  /*background: linear-gradient(to right, #b9def2 0%,#2989d8 49%,#b9def2 100%); !* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ *!*/
+  /*filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#b9def2', endColorstr='#b9def2',GradientType=1 ); !* IE6-9 *!*/
+/*}*/
+.under-line{
+  width: 100%;
+  height: 1px;
+  background: #CDA669;
+}
+.border{
+  border: 1px solid #CDA669;
+}
+input::-webkit-input-placeholder{
+  font-size: 0.3rem;
+  color:#999999;
+  text-shadow: none;
+}
+
+.spe-sele span{
+  width: 100%;
+  text-align: center;
+}
+.special-color{
+  color: #fe662e;
+}
+.btn-green{
+  color:#ffffff;
+  background-image: url("../assets/img/dialog/sell-cur.png");
+  background-size: 100% 100%;
+  border-radius: 0.2rem;
+}
+.btn-yellow{
+  color:#ffffff;
+  background-image: url("../assets/img/dialog/btn-yellow.png");
+  background-size: 100% 100%;
+  background-color:transparent;
+}
+.btn-violet{
+  color:#ffffff;
+  background-image: url("../assets/img/dialog/btn-violet.png");
+  background-size: 100% 100%;
+  background-color:transparent;
+}
+.btn-blue{
+  color:#ffffff;
+  background-image: url("../assets/img/dialog/btn-blue.png");
+  background-size: 100% 100%;
+  background-color:transparent;
+}
+.btn-blue[disabled],.btn-yellow[disabled],.btn-violet[disabled]{
+  color:#ffffff;
+  background-image: url("../assets/img/dialog/btn-disabled.png");
+  background-size: 100% 100%;
+  background-color:transparent;
+}
+.bottom-shadow{
+  box-shadow: 0 4px 7px 0 #697D88;
+}
+.ruleIcon{
+  height: 1.42rem;
+  margin: 0 0.3rem;
+}
+

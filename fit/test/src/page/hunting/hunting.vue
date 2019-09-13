@@ -1,0 +1,666 @@
+<template>
+  <div class="hunting">
+    <div class="top">
+      <div class="htitle" flex="cross:center main:right">
+        <img src="../../assets/img/activity/hunt-rule.png" class="right ruleIcon" @click="open">
+      </div>
+    </div>
+    <div>
+      <div class="title" flex="main:center box:mean" :class="getCur" >
+        <div  v-for="(item,index) in listTitle"   @click="chooseTab(item,index)"></div>
+      </div>
+      <div class="content"  :style="{'max-width':$store.state.maxWidth}">
+			
+        <huntingList
+          @type="changeType"
+          @index="chooseIndex"
+          :com="comList"
+          :huntingCount="huntingCount"
+          @commit="getCommit"
+          @delete="getDelete"
+          :reset="reset"
+          v-if="$route.name==='huntingList'"></huntingList>
+        <huntingRecord @detail="details"  v-if="$route.name==='huntingRecord'"></huntingRecord>
+        <hunting-competition @bet="toBet" v-if="$route.name==='huntingCompetition'"></hunting-competition>
+        <competition-record   @detail="details"  v-if="$route.name==='competitionRecord'"></competition-record>
+      </div>
+    </div>
+    <rule v-model="rule" class="rule">
+      <p style="font-size: 0.4267rem;text-align: center">群虎逐鹿指南</p>
+      <p>玩家将自己的老虎放入比赛中，并缴纳相应的报名费参加比赛，胜利方可获得该场比赛所有报名费95%的奖励，玩家每参加两次逐鹿送一张捕虎券，每胜一场额外送两张捕虎券；</p>
+      <p>2、逐鹿规则：</p>
+      <p>玩家可将自己的老虎自由的放入比赛中，每只老虎需缴纳报名费<span>{{$store.state.huntEntryPrice}}FMVP</span>；</p>
+      <p>比赛每10分钟一场，最后一分钟为匹配时间（报名截止）；</p>
+      <p>每9只老虎为一局进行比赛，同一局比赛不会出现同一玩家的多只老虎；</p>
+      <p>3、胜负判断：</p>
+      <p>系统将会为报名参赛的老虎安排赛道（1-9号赛道）；</p>
+      <p>9只老虎的Hash总数相加取到个位，该数字赛道的老虎取胜；</p>
+      <p>4、逐鹿竞猜规则：</p>
+      <p>系统为参加逐鹿赛的老虎匹配完赛道后，玩家可根据匹配出的场次选择赛道竞猜；</p>
+      <p>在需要竞猜的场次赛道上添加竞猜份数，（一份需缴纳金额<span>{{$store.state.huntComPrice}} FMVP</span>）；</p>
+      <p>获得奖金=（个人中奖份数/所有中奖份数*所有未中奖份数*80%+个人中奖份数）*每份价格</p>
+      <p>5、参赛老虎要求：</p>
+      <p>老虎当天没有进行过喂养；</p>
+      <p>交易中、具有堂主、弟子的老虎无法参与升级；</p>
+      <p>老虎一旦投入比赛，比赛结果出来之前无法进行“喂养、生育、交易、融合、放生、PK”等一系列老虎相关的操作 </p>
+      <p>6、延赛</p>
+      <p>当系统无法为你报名参赛的老虎匹配到对手时，该老虎的比赛将延至下一场；</p>
+      <p>7、捕猎券</p>
+      <p>有捕猎券的玩家优先消耗捕猎券（抵扣一次报名费)；</p>
+    </rule>
+
+    <!--选择老虎-->
+    <my-dialog  :dialogOpen="chooseDlg">
+      <div class="Check takeCenter" style="text-align: center">
+        <p  style="font-size: 0.5rem;font-weight: 600;margin-top: 0.2rem">群虎逐鹿</p>
+        <div flex="main:center cross:center box:mean" class="title_nav "  :class="getTigerType">
+          <p  @click="chooseTigerType(1)"></p>
+          <p @click="chooseTigerType(2)"></p>
+          <p @click="chooseTigerType(4)"></p>
+        </div>
+        <scroll
+          ref="scroll2"
+          style="height: 6.5rem;position: relative;margin-top: 0.2rem"
+          :pullUpLoad="setPullUpLoad"
+          :pullUpLoadFuc="getTigerList"
+          pullUpLoadFucParam="UpLoad"
+          warpId="scroll2">
+          <ul >
+            <li v-for="item in tigerList" @click="chooseTiger(item)">
+              <div flex="main:center cross:center "  class="synthesis-item " >
+                <tiger-img :Style="item.Style" style="width: 35%"></tiger-img>
+                <div style="width:60%;height:100%;">
+                  <p>ID号:{{item.HorseNo}}</p>
+									<div style="width:50%;float: left;text-align: left;">
+										<p>等级:{{item.GradeLevel}}</p>
+										<p>敏捷:{{item.Agile}}</p>
+										<p>生命力:{{item.life}}</p>
+									</div>
+									<div style="width:50%;float: left;text-align: left;">
+										<p>战斗力:{{item.CombatPower}}</p>
+										<p>耐力:{{item.Endurance}}</p>
+									</div>
+                </div>
+                <div>
+                </div>
+              </div>
+              <div class="under-line"></div>
+            </li>
+            <div style="text-align: center" v-if="empty">
+              <img style="width: 2.5rem;padding: 1rem" src="../../assets/img/dialog/empty.png" >
+            </div>
+          </ul>
+        </scroll>
+        <button @click="onceCheckCancle"  class="checkCancle btn-violet cl">取消</button>
+      </div>
+    </my-dialog>
+
+    <!--记录详情-->
+    <one-cancel-dialog v-model="detail">
+      <p  style="font-size: 0.5rem;font-weight: 600;margin: 0.2rem 0;text-align: center">获胜赛道：{{detailInfo.WinRunaway}}号</p>
+      <div class="list-title" flex="main:justify cross:center" >
+        <p class="table-left">赛道</p>
+        <p class="table-mid">老虎ID</p>
+        <p class="table-mid">Hash</p>
+      </div>
+      <scroll
+        style="height: 6.5rem;position: relative;margin-top: 0.2rem">
+        <div class="table">
+
+          <div v-for="(item,index) in detailInfo.RunawayInfo">
+            <div  flex="main:justify cross:center" class="detailList">
+              <p class="table-left">{{item.Runaway}}</p>
+              <p class="table-mid">#{{item.HorseNo}}</p>
+              <p class="table-mid num-abc-warp">{{item.HorseKey}}</p>
+            </div>
+            <div class="under-line"></div>
+          </div>
+        </div>
+      </scroll>
+    </one-cancel-dialog>
+
+    <!--报名结算-->
+    <comfire-dialog v-model="comDialog" :sure="commit">
+      <p class="comTitle">确认参赛</p>
+      <p class="comText">共<span>{{commitList.length}}</span>只老虎参加逐鹿需支付<span>{{commitList.length*$store.state.huntEntryPrice}}</span>FMVP或<span>{{commitList.length}}</span>张捕猎卷作为报名费？</p>
+    </comfire-dialog>
+
+    <comfire-dialog v-model="competitionDlg" :sure="commitCompetition" warp="warp">
+      <p class="comTitle">第{{chooseRunWay.Session}}场</p>
+      <red-table :titleList="competitionTitle"></red-table>
+      <scroll
+      warpId="competition" style="height: 6rem;position: relative">
+      <ul>
+        <li v-for="(item,index) in competition.competitionList" class="competitionItem" flex="main:center box:mean">
+          <p>{{index+1}}号</p>
+          <input v-model.number="item.price" placeholder="0"  />
+        </li>
+      </ul>
+      </scroll>
+    </comfire-dialog>
+    <comfire-dialog v-model="competitionMakeSure" :sure="sureToCompetition">
+      <p class="comTitle">逐鹿竞猜</p>
+      <p style="text-align: center;margin-top: 0.5rem">确认花费<span class="special-color">{{getTotalCom}}</span>FMVP参与本次逐鹿竞猜？</p>
+    </comfire-dialog>
+
+  </div>
+</template>
+
+<script>
+  import Tab from "../../components/tab";
+  import Rule from "../../components/tips/rule";
+  import Scroll from "../../components/scroll/scroll";
+  import OneCancelDialog from "../../components/tips/oneCancelDialog";
+  import huntingList from "./huntingList";
+  import huntingRecord from "./huntingRecord";
+  import MyDialog from "../../components/dialog";
+  import common from '../../components/common'
+  import ComfireDialog from "../../components/comfireDialog";
+  import TigerImg from "../../components/tigerImg";
+  import HuntingCompetition from "./huntingCompetition";
+  import CompetitionRecord from "./competitionRecord";
+  import RedTable from "../../components/red-table";
+  export default{
+    components: {
+      RedTable,
+      CompetitionRecord,
+      HuntingCompetition,
+      TigerImg,
+      ComfireDialog,
+      MyDialog,
+      huntingRecord,
+      huntingList,
+      OneCancelDialog,
+      Scroll,
+      Rule,
+      Tab},
+    name: "hunting",
+    data(){
+      return {
+        rule:false,
+        listTitle:[
+          {name:'参赛列表',routeName:'huntingList'},
+          {name:'参赛记录',routeName:'huntingRecord'},
+          {name:'逐鹿竞猜',routeName:'huntingCompetition'},
+          {name:'竞猜记录',routeName:'competitionRecord'},
+        ],
+
+        detail:false,
+        time:"00:00",
+        countDownDate:0,
+        Interval:0,
+        offset:0,
+        pageSize:30,
+        timeType:-1,//倒计时类型 false比赛时间 true报名时间
+        time_1:30,//报名时间  单位:秒
+        time_2:15,//比赛封盘时间
+        time_3:120,//竞猜时间
+        time_4:15,//竞猜封盘时间
+
+        chooseDlg:false,
+        tigerList:[],
+        choose:{},
+        comList:[
+          {num:1,RareLevel:'',CombatPower:''},
+          {num:1,RareLevel:'',CombatPower:''},
+          {num:1,RareLevel:'',CombatPower:''},
+          {num:1,RareLevel:'',CombatPower:''},
+          {num:1,RareLevel:'',CombatPower:''},
+        ],
+        comDialog:false,
+        commitList:[],
+        detailInfo:{},
+        type:0,//0 单捕 1十连捕
+        tigerType:1,//1猛虎 2神虎 4创世虎
+        huntingCount:0,
+
+        competitionDlg:false,
+        competitionMakeSure:false,
+        competitionTitle:['赛道','竞猜份数'],
+        competition:{
+        competitionList:[
+          {price:''},
+          {price:''},
+          {price:''},
+          {price:''},
+          {price:''},
+          {price:''},
+          {price:''},
+          {price:''},
+          {price:''},
+        ],
+        },
+        chooseRunWay:{}
+      }
+    },
+    computed:{
+        getTotalCom:function () {
+          let total = 0;
+          this.competition.competitionList.forEach(item=>{
+                if(typeof (item.price) === "number")
+                {
+                    total = total +parseInt(item.price)*this.$store.state.huntComPrice
+                }
+          });
+          return total;
+        },
+      getTigerType:function () {
+        switch (this.tigerType){
+          case 1:return "title_nav_0";
+          case 2:return "title_nav_1";
+          case 4:return "title_nav_2";
+        }
+      },
+      setPullUpLoad:function () {
+        return {
+          threshold:-30,
+        }
+      },
+      getType:function () {
+        switch (this.choose.type){
+          case 0:return "猛虎";
+          case 1:return "神虎";
+        }
+      },
+      getCur:function () {
+        if(this.$route.name==="huntingList"){
+          return "huntingNva_0"
+        }else if(this.$route.name==="huntingRecord"){
+          return "huntingNva_1"
+        }else if(this.$route.name==="huntingCompetition"){
+          return "huntingNva_2"
+        }else if(this.$route.name==="competitionRecord"){
+          return "huntingNva_3"
+        }
+      },
+      getTimeText:function () {
+          switch (this.timeType){
+            case 0:  return '群虎逐鹿报名';
+            case 1:  return '系统匹配赛道中';
+            case 2:  return '逐鹿竞猜报名';
+            case 3:  return '逐鹿竞猜结算中';
+          }
+
+      }
+    },
+    methods:{
+			toBet:function(){
+				this.$router.push('/zhulu');
+			},
+      changeType:function (val) {
+        this.type= val
+      },
+      chooseTigerType:function (type) {
+        this.tigerType = type;
+        this.getTigerList();
+      },
+      onceCheckCancle:function () {
+        this.tigerType = 1;
+        this.chooseDlg = false;
+      },
+      chooseIndex:function (val) {
+        this.choose = val;
+        this.chooseDlg = true;
+      },
+      getDelete:function (val) {
+        this.$set(this.comList,val,{num:val+1});
+      },
+      retCompetition:function () {//重置竞猜
+        let set =9;
+//          if(this.type){
+//            set = 10
+//          }else{
+//            set = 1
+//          }
+        this.competition.competitionList= [];
+        for(let i=0;i<set;i++){
+          this.competition.competitionList.push({price:""})
+        }
+      },
+      reset:function () {//重置参赛老虎
+        {
+          let set =5;
+//          if(this.type){
+//            set = 10
+//          }else{
+//            set = 1
+//          }
+          this.comList= [];
+          for(let i=0;i<set;i++){
+            this.comList.push({HorseNo:0})
+          }
+        }
+      },
+      chooseTiger:function (item) {
+        this.$set(this.comList, this.choose.index, item);
+        this.chooseDlg = false;
+      },
+      getTigerList:function (type) {
+        let offset;
+        if(type ==='UpLoad'){
+          offset = this.offset;
+        }else
+        {
+          offset = 0;
+          this.tigerList = [];
+        }
+        let data={size:this.pageSize,offset:offset,type:this.tigerType};
+        this.$axios.post('/api/battle/compete/tigerlist/',data).then(
+          res=>{
+            let result = res.data;
+            if(result.IsSuccess){
+              if(!result.Result.Data) return;
+              if(result.Result.Data.length>0){
+                let self = this;
+                let list = result.Result.Data.filter(function (item,index,arr) {
+                  for(let index2 in self.comList){
+                    if(item.HorseKey === self.comList[index2].HorseKey){
+                      return false
+                    }
+                  }
+                  return true
+                });
+                if(type ==='UpLoad'){
+                  this.tigerList =  this.tigerList.concat(list);
+                }else{
+                  this.tigerList= list;
+                }
+              }else{
+                if(type ==='UpLoad')
+                {
+                  // this.$tips('暂无更多提现记录');
+                }else{
+                  this.empty = true;
+                }
+              }
+              if(this.$refs.scroll2){
+                this.$refs.scroll2.finishiPullUp();
+              }
+              this.offset = this.tigerList.length;
+            }else{
+              if(this.$refs.scroll2){
+                this.$refs.scroll2.finishiPullUp();
+              }
+              this.$get_error('tips',result.Code,result.Message);
+            }
+          },error=>{
+            if(this.$refs.scroll2){
+              this.$refs.scroll2.finishiPullUp();
+            }
+            this.$get_error('reload');
+          }
+        );
+      },//获取添加老虎列表
+      chooseTab:function (item,index) {
+        this.isCur = index;
+        this.$router.replace({name:item.routeName});
+      },
+      open:function () {
+        this.rule = true;
+      },
+      closeDetail:function () {
+        this.detail = false
+      },
+      details:function (item) {
+        this.getDetail(item);
+        this.detail = true;
+      },
+      getDetail:function (CompeteKey) {
+        let data={competeKey:CompeteKey};
+        this.$axios.post('/api/battle/compete/teamdetail/',data).then(
+          res=>{
+            let result = res.data;
+            if(result.IsSuccess){
+              this.detailInfo = result.Result;
+            }else{
+              this.$get_error('tips',result.Code,result.Message);
+            }
+          },error=>{
+            this.$get_error('reload');
+          }
+        );
+      },
+      getCommit:function (val) {
+        this.commitList = this.comList.filter(item=>{
+          if(item.HorseKey){
+            return true
+          }
+        }).map(item=>{
+          return item.HorseKey
+        });
+        this.comDialog = val;
+      },
+      commit:function () {
+        this.comDialog = false;
+        let data={gameType:this.type,horseKeys:this.commitList};
+        this.$axios.post('/api/horse/battle/compete/',data).then(
+          res=>{
+            let result = res.data;
+            if(result.IsSuccess){
+              this.$tips('参赛成功！');
+              this.huntingCount = result.Result.huntingCount;
+              this.reset();
+            }else{
+              this.$get_error('tips',result.Code,result.Message);
+            }
+          },error=>{
+            this.$get_error('reload');
+          }
+        );
+      },
+      commitCompetition:function () {//竞猜报名确认
+        for(let item of this.competition.competitionList){
+          if(item.price){
+              this.competitionDlg = false;
+            return this.competitionMakeSure = true;
+          }
+        }
+        this.$tips('请选择一个赛道竞猜！');
+      },
+      sureToCompetition:function () {//提交竞猜报名
+        this.comDialog = false;
+        let list = this.competition.competitionList.map(item=>{
+            if(item.price)
+            {
+                return item.price
+            }else{
+                return 0
+            }
+        });
+        this.competitionMakeSure = false;
+        let data={betId:this.chooseRunWay.Id,count:list};
+        this.$axios.post('/api/battle/compete/bet/',data).then(
+          res=>{
+            let result = res.data;
+            if(result.IsSuccess){
+              this.$tips('参赛成功！');
+            }else{
+              this.$get_error('tips',result.Code,result.Message);
+            }
+          },error=>{
+            this.$get_error('reload');
+          }
+        );
+      },
+    },
+    watch:{
+      chooseDlg:function (val) {
+        if(val){
+          this.getTigerList();
+        }
+      },
+      detail(val){
+          this.detailInfo = {}
+      },
+    }
+  }
+</script>
+
+<style scoped>
+  .top{
+    position: relative;
+    background: url("../../assets/img/activity/hunt-top.png"  );
+    background-size: 100% 100%;
+    height:4.18rem;
+  }
+  .content{
+    background-image: url("../../assets/img/user/content-bg.png");
+    background-size: 100% 100%;
+    position: fixed;
+    top:4.5rem;
+
+    bottom: 0;
+    width: 100%;
+  }
+
+  .Check{
+    padding: 0.5rem;
+    background-image: url("../../assets/img/competition/guideBg.png");
+    background-size: 100% 100%;
+    width: 80%;
+
+    border-radius: 5px;
+    height: 10rem;
+  }
+  .synthesis-title{
+    text-align: center;
+    margin: 0 auto;
+    padding: 0.2rem ;
+    transform: skewX(-15deg);
+    color: #000000;
+    background-color: #ffffff;
+    display: inline-block;
+    font-size: 0.32rem;
+  }
+  .synthesis-item{
+    position: relative;
+    padding: 0.2rem 0;
+    text-align: left;
+  }
+  .checkCancle{
+    position: absolute;
+    bottom: 0.36rem;
+    width:2.5rem;
+    height:0.6933rem;
+    line-height: 0.6933rem;
+    cursor:pointer ;
+  }
+  .htitle {
+    width: 100%;
+    height: 1.5rem;
+    position: relative;
+  }
+  .title{
+    height: 1rem;
+    top: -0.5rem;
+    position: relative;
+    background-size: 100% auto!important;
+  }
+
+  .time{
+    position: absolute;
+    text-align: center;
+    top: 1.85rem;
+    font-size: 0.37rem;
+    color: #ffffff;
+    padding: 0.2rem 0.5rem;
+    border-radius: 0.2rem;
+    background: rgba(0,0,0,0.7);
+  }
+  .rule{
+    line-height: 0.6rem;
+  }
+  .rule span{
+    color: #fe662e;
+  }
+  .huntingNva_0{
+    background: url("../../assets/img/disposition/dispositionNva_0.png")center no-repeat ;
+  }
+  .huntingNva_1{
+    background: url("../../assets/img/disposition/dispositionNva_1.png") center no-repeat;
+  }
+  .huntingNva_2{
+    background: url("../../assets/img/disposition/dispositionNva_2.png") center no-repeat;
+  }
+  .huntingNva_3{
+    background: url("../../assets/img/disposition/dispositionNva_3.png") center no-repeat;
+  }
+  .list-title{
+    height: 0.7rem;
+    background: #d8b072;
+    border-radius: 0.4rem;
+    text-align: center;
+    padding: 0 0.5rem;
+  }
+  .list-title p{
+    font-weight: 600;
+  }
+  .detailList{
+    padding: 0.2rem 0.5rem;
+    text-align: center;
+  }
+  .table-left{
+    width: 30%;
+  }
+  .table-right{
+    width: 30%;
+  }
+  .table-mid{
+    width: 40%;
+  }
+  .title_nav{
+    width: 90%;
+    margin:  0 auto;
+    height:0.7rem ;
+    text-align: center;
+    border-radius: 0.1rem;
+    cursor: pointer;
+  }
+  .title_nav p{
+    height: 100%;
+  }
+  .title_nav_0{
+    background: url("../../assets/img/hunting/title-nav-0.png");
+    background-size: 100% 100%;
+  }
+  .title_nav_1{
+    background: url("../../assets/img/hunting/title-nav-1.png");
+    background-size: 100% 100%;
+  }
+  .title_nav_2{
+    background: url("../../assets/img/hunting/title-nav-2.png");
+    background-size: 100% 100%;
+  }
+  .comTitle{
+    text-align: center;
+    font-size: 0.5rem;
+  }
+  .comText{
+    text-align: center;
+    margin-top: 0.5rem;
+  }
+  .comText span{
+    color: #fe662e;
+  }
+  .competitionItem{
+    margin: 0 0.3rem;
+    padding: 0.3rem 0 ;
+    text-align: center;
+    border-bottom:1px solid #CDA669;
+  }
+  .competitionItem p,.competitionItem input{
+    height: 0.5rem;
+    line-height: 0.5rem;
+    text-align: center;
+    margin:  0 0.7rem;
+  }
+  .competitionItem input{
+    border-radius: 0.1rem;
+    color: #502111;
+    border: 1px solid #CDA669;
+  }
+  .competitionItem input::placeholder{
+    color: #502111;
+    text-align: center;
+  }
+</style>

@@ -1,0 +1,111 @@
+
+xiaohu_XL.png
+size: 1645,1645
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+XH_attack_01
+  rotate: false
+  xy: 1454, 517
+  size: 177, 206
+  orig: 552, 536
+  offset: 204, 82
+  index: -1
+XH_attack_02
+  rotate: false
+  xy: 1090, 41
+  size: 188, 204
+  orig: 552, 536
+  offset: 179, 82
+  index: -1
+XH_attack_03
+  rotate: false
+  xy: 886, 33
+  size: 202, 212
+  orig: 552, 536
+  offset: 157, 75
+  index: -1
+XH_attack_04
+  rotate: true
+  xy: 555, 252
+  size: 454, 469
+  orig: 552, 536
+  offset: 0, 63
+  index: -1
+XH_attack_05
+  rotate: false
+  xy: 2, 1125
+  size: 551, 518
+  orig: 552, 536
+  offset: 0, 17
+  index: -1
+XH_attack_06
+  rotate: false
+  xy: 2, 618
+  size: 551, 505
+  orig: 552, 536
+  offset: 0, 30
+  index: -1
+XH_attack_07
+  rotate: false
+  xy: 555, 1138
+  size: 550, 505
+  orig: 552, 536
+  offset: 1, 30
+  index: -1
+XH_attack_08
+  rotate: false
+  xy: 2, 144
+  size: 526, 472
+  orig: 552, 536
+  offset: 25, 63
+  index: -1
+XH_attack_09
+  rotate: false
+  xy: 1026, 247
+  size: 426, 459
+  orig: 552, 536
+  offset: 125, 73
+  index: -1
+XH_attack_10
+  rotate: false
+  xy: 1454, 309
+  size: 177, 206
+  orig: 552, 536
+  offset: 200, 82
+  index: -1
+XH_behit_02
+  rotate: false
+  xy: 555, 708
+  size: 548, 428
+  orig: 553, 454
+  offset: 0, 17
+  index: -1
+XH_behit_03
+  rotate: false
+  xy: 1107, 1287
+  size: 536, 356
+  orig: 553, 454
+  offset: 8, 38
+  index: -1
+XH_behit_04
+  rotate: false
+  xy: 1107, 1011
+  size: 517, 274
+  orig: 553, 454
+  offset: 20, 84
+  index: -1
+XH_behit_05
+  rotate: false
+  xy: 1105, 725
+  size: 499, 284
+  orig: 553, 454
+  offset: 29, 91
+  index: -1
+XH_behit_06
+  rotate: false
+  xy: 530, 14
+  size: 354, 236
+  orig: 553, 454
+  offset: 110, 111
+  index: -1

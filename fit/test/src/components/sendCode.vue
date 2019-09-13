@@ -1,0 +1,143 @@
+<template>
+	<button v-on:click="sendMessage" :disabled="(issend||!userName)">{{over_time}}{{sendText}}</button>
+</template>
+<script>
+	export default {
+		name: "sendCode",
+		props: {
+			userName: {
+
+			},
+			isPhone: { //0邮箱 1手机
+				type: Number
+			},
+			type: { //1 注册  2忘记密码
+				type: Number
+			}
+		},
+		data() {
+			return {
+				issend: false,
+				sendText: "验证码",
+				over_time: "",
+				countDown: 120,
+				disabled: "disabled",
+				id: null
+			}
+		},
+		destroyed() {
+			if (this.id)
+				clearInterval(this.id)
+		},
+		methods: {
+			init: function() {
+				clearInterval(this.id);
+				this.sendText = "验证码";
+				this.over_time = "";
+				this.issend = false;
+			},
+			phoneFill: function(phone) { //手机格式验证
+				let error = null;
+				if (!phone) {
+					error = '请输入手机号码';
+					return error;
+				}
+				let phoneType = /^1\d{10}$/;
+				if (!phoneType.test(phone)) {
+					error = '请输入11位有效手机号码';
+					return error;
+				}
+				return null
+			},
+			emailFill: function(email) {
+				let error = null;
+				let reg = /^[A-Za-z\d]+([-_.][A-Za-z\d]+)*@([A-Za-z\d]+[-.])+[A-Za-z\d]{2,4}$/; //正则表达式
+				if (!email) {
+					error = '请输入邮箱';
+					return error;
+				}
+				if (!reg.test(email)) {
+					error = '邮箱格式错误';
+					return error;
+				}
+				return null
+			},
+			sendMessage: function() {
+				if (this.isPhone === 1) { //手机格式检查
+					let result = this.phoneFill(this.userName);
+					if (result != null) {
+						this.$tips(result);
+						return;
+					}
+				} else if (this.isPhone === 0) { //邮箱格式检查
+					let result = this.emailFill(this.userName);
+					if (result != null) {
+						this.$tips(result);
+						return;
+					}
+				} else {
+					if (this.userName.indexOf("@") > 0) {
+						let result = this.emailFill(this.userName);
+						if (result != null) {
+							this.$tips(result);
+							return;
+						}
+					} else {
+						let result = this.phoneFill(this.userName);
+						if (result != null) {
+							this.$tips(result);
+							return;
+						}
+					}
+				}
+				var form = new FormData();
+				let url = "/channel-server/user/getSmsphone.do";
+				if (this.userName.indexOf("@") > 0) {
+					url = "/channel-server/user/getEamil.do";
+					form.append("getEmail", this.userName);
+				} else {
+					form.append("phone", this.userName);
+				}
+				this.$axios.post(url, form).then((res) => {
+					let result = res.data;
+					if (result.errorCode == '200') {
+						this.$emit('error', "请注意查收");
+						this.send_vc();
+					} else {
+						this.$get_error('tips', result.errorCode, result.errorMessage);
+					}
+				}, (error) => {
+					this.$get_error('network');
+				})
+
+			},
+			overtime: function() {
+				if (this.over_time > 0) {
+					this.over_time--;
+				} else {
+					clearInterval(this.id);
+					this.sendText = "验证码";
+					this.over_time = "";
+					this.issend = false;
+				}
+			},
+			send_vc: function() {
+				if (this.id) {
+					clearInterval(this.id);
+				}
+				this.over_time = this.countDown;
+				this.sendText = "秒";
+				this.issend = true;
+				this.id = setInterval(() => {
+					this.overtime()
+				}, 1000)
+			},
+		}
+	}
+</script>
+<style scoped>
+	.sendCode {
+		width: 100%;
+		height: 100%;
+	}
+</style>

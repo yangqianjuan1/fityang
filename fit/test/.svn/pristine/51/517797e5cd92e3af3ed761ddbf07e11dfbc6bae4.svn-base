@@ -1,0 +1,910 @@
+<template>
+  <div class="content"  :style="{'max-width':$store.state.maxWidth}">
+
+    <scroll
+      ref="scroll"
+      :pullUpLoad="setPullUpLoad"
+      :pullUpLoadFuc="pullUpLoadFuc"
+      pullUpLoadFucParam="UpLoad"
+      bottom="2.6">
+      <div   :style="setScrollMinHeight()">
+        <my-details :detail="tigerDetail"></my-details>
+        <div class="Info" >
+          <div  style="height: 100%" flex="dir:top main:center">
+            <p flex="cross:center"><span class="ssr">{{tigerDetail.RareLevel|rare}}</span><span>(战斗力：{{tigerDetail.CombatPower}})</span></p>
+            <p style="font-size: 0.42677rem;line-height: 0.7rem">{{getType(tigerDetail)}}#{{tigerDetail.HorseNo}}</p>
+            <p  class="num-abc-warp">{{tigerDetail.HorseKey}}</p>
+          </div>
+          <p><span style="display: inline-block;margin-right: 0.3rem">堂主：{{tigerDetail.SonCount}}</span><span style="display: inline-block">弟子：{{tigerDetail.GrandsonCount}}</span></p>
+          <!--<p>性tigerDetailtail.Disposition}}</p>-->
+          <p flex="main:justify"><span>体重：{{tigerDetail.Weight}}kg</span><span v-if="!tigerDetail.IsGenesis">生育值：{{tigerDetail.BreedLimit}}</span></p>
+          <p  v-if="tigerDetail.TradeStatus">售价：{{tigerDetail.HorsePrice}}FMVP</p>
+          <div flex="main:right cross:center box:mean" style="margin-top: 0.2rem">
+            <!--<button class="feed right miaobian-green" @click="beFeed" v-if="getCanFeedTtigerDetailtail.FeedTimes)">喂养({{(getCanFeedTtigerDetailtail.FeedTimes))}})</button>-->
+
+            <!--<button class="feed right miaobian-green" @click="beFeed" v-if="getCanFeedTtigerDetailtail.FeedTimes)">喂养({{(getCanFeedTtigerDetailtail.FeedTimes))}})</button>-->
+            <!--<button class="born right" v-tigerDetailtail.weight===bronWeight">生育</button>-->
+            <div style="text-align: center">
+              <button class="born  btn-yellow "  @click="sureToBorn" v-if="canBOrn(tigerDetail)">生育</button>
+            </div>
+            <!--<button class="Fit right  "  @click="toSynthesis" v-if="canSynthetigerDetailtail)">合体</button>-->
+
+            <div style="text-align: center">
+              <button :class="tigerDetail.TradeStatus?'unSell':'sell'" @click="beSell" class="btn btn-violet" v-if="!tigerDetail.IsInitSend">
+                <p v-if="!tigerDetail.TradeType"   style="height: 100%;width: 100%;color: #ffffff;font-size: 0.3rem;" >立即出售</p>
+                <div v-if="tigerDetail.TradeType"  >
+                  <p  style="font-size: 0.3rem;color: #fff">{{getTradeType}}</p>
+                </div>
+              </button>
+            </div>
+          </div>
+          <div style="clear: both"></div>
+        </div>
+        <div style="position: relative;top: -0.4rem;">
+          <ul flex="main:center cross:center box:mean" :class="getCur"  style="background-size: 60% 100%;" class=" label">
+            <li class="title"  :class="type===0?'miaobian-hong white':'miaobian-bai'" @click="feedLabel"></li>
+            <li class="title"  :class="type===1?'miaobian-hong white':'miaobian-bai'" @click="profit"></li>
+            <li class="title"  :class="type===2?'miaobian-hong white':'miaobian-bai'" @click="from"></li>
+          </ul>
+          <record  :Records="Records" :type="type" :empty="FeedEmpty"></record>
+        </div>
+      </div>
+    </scroll>
+    <div style="text-align: center ; position: fixed;bottom: 2.6rem;width: 100%;max-width: 540px;margin: 0 auto;"  flex="main:center cross:center "  >
+      <!--<div style="width: 50%;text-align: center">-->
+      <!--<button class="register miaobian-huang font-huangdi"  v-if="canShtigerDetailtail)" @click="share('register')">注册邀请</button>-->
+      <!--</div>-->
+      <div style="width: 50%;text-align: center">
+        <button class="family btn-yellow"  v-if="canShare(tigerDetail)" @click="share('family')">联盟邀请</button>
+      </div>
+    </div>
+    <comfire-dialog v-model="sell.dialog" :sure="sureToSell">
+      <div  style="height: 100%" >
+        <p style="font-size: 0.5rem;text-align: center;margin-bottom: 0.133rem">出售"<span style="font-size: 0.5rem;color:#fe662e "  >{{getType(tigerDetail)}}#{{tigerDetail.HorseNo}}</span>"</p>
+        <div class=" dialog "  style="width: 90%;margin: 0 auto;" flex=" cross:center">
+          <span style="border-right: 1px solid #9A9A9A;width: 2.5rem">出售价格</span>
+          <!--<input  placeholder="请输入出售金额" v-model.number="sell.price"/>-->
+          <input  class="miaobian-bai usual" type="number" style="height:100%;width: 100%;font-size: 0.213rem;text-align: center" placeholder="请输入出售价格" v-model.number="sell.price"/>
+
+        </div>
+      </div>
+    </comfire-dialog>
+    <!--<comfire-dialog-->
+    <!--v-model="sellType"-->
+    <!--:sure="openSell"-->
+    <!--:cancleFuc="openAuction"-->
+    <!--cancleText="拍卖"-->
+    <!--sureText="出售"-->
+    <!--type="choose"-->
+    <!--&gt;-->
+    <!--<img src="../../assets/img/competition/close.png" class="close right" @click="close">-->
+    <!--<div  style="height: 100%" >-->
+    <!--<p style="font-size: 0.5rem;text-align: center;margin-bottom: 20px"class="miaobian-hong">确认出售</p>-->
+    <!--<p class="auction-tips" style="font-size: 0.4rem;text-align: center">请选择拍卖(<span style="font-size: 0.4rem">拍卖费0.1GXS</span>)或者直接交易</p>-->
+    <!--</div>-->
+    <!--</comfire-dialog>-->
+    <!--<comfire-dialog v-model="auction.dialog" :sure="sureToAuction">-->
+    <!--<div  style="height: 100%" >   <p style="font-size: 0.5rem;text-align: center;margin-bottom: 20px"class="miaobian-hong">拍卖"<span style="color: #ffe94c;font-size: 0.5rem;">{{getType(tigerDetail)}}#{{tigerDetail.HorseNo}}</span>"</p>-->
+    <!--<div class=" dialog "  style="width: 100%;margin: 0 auto;" flex="cross:center">-->
+    <!--<span style="border-right: 1px solid #9A9A9A;width: 2.5rem">起拍价格</span>-->
+    <!--&lt;!&ndash;<input  placeholder="请输入出售金额" v-model.number="sell.price"/>&ndash;&gt;-->
+    <!--<input  class="miaobian-bai usual" type="number" style="height:100%;width: 100%;font-size: 0.1867rem;text-align: center" placeholder="请输入起拍价格" v-model.number="auction.price"/>-->
+    <!--</div>-->
+    <!--</div>-->
+    <!--<p class="auction-tips">每次拍卖需支付<span>0.1GXS</span></p>-->
+    <!--</comfire-dialog>-->
+    <!--<comfire-dialog v-model="feed.dialog" :sure="sureToFeed">-->
+    <!--<div  >-->
+    <!--<p style="font-size: 0.293rem;color: #fff;text-align: center;" class="miaobian-hong">确认喂养</p>-->
+    <!--<p class=" miaobian-hong" style="margin-top: 0.3rem;text-align: center;font-size: 14px">确认支付<span style="color: #FFE619;display: inline;padding: 0">{{feed.price}}GXS</span>进行喂养？</p>-->
+    <!--</div>-->
+    <!--</comfire-dialog>-->
+    <comfire-dialog v-model="sell.outSell" :sure="SellOut">
+      <div >
+        <p style="font-size: 0.5rem;text-align: center;" >确认下架</p>
+        <p  style="margin-top: 0.3rem;text-align: center;">确认将编号为<span style="display: inline;padding: 0;color: #fe662e;" >#{{tigerDetail.HorseNo}}</span>的老虎从交易市场下架？</p>
+      </div>
+    </comfire-dialog>
+
+    <!--<my-dialog :dialogOpen="shareDlg">-->
+    <!--<div  class=" takeCenter share" flex=" dir:top main:center cross:center" style="text-align: center;width: 80%;">-->
+    <!--&lt;!&ndash;<p class="text miaobian-hong" style="margin: 0.2rem;font-size: 18px;text-align: center" >点击将其复制到剪贴板发给你的朋友</p>&ndash;&gt;-->
+    <!--<div style="text-align: center;width: 100%">-->
+    <!--<p style="text-align: left;" class="text num-abc-warp miaobian-hong"  >{{InviteUrl}} </p>-->
+    <!--<copy :copyText="InviteUrl" class="copyBtn cl huang " v-model="shareDlg"></copy>-->
+    <!--</div>-->
+    <!--</div>-->
+    <!--</my-dialog>-->
+    <my-dialog :dialogOpen="bornDialog">
+      <div  class=" takeCenter" flex=" dir:top main:center cross:center" style="text-align: center;width: 80%;">
+        <tiger-info  :Info="bornDialogInfo" id="bronResult" style="width: 5rem;" :type="4"></tiger-info>
+        <button class="sure btn-yellow" @click="sure">确认领取</button>
+      </div>
+    </my-dialog>
+
+
+    <!--合成-->
+    <!--<my-dialog :dialogOpen="synthesisDlg">-->
+
+      <!--<div class="synthesis takeCenter">-->
+        <!--<div flex="main:center cross:center box:mean" class="synthesis-title" >-->
+          <!--<p>老虎</p>-->
+          <!--<p>家族数</p>-->
+          <!--<p>操作</p>-->
+        <!--</div>-->
+        <!--<scroll-->
+          <!--ref="scroll2"-->
+          <!--warpId="synthesis"-->
+          <!--style="height: 5rem;position: relative"-->
+          <!--:pullUpLoad="setPullUpLoad"-->
+          <!--:pullUpLoadFuc="getSynthesisList"-->
+          <!--pullUpLoadFucParam="UpLoad">-->
+          <!--<ul >-->
+            <!--<li v-for="item in synthesisList" >-->
+              <!--<div flex="main:center cross:center box:mean"  class="synthesis-item ">-->
+                <!--<img :src="item.horse">-->
+                <!--<p>{{item.FamilyCount}}</p>-->
+                <!--<div>-->
+                  <!--<button class="font-huangdi" @click="Synthesis(item.HorseKey)">确认</button>-->
+                <!--</div>-->
+              <!--</div>-->
+              <!--<div class="under-line-white"></div>-->
+            <!--</li>-->
+            <!--<div style="text-align: center" ><img style="width: 2.5rem;padding: 1rem" src="../../assets/img/dialog/empty.png" v-if="synthesisEmpty"></div>-->
+          <!--</ul>-->
+        <!--</scroll>-->
+        <!--<button class="cancel cl miaobian-zi" @click="closeDialog">取消</button>-->
+      <!--</div>-->
+
+    <!--</my-dialog>-->
+  </div>
+</template>
+
+<script>
+
+  import Foot from "../../components/footer";
+  import common from '../../components/common'
+  import MyDialog from "../../components/dialog";
+  import Record from "../../components/record";
+  import Scroll from "../../components/scroll/scroll";
+  import ComfireDialog from "../../components/comfireDialog";
+
+  import Copy from "../../components/copy";
+  import MyDetails from "../../components/details";
+  import TigerInfo from "../../components/tigerInfo";
+
+  export default{
+    components: {
+      TigerInfo,
+      MyDetails,
+      Copy,
+      ComfireDialog,
+      Scroll,
+      Record,
+      MyDialog,
+      Foot,
+      },
+    name: "tigerDetail",
+    data(){
+      return {
+        tigerDetail:{},
+        buyDialog:false,//购买弹框控制
+        bronWeight:200,//可生育重量
+        Records:[],
+        feedOffset:0,
+        familyOffset:0,
+        pageSize:20,
+        maxFeedTimes:10,
+        clientTotal:0,
+        feedRecords:[
+        ],
+        familyRecords:[
+        ],
+        FeedEmpty:true ,
+        sellType:false,//选择出售类型
+        type:0,//0喂养记录 1家族收益 2 来源
+        born: {dialog: false, bornTime: '00.00', price: ''},
+        feed: {dialog: false, bornTime: '00.00', price: 10},
+        bornDialog:false,//生育结果弹框
+        sell: {dialog: false, price: '', outSell: false},
+        auction:{dialog: false, price: ''},
+        shareDlg:false,//分享按钮
+        InviteUrl:'',
+        synthesisDlg:false,
+        synthesisOffset:0,
+        synthesisList:[],
+        synthesisEmpty:false,
+      }
+    },
+    mounted(){
+      let Key = this.$route.query.Key;
+      this.getDetailInfo(Key);
+    },
+    computed:{
+      getTradeType:function () {
+        switch (this.tigerDetail.TradeType){
+          case 1:return "取消交易";
+          case 8:return "竞拍中";
+        }
+      },
+      getCur:function () {
+        switch (this.type){
+          case 0: return 'nav_0';
+          case 1: return 'nav_1';
+          case 2: return 'nav_2';
+        }
+      },
+
+      setPullUpLoad:function () {
+        return {
+          threshold:-60,
+        }
+      },//上拉设置
+    },
+    methods:{
+      openAuction:function(){
+        this.sellType = false;
+        this.auction.dialog = true;
+      },
+      openSell:function(){
+        this.sellType = false;
+        this.sell.dialog = true;
+      },
+      openSellType:function () {
+        this.sell.price = "";
+        this.auction.price = "";
+        this.sellType = true;
+      },
+      closeDialog:function () {
+        this.synthesisOffset= 0;
+        this.synthesisList=[];
+        this.synthesisDlg =false;
+      },
+      toSynthesis:function () {
+        this.getSynthesisList();
+        this.synthesisDlg =true;
+      },
+      canSynthesis:function (info) {
+        if(info.IsGenesis){
+          return info.CanTransfer
+
+        }else if(info.IsStud){
+          return info.CanTransfer
+        }else{
+          return false
+        }
+      },
+      canBOrn:function (info) {
+        if(info.IsGenesis && info.IsCanBreed){
+          return true
+        }else if(info.IsStud &&info.IsCanBreed){
+          return true
+        }else{
+          return false
+        }
+      },
+      canShare:function (info) {
+        if(info.IsGenesis){
+          return true
+        }else if(info.IsStud){
+          return true
+        }else{
+          return true
+        }
+      },
+      share:function (type) {
+        if(this.tigerDetail.HorseKey ){
+          if( type==='family'){
+            this.$router.push({path:"/inviteFamily",query:{type:"family",k:this.tigerDetail.HorseKey}});
+            // this.InviteUrl = "【快来加入我们的家族，和我们一起获取丰厚奖励】。。。。"+this.$store.state.shareAddress+this.$store.state.shareFamily+'?k='+this.tigerDetail.HorseKey;
+            // this.shareDlg = true;
+          }else if(type==='register'){
+            this.$router.push({path:"/inviter",query:{type:"register",k:this.tigerDetail.HorseKey}});
+            // this.InviteUrl = '【一起来玩万利马，丰厚奖励拿不停】，立即开始'+this.$store.state.shareAddress+this.$store.state.shareRegister+'?k='+this.tigerDetail.HorseKey;
+            // this.shareDlg = true;
+          }
+        }
+        else{
+          this.$tips('未找到有效ID,请刷新重试');
+        }
+      },
+      getSynthesisList:function (type) {
+        let offset;
+        if(type ==='UpLoad'){
+          offset = this.synthesisOffset;
+        }else{
+          offset =0;
+        }
+        let tigerType ="";
+        if(this.tigerDetail.IsGenesis)
+        {
+          tigerType = 4;
+        }else if(this.tigerDetail.IsStud)
+        {
+          tigerType = 2;
+        }
+        let data = {offset:offset,pageSize:this.pageSize,type:tigerType};
+        this.$axios.post('http://01.coinunio.com/api/activity/gettransferhorses/', data).then(
+          res => {
+            let result = res.data;
+            if (result.IsSuccess) {
+              if(result.Result.Data.length>0){
+                let record = result.Result.Data.map(item=>{
+                  item.horse = common.svgApi+item.HorseKey;
+                  return item;
+                });
+                if(type ==='UpLoad'){
+                  this.synthesisList = this.synthesisList.concat(record);
+                }else{
+                  this.synthesisList = record
+                }
+                this.synthesisOffset = this.synthesisList.length;
+                this.synthesisEmpty = false
+              }else{
+                if(type ==='UpLoad'){
+
+                  // this.$tips('暂无更多数据')
+                }else{
+                  this.synthesisEmpty = true
+
+                }
+              }
+              this.$refs.scroll2.finishiPullUp();
+            } else {
+              this.$refs.scroll2.finishiPullUp();
+              this.$get_error('tips',result.Code,result.Message);
+            }
+          }, error => {
+            this.$refs.scroll2.finishiPullUp();
+            this.$get_error('network');
+          }
+        );
+      },//合体list
+      Synthesis:function (steedKey) {
+        let data={newKey:this.tigerDetail.HorseKey,steedKey:steedKey};
+        this.$axios.post('http://01.coinunio.com/api/activity/transferfamily/',data).then(
+          res=>{
+            let result= res.data;
+            if(result.IsSuccess)
+            {
+              this.$tips('合体成功！');
+              this.getDetailInfo(this.tigerDetail.HorseKey,'cancle');
+            }else{
+              this.$get_error('tips',result.Code,result.Message);
+            }
+            this.synthesisDlg = false;
+          },error=>{
+            this.synthesisDlg = false;
+            this.$get_error('reload');
+          }
+        )
+      },//确认合体
+      getType:function (info) {
+        if(info.IsGenesis){
+          return '创世虎'
+        }else if(info.IsStud){
+          return '神虎'
+        }else{
+          return '猛虎'
+        }
+      },//马种类
+      pullUpLoadFuc:function () {
+        if(this.type===0){
+          this.getFeedList('UpLoad');
+        }else if(this.type===1){
+          this.getFamilyList('UpLoad');
+        }
+        this.$refs.scroll.finishiPullUp();
+      },//上拉加载
+      getFeedList:function (type) {
+        let offset;
+        if(type ==='UpLoad'){
+          offset = this.feedOffset;
+        }else{
+          offset =0;
+        }
+        let data = {horseId: this.tigerDetail.HorseKey,offset:offset,size:this.pageSize};
+        this.$axios.post('http://01.coinunio.com/api/horse/profits/', data).then(
+          res => {
+            let result = res.data;
+            if (result.IsSuccess) {
+              if(result.Result.length>0){
+                this.FeedEmpty = false;
+                let record = result.Result;
+
+                for(let index in record)
+                {
+                  record[index].Time = record[index].Time.slice(5,10);
+                }
+                if(type ==='UpLoad'){
+                  this.Records = this.Records.concat(record);
+                }else{
+                  this.Records = record
+                }
+                this.feedOffset = this.Records.length;
+              }else{
+                if(type ==='UpLoad'){
+                  // this.$tips('暂无更多数据')
+                }else{
+                  this.FeedEmpty = true
+                }
+              }
+
+            } else {
+              this.$get_error('tips',result.Code,result.Message);
+            }
+          }, error => {
+            this.$get_error('network');
+          }
+        );
+      },//喂养收益请求
+      getFamilyList:function (type) {
+        let offset,total;
+        if(type ==='UpLoad'){
+          offset = this.familyOffset;
+        }else{
+          offset =0;
+        }
+        if(type ==='UpLoad'){
+          total = this.clientTotal;
+        }else{
+          total =0;
+        }
+        let data = {horseId: this.tigerDetail.HorseKey,offset:offset,size:this.pageSize,clientTotal:total};
+        this.$axios.post('http://01.coinunio.com/api/horse/familyprofits/', data).then(
+          res => {
+            let result = res.data;
+            if (result.IsSuccess) {
+              this.clientTotal = result.Result.total;
+              if(result.Result.Data.length>0){
+                this.FeedEmpty = false;
+                let record = result.Result.Data ;
+                for(let index in record)
+                {
+                  record[index].Time = record[index].Time.slice(5,10);
+                }
+
+                if(type ==='UpLoad'){
+                  this.Records = this.Records.concat(record);
+                }else{
+                  this.Records = record
+                }
+                this.familyOffset = this.Records.length;
+              }else{
+                if(type ==='UpLoad'){
+                  // this.$tips('暂无更多数据')
+                }else{
+                  this.FeedEmpty = true
+                }
+              }
+            } else {
+              this.$get_error('tips',result.Code,result.Message);
+            }
+          }, error => {
+            this.$get_error('network');
+          }
+        );
+      },//家族收益请求
+      setScrollMinHeight:function () {
+        if(document.getElementById('warp'))
+        {
+          return 'min-height:'+(document.getElementById('warp').offsetHeight+1)+'px'
+        }
+      },
+      getDetailInfo: function (key,cancle) {
+        let data = {key: key};
+        this.$axios.get('http://01.coinunio.com/api/horse/get/?Key=' + key).then(
+          res => {
+            let result = res.data;
+            if (result.IsSuccess) {
+              this.tigerDetail = result.Result;
+              this.tigerDetail.horse = common.svgApi + result.Result.HorseKey;
+              if(!cancle){
+                this.getFeedList();
+              }
+            } else {
+              this.$get_error('tips',result.Code,result.Message);
+            }
+          }, error => {
+            this.$get_error('reload');
+          }
+        )
+      },//马详情请求
+      feedLabel:function () {
+        this.Records = [];
+        this.getFeedList();
+
+        this.type = 0;
+      },//点击喂马label
+      profit:function () {
+        this.Records = [];
+        this.type = 1;
+        this.getFamilyList();
+      },//点击家族label
+      from:function () {
+        this.Records = [];
+        this.FeedEmpty = false;
+        this.type = 2;
+        this.Records = this.tigerDetail;
+      },//点击来源label
+      beSell: function () {
+        this.sellType = false;
+        if(!this.tigerDetail.HorseKey){
+          return this.$tips('未找到有效ID,请刷新重试');
+        }
+        if (this.tigerDetail.TradeStatus) {
+          switch(this.tigerDetail.TradeType){
+            case 8: return;
+            case 1: this.sell.outSell = true;
+          }
+        } else {
+//          this.openSellType();
+          this.openSell();
+        }
+
+      },//出售按钮
+
+      SellOut: function () {
+        this.sell.outSell = false;
+        let data = {horseId: this.tigerDetail.HorseKey};
+        this.$axios.post('http://01.coinunio.com/api/horse/trade/cancel/', data).then(
+          res => {
+            let result = res.data;
+            if (result.IsSuccess) {
+              this.$tips("下架成功");
+              this.tigerDetail.TradeStatus = false;
+              this.getDetailInfo(this.tigerDetail.HorseKey,'cancle');
+            } else {
+              this.$get_error('tips',result.Code,result.Message);
+            }
+          }, error => {
+            this.$get_error('network');
+          }
+        );
+      },//马匹下架
+      sureToAuction: function () {
+        if(!common.isNumber(this.auction.price)){
+          return this.$tips('请输入合法数字');
+        }
+        if(this.auction.price>this.$store.state.max ||this.auction.price===this.$store.state.max){
+          this.auction.price = this.$store.state.max;
+        }
+        this.auction.dialog = false;
+        let data = {horseKey: this.tigerDetail.HorseKey, amount: this.auction.price};
+        this.$axios.post('http://01.coinunio.com/api/horse/trade/userauctionsale/', data).then(
+          res => {
+            let result = res.data;
+            if (result.IsSuccess) {
+              this.$tips("拍卖上架成功");
+//              this.tigerDetail.TradeStatus = true;
+              this.getDetailInfo(this.tigerDetail.HorseKey,'cancle');
+            } else {
+//              this.tigerDetail.TradeStatus = false;
+              this.$get_error('tips',result.Code,result.Message);
+            }
+          }, error => {
+            this.$get_error('network');
+          }
+        );
+
+      },//马匹拍卖上架
+      sureToSell: function () {
+        if(!common.isNumber(this.sell.price)){
+          return this.$tips('请输入合法数字');
+        };
+        if(this.sell.price>this.$store.state.max ||this.sell.price==this.$store.state.max){
+          this.sell.price = this.$store.state.max;
+        }
+        this.sell.dialog = false;
+        let data = {horseKey: this.tigerDetail.HorseKey, amount: this.sell.price};
+        this.$axios.post('http://01.coinunio.com/api/horse/trade/sale/', data).then(
+          res => {
+            let result = res.data;
+            if (result.IsSuccess) {
+              this.$tips("上架成功");
+              this.tigerDetail.TradeStatus = true;
+              this.getDetailInfo(this.tigerDetail.HorseKey,'cancle');
+            } else {
+              this.tigerDetail.TradeStatus = false;
+              this.$get_error('tips',result.Code,result.Message);
+            }
+          }, error => {
+            this.$get_error('network');
+          }
+        );
+
+      },//马匹上架
+      sureToBorn: function () {
+
+        let data = {horseId: this.tigerDetail.HorseKey};
+        this.$axios.post('http://01.coinunio.com/api/horse/breed/', data).then(
+          res => {
+            let result = res.data;
+            if (result.IsSuccess) {
+              this.getDetailInfo(this.tigerDetail.HorseKey,'cancle');
+              this.bornDialog = true;
+              this.bornDialogInfo= result.Result;
+              this.bornDialogInfo.horse= common.svgApi+result.Result.HorseKey;
+              this.born.dialog = false;
+            } else {
+              this.bornDialog = false;
+              this.$get_error('tips',result.Code,result.Message);
+              this.born.dialog = false;
+            }
+          }, error => {
+            this.$get_error('network');
+            this.born.dialog = false;
+          }
+        );
+      },//生育
+
+      beFeed:function () {
+        this.feed.dialog = true;
+      },//喂养按钮
+      close:function(){//关闭出售选择dialog
+        this.sellType = false
+      },
+
+      sureToFeed:function () {
+        this.feed.dialog = false;
+        let data = {horseId: this.tigerDetail.HorseKey};
+        this.$axios.post('http://01.coinunio.com/api/horse/feed/', data).then(
+          res => {
+            let result = res.data;
+            if (result.IsSuccess) {
+              this.tigerDetail.FeedTimes = result.Result.Data.FeedTimes;
+              this.tigerDetail.Weight = result.Result.Data.Weight;
+              this.tigerDetail.IsCanBreed = result.Result.Data.IsCanBreed;
+              this.tigerDetail.IsGenesis = result.Result.Data.IsGenesis;
+              this.tigerDetail.IsStud = result.Result.Data.IsStud;
+              // this.tigerDetail.horse = common.svgApi + result.Result.Data.HorseKey;
+            } else {
+              this.$get_error('tips', result.Code, result.Message);
+            }
+          }, error => {
+            this.$get_error('network');
+          })
+      },
+      sure:function () {
+        this.bornDialog = false;
+      },
+    },
+
+  }
+</script>
+
+<style scoped>
+  span{
+    display: block;
+  }
+  .content{
+    background-image: url("../../assets/img/transactin/detail.png");
+    background-size: 100% 100%;
+    position: fixed;
+    top:0;
+    bottom: 0;
+    width: 100%;
+  }
+  .close{
+    width: 0.56rem;
+    margin-top: 0.5rem;
+    margin-right: 0.5rem;
+  }
+  .Info{
+    position: relative;
+    color: #502111;
+    font-size:0.32rem ;
+    padding: 0.5rem 1.5rem ;
+    z-index: 10;
+    min-height: 5.38rem;
+    background-image: url("../../assets/img/transactin/detail-di.png");
+    background-size: 100% 100%;
+  }
+  .Info p{
+    line-height: 0.5rem;
+  }
+  .btn{
+    padding: 0.2rem 0;
+    width:2.8rem;
+  }
+  .sell{
+    background-image: url("../../assets/img/dialog/btn-violet.png");
+  }
+  .unSell{
+    background-image: url("../../assets/img/dialog/btn-disabled.png");
+  }
+  .btn span{
+    display: inline;
+    padding: 0.1rem 0.2rem;
+  }
+  .Check button{
+    width:30%;
+    height: 1.125rem;
+    cursor:pointer ;
+    -webkit-border-radius:0.15625rem;
+    -moz-border-radius:0.15625rem;
+    border-radius:0.15625rem;
+  }
+  .Check span{
+    color: #FF0000;
+  }
+  .cur{
+    color: #2D6D7B;
+    border-bottom: 1px solid #2D6D7B;
+  }
+  .label{
+    padding:0 20%;
+    text-align: center;
+    height: 1.5rem;
+    position: relative;
+  }
+  .title{
+    height: 100%;
+    /*width: 33.3%;*/
+  }
+  .nav_0{
+    background: url("../../assets/img/transactin/nav_detail_0.png") center no-repeat;
+  }
+  .nav_1{
+    background: url("../../assets/img/transactin/nav_detail_1.png") center no-repeat;
+  }
+  .nav_2{
+    background: url("../../assets/img/transactin/nav_detail_2.png") center no-repeat;
+  }
+  .born{
+    padding:0.2rem ;
+    width:2.8rem;
+    /*margin-right: 0.3rem;*/
+    /*margin-top: 0.5rem;*/
+  }
+  .Fit{
+    font-size: 0.3rem;
+    background-image: url("../../assets/img/dialog/Synthesis.png");
+    background-size: 100% 100%;
+    height: 1rem;
+    margin:  0 0.2rem;
+    line-height: 1rem;
+    padding:0 0.5rem;
+    color: #ffffff;
+    border-radius: 0.2rem;
+  }
+  .Synthesis{
+    margin: 0 0.3rem;
+    background-image: url("../../assets/img/dialog/Synthesis.png");
+    background-size: 100% 100%;
+    padding: 0.3rem 0.5rem;
+    border-radius: 0.2rem;
+    color: #fff;
+  }
+  .feed{
+
+    background-image: url("../../assets/img/user/tixiananniu.png");
+    background-size: 100% 100%;
+    padding: 0.3rem 0.5rem;
+    border-radius: 0.2rem;
+
+    color: #fff;
+  }
+  .sure{
+    margin-top: 0.2rem;
+    padding: 0.3rem 0.5rem;
+    z-index: 10;
+    position: relative;
+  }
+  .dialog{
+    border:2px solid #9A9A9A;
+    background: #ffffff;
+    border-radius: 5px;
+  }
+  .dialog span{
+    text-align: center;
+    display: inline-block;
+    font-size: 0.32rem;
+    color: #8d8d8d;
+    margin: 0.1rem 0;
+    padding:0.1rem 0.1rem;
+  }
+  .share{
+    padding: 1rem;
+    background-image: url("../../assets/img/index/erweimadi.png");
+    background-size: 100% 100%;
+    width: 80%;
+    border-radius: 5px;
+    color: #fff;;
+  }
+  .synthesis{
+    padding: 0.5rem;
+    background-image: url("../../assets/img/index/erweimadi.png");
+    background-size: 100% 100%;
+    width: 80%;
+    border-radius: 5px;
+    color: #fff;;
+    height: 7rem;
+  }
+  .synthesis-title{
+    background: #ffffff;
+    text-align: center;
+    color: #9B9B9B;
+    font-size: 0.32rem;
+    padding: 0.1rem 0;
+    border-radius: 0.1rem;
+  }
+  .synthesis-item{
+    color: #ffffff;
+    font-size:0.32rem;
+    height: 1.32rem;
+    text-align: center;
+  }
+  .synthesis-item img{
+    height: 100%;
+  }
+  .synthesis-item button{
+    background-image: url("../../assets/img/dialog/huangda.png");
+    background-size: 100% 100%;
+    border-radius: 0.2rem;
+    padding:  0 0.3rem;
+    height: 0.76rem;
+    line-height: 0.1rem;
+  }
+  .copyBtn{
+    position: absolute;
+    bottom: -0.5rem;
+    width: 2rem;
+    height: 1rem;
+    margin:  0 auto;
+    border-radius: 0.2rem;
+  }
+  .under-line-white{
+    height: 2px;
+    /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#f1806f+0,f1806f+14,ffffff+25,ffffff+71,ffffff+71,ffffff+75,f1806f+100 */
+    background: #f1806f; /* Old browsers */
+    background: -moz-linear-gradient(left, #f1806f 0%, #f1806f 14%, #ffffff 25%, #ffffff 71%, #ffffff 71%, #ffffff 75%, #f1806f 100%); /* FF3.6-15 */
+    background: -webkit-linear-gradient(left, #f1806f 0%,#f1806f 14%,#ffffff 25%,#ffffff 71%,#ffffff 71%,#ffffff 75%,#f1806f 100%); /* Chrome10-25,Safari5.1-6 */
+    background: linear-gradient(to right, #f1806f 0%,#f1806f 14%,#ffffff 25%,#ffffff 71%,#ffffff 71%,#ffffff 75%,#f1806f 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f1806f', endColorstr='#f1806f',GradientType=1 ); /* IE6-9 */
+  }
+  .register{
+    background-image: url("../../assets/img/dialog/huangda.png");
+    background-size: 100% 100%;
+    border-radius: 0.2rem;
+    height:1rem;
+    line-height:1rem;
+    margin: 0;
+    padding:0 0.7rem;
+    margin-bottom: 0.2rem;
+  }
+  .family{
+    width: 3.36rem;
+    padding: 0.2rem 0;
+  }
+  .cancel{
+    position: absolute;
+    bottom: -0.6rem;
+    color: #ffffff;
+    padding: 0.3rem 0.9rem;
+    font-size: 0.4rem;
+    background-image: url("../../assets/img/transactin/quxiaoanniu.png");
+    background-size: 100% 100%;
+    border-radius: 0.3rem;
+  }
+  .auction-tips{
+    text-align: left;font-size: 0.32rem;
+    color: #ffffff;
+
+  }
+  .auction-tips span{
+    color: #ffe94c;
+  }
+  .ssr{
+    width:1.253rem ;
+    height:0.58667rem ;
+    font-size:0.2933rem ;
+    color: #ffffff;
+    background:#03ADCB ;
+    border-radius: 0.1rem;
+    text-align: center;
+    line-height: 0.58667rem ;
+    display: inline-block;
+    margin-right: 0.2rem;
+  }
+</style>

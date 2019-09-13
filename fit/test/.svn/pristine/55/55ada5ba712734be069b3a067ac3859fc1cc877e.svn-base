@@ -1,0 +1,325 @@
+<template>
+  <div class="tigers">
+    <scroll>
+      <div   flex="main:right cross:center dir:top"  :style="{'min-height':height}">
+        <!--<img src="../../assets/img/index/biaoti.png" style="width: 3.5rem;margin-top: 1.5rem;margin-bottom: 0.5rem  ">-->
+        <div style="position: relative">
+          <img  src="../../assets/img/tigers/set.png" style="width:25%;position: absolute" :style="{left:setWidth,top:setHeight}">
+          <img src="../../assets/img/tigers/bg.png" class="top" >
+        </div>
+        <div flex="main:center">
+          <button class="btn btn-yellow miaobian-huang usual" @click="tigers(1)" style="margin-right: 0.5rem">
+            <p v-if="count">
+              <span>捕虎券({{count}})</span>
+              <span style="display: block">单捕</span>
+            </p>
+            <span v-if="!count">单捕({{$store.state.LassoFee}}FMVP)</span>
+          </button>
+          <button class="btn btn-violet miaobian-huang usual" @click="tigers(10)" >
+            <p v-if="count">
+              <span>捕虎券({{count}})</span>
+              <span  style="display: block">10连捕</span>
+            </p>
+            <span v-if="!count">10连捕({{$store.state.LassoFeeTen}}FMVP)</span>
+          </button></div>
+      </div>
+    </scroll>
+    <!--<my-dialog :dialogOpen="fail">-->
+    <!--<div  class="detaildlg takeCenter" flex=" dir:top main:center cross:center">-->
+    <!---->
+    <!--<button class="cancel cl miaobian-zi" @click="cancle">确认</button>-->
+    <!--</div>-->
+    <!--</my-dialog>-->
+    <comfire-dialog v-model="fail" :type="1" :sure="cancle">
+      <p style="text-align: center;font-size: 0.5rem;margin-bottom: 0.5rem" class="miaobian-hong">捕虎失败</p>
+      <p class="miaobian-hong">很遗憾，此次捕虎未中，请再接再厉</p>
+    </comfire-dialog>
+    <my-dialog :dialogOpen="newTiger">
+      <div  class="born takeCenter" flex="dir:top  main:center cross:center">
+        <div flex="  main:center cross:center" style="flex-wrap:wrap;">
+          <tiger-info :Info="info" style="width: 3.5rem" :type="4" v-for="info in newTigerInfo" key="newTiger"></tiger-info>
+        </div>
+        <button class="sure btn-yellow" @click="sure">确认领取</button>
+      </div>
+    </my-dialog>
+  </div>
+</template>
+
+<script>
+  import MyDialog from "../../components/dialog";
+  import TigerInfo from "../../components/tigerInfo";
+  import common from '../../components/common'
+  import Scroll from "../../components/scroll/scroll";
+  import ComfireDialog from "../../components/comfireDialog";
+  import Spine from "../../components/spine/spine";
+  export default{
+    components: {
+      Spine,
+      ComfireDialog,
+      Scroll,
+      TigerInfo,
+      MyDialog},
+    name: "tigers",
+    data(){
+      return {
+        successImg:"",
+        fail:false,
+        success:false,
+        newTiger:false,
+        newTigerInfo:[],
+        isWork:false,
+        height:'',
+        set:[
+          {width:'5%',height:'10%'},
+          {width:'25%',height:'10%'},
+          {width:'45%',height:'10%'},
+          {width:'65%',height:'10%'},
+          {width:'5%',height:'50%'},
+          {width:'25%',height:'50%'},
+          {width:'45%',height:'50%'},
+          {width:'65%',height:'50%'},
+
+        ],
+        setWidth:'5%',
+        setHeight:'10%',
+        currentSet:0,
+        Interval:null,
+        count:0
+      }
+    },
+    mounted(){
+      this.setScrollMinHeight();
+      this.getCount()
+
+    },
+    destroyed(){
+      this.stopSet();
+    },
+    methods:{
+      getCount:function(){
+        this.$axios.get("http://01.coinunio.com/api/horse/lassocount/").then(
+          res=>{
+            let result = res.data;
+            if(result.IsSuccess){
+              this.count = result.Result;
+
+            }else{
+              this.$get_error('tips',result.Code,result.Message);
+            }
+          },error=>{
+            this.$get_error('network');
+          }
+        )
+      },
+      stopSet:function () {
+        if(this.Interval)
+        {
+          clearInterval(this.Interval);
+          this.Interval = null
+        }
+      },
+      radomSet:function () {
+        let self= this;
+        this.Interval = setInterval(function () {
+          let set = parseInt(Math.random()*self.set.length );
+          if(set===self.currentSet){
+            set++;
+            if(set>self.set.length)
+            {
+              set = 0;
+            }
+          }
+
+          self.currentSet = set;
+          self.setWidth = self.set[self.currentSet].width;
+          self.setHeight = self.set[self.currentSet].height;
+        },300)
+      },
+      setScrollMinHeight:function () {
+        let rem = parseFloat(document.documentElement.style.fontSize.split('px')[0]);
+
+        if(document.getElementById('warp'))
+        {
+          this.height=(document.getElementById('warp').offsetHeight)+'px' ;
+        }
+      },
+      sure:function () {
+        this.newTiger = false;
+      },
+      cancle:function () {
+        this.fail = false;
+      },
+      tigers: function (time) {
+        if(this.isWork)return;
+        this.isWork = true;
+//        if(this.Interval !==null)return;
+        let self =this;
+//        if(time ===1)
+//        {
+//          this.radomSet();
+//        }
+        let data ={useFreeLasso:this.count?true:false,time:time};
+        this.$axios.post('http://01.coinunio.com/api/horse/lasso/',data).then(
+          res => {
+
+            let result = res.data;
+            if (result.IsSuccess) {
+
+              if(result.Result){
+                if(time===1){
+                  if( this.count){
+                    this.count--
+                  }
+                  setTimeout(function () {
+//                  self.stopSet();
+                    self.fail =false;
+                    self.newTigerInfo= result.Result.Data;
+                    for(let index  in self.newTigerInfo){
+                      self.newTigerInfo[index].tiger = common.svgApi+result.Result.Data[index].HorseKey;
+                    }
+                    self.newTiger = true;
+                  },0)
+                }else if(time===10){//10连捕
+                  if( this.count){
+                    this.count=this.count-10
+                  }
+//                    self.stopSet();
+                  self.fail =false;
+                  self.newTigerInfo= result.Result.Data;
+                  for(let index  in self.newTigerInfo){
+                    self.newTigerInfo[index].tiger = common.svgApi+result.Result.Data[index].HorseKey;
+                  }
+                  self.newTiger = true;
+                }
+              }
+              this.isWork = false;
+            } else {
+              if(result.Code ==='E04203')//未捕中
+              {
+
+                if(time===1){
+                  if( this.count){
+                    this.count--
+                  }
+                  setTimeout(function () {
+//                    self.stopSet();
+                    self.fail =true;
+                  },0)
+                }else if(time===10){
+                  if( this.count){
+                    this.count=this.count-10
+                  }
+//                  self.stopSet();
+                  self.fail =true;
+                }
+                this.isWork = false;
+              }else{
+//                self.stopSet();
+                this.$get_error('tips',result.Code,result.Message);
+              }
+              this.newTiger =false;
+              this.isWork = false;
+            }
+          }, error => {
+//            this.stopSet();
+            this.$get_error('network');
+            this.isWork = false;
+          }
+        );
+      },//
+    }
+  }
+</script>
+
+<style scoped>
+  .tigers {
+    text-align: center;
+    background-image: url("../../assets/img/tigers/bg2.png");
+    background-size: 100% 100% ;
+    width: 100%;
+    height: 100vh;
+  }
+  .top{
+    width: 100%;
+
+  }
+  .info{
+    position: relative;
+    width: 80%;
+    margin:  0 auto;
+    color: #ffffff;
+    padding: 0.5rem 0.5rem 1rem 0.5rem;
+    background-image: url("../../assets/img/index/erweimadi.png");
+    background-size: 100% 100%;
+
+  }
+  .info p{
+    text-align: left;
+    font-size: 14px;
+    line-height: 20px;
+  }
+  .info img{
+    width: 4rem;
+  }
+  .btn{
+    /*width: 6em;*/
+    padding: 0.2rem 0.5rem;
+    margin: 0.5rem 0;
+    /*background-image: url("../../assets/img/index/anniu.png");*/
+    /*background-size: 100% 100%;*/
+    text-align: center;
+    border-radius: 0.31rem;
+  }
+  .born{
+    text-align: center;
+    width: 80%;
+    /*background-image: url('../../assets/img/dialog/bornBg.png');*/
+    /*background-size: 100% 100%;*/
+  }
+  .ifram{
+    width: 320px;
+    height: 230px;
+    margin:  0 auto;
+    overflow: hidden;
+  }
+  .tips{
+    padding: 0.2rem;
+    position: fixed;
+    opacity: 0.75;
+    color: #ffffff;
+    border-radius: 5px;
+    background: #000000;
+  }
+  .detaildlg{
+    padding: 0.5rem 1rem 1.5rem 1rem;
+    background-image: url("../../assets/img/index/erweimadi.png");
+    background-size: 100% 100%;
+    width: 80%;
+    border-radius: 5px;
+    color: #ffffff;
+  }
+  .cancel{
+    position: absolute;
+    bottom: -0.5rem;
+    color: #ffffff;
+    font-size: 0.5rem;
+    border-radius: 0.3rem;
+  }
+  .sure{
+    margin-top: 0.2rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 0.2rem;
+    z-index: 10;
+  }
+  #bronResult{
+    animation: tiger ease-out	 0.5s  ;
+  }
+  @keyframes tiger {
+    from{
+      transform: scale(0);
+    }
+    to{
+      transform: scale(1);
+    }
+  }
+</style>

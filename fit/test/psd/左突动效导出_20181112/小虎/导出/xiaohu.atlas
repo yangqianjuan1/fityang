@@ -1,0 +1,90 @@
+
+xiaohu.png
+size: 800,800
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+baodian000
+  rotate: false
+  xy: 2, 365
+  size: 274, 214
+  orig: 274, 214
+  offset: 0, 0
+  index: -1
+baodian001
+  rotate: true
+  xy: 556, 315
+  size: 268, 178
+  orig: 274, 214
+  offset: 3, 19
+  index: -1
+baodian002
+  rotate: false
+  xy: 278, 236
+  size: 259, 137
+  orig: 274, 214
+  offset: 8, 36
+  index: -1
+baodian003
+  rotate: false
+  xy: 267, 92
+  size: 250, 142
+  orig: 274, 214
+  offset: 12, 33
+  index: -1
+baodian004
+  rotate: false
+  xy: 519, 16
+  size: 177, 118
+  orig: 274, 214
+  offset: 53, 43
+  index: -1
+daoguang000
+  rotate: true
+  xy: 2, 2
+  size: 134, 208
+  orig: 276, 231
+  offset: 0, 21
+  index: -1
+daoguang001
+  rotate: false
+  xy: 279, 588
+  size: 276, 210
+  orig: 276, 231
+  offset: 0, 21
+  index: -1
+daoguang002
+  rotate: false
+  xy: 279, 375
+  size: 275, 211
+  orig: 276, 231
+  offset: 1, 20
+  index: -1
+daoguang003
+  rotate: false
+  xy: 2, 581
+  size: 275, 217
+  orig: 276, 231
+  offset: 1, 14
+  index: -1
+daoguang004
+  rotate: false
+  xy: 2, 138
+  size: 263, 225
+  orig: 276, 231
+  offset: 13, 6
+  index: -1
+daoguang005
+  rotate: true
+  xy: 557, 585
+  size: 213, 229
+  orig: 276, 231
+  offset: 63, 0
+  index: -1
+xiaohu
+  rotate: true
+  xy: 539, 136
+  size: 177, 206
+  orig: 177, 206
+  offset: 0, 0
+  index: -1

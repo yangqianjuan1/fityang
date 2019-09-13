@@ -1,0 +1,121 @@
+{
+"skeleton": { "hash": "4fpYug1kVdvgB6VQG0gqDEdNvgU", "spine": "2.1.27", "width": 177, "height": 206, "images": "./images/" },
+"bones": [
+	{ "name": "root" },
+	{ "name": "baodian000", "parent": "root", "length": 224.22, "x": 275.8, "y": 469.93, "scaleX": 2, "scaleY": 2 },
+	{ "name": "daoguang000", "parent": "root", "length": 208.29, "x": -3.44, "y": 15, "scaleX": 2, "scaleY": 2, "rotation": 89.81 },
+	{ "name": "xiaohu", "parent": "root", "length": 194.69, "x": -0.48, "y": 11.97, "rotation": 90 }
+],
+"slots": [
+	{ "name": "xiaohu", "bone": "xiaohu", "attachment": "xiaohu" },
+	{ "name": "daoguang000", "bone": "daoguang000" },
+	{ "name": "baodian000", "bone": "baodian000" }
+],
+"skins": {
+	"default": {
+		"baodian000": {
+			"baodian000": { "x": -3.02, "y": 1.51, "width": 274, "height": 214 },
+			"baodian001": { "x": -3.02, "y": 1.51, "width": 274, "height": 214 },
+			"baodian002": { "x": -3.02, "y": 1.51, "width": 274, "height": 214 },
+			"baodian003": { "x": -3.02, "y": 1.51, "width": 274, "height": 214 },
+			"baodian004": { "x": -3.02, "y": 1.51, "width": 274, "height": 214 }
+		},
+		"daoguang000": {
+			"daoguang000": { "x": 104.12, "y": 5, "rotation": -89.81, "width": 276, "height": 231 },
+			"daoguang001": { "x": 104.12, "y": 5, "rotation": -89.81, "width": 276, "height": 231 },
+			"daoguang002": { "x": 104.12, "y": 5, "rotation": -89.81, "width": 276, "height": 231 },
+			"daoguang003": { "x": 104.12, "y": 5, "rotation": -89.81, "width": 276, "height": 231 },
+			"daoguang004": { "x": 104.12, "y": 5, "rotation": -89.81, "width": 276, "height": 231 },
+			"daoguang005": { "x": 104.12, "y": 5, "rotation": -89.81, "width": 276, "height": 231 }
+		},
+		"xiaohu": {
+			"xiaohu": { "x": 92.09, "y": -4.96, "rotation": -90, "width": 177, "height": 206 }
+		}
+	}
+},
+"animations": {
+	"attack": {
+		"slots": {
+			"daoguang000": {
+				"attachment": [
+					{ "time": 0, "name": null },
+					{ "time": 0.1, "name": "daoguang000" },
+					{ "time": 0.1333, "name": "daoguang001" },
+					{ "time": 0.1666, "name": "daoguang002" },
+					{ "time": 0.2, "name": "daoguang003" },
+					{ "time": 0.2333, "name": "daoguang004" },
+					{ "time": 0.2666, "name": "daoguang005" },
+					{ "time": 0.3, "name": null }
+				]
+			}
+		},
+		"bones": {
+			"xiaohu": {
+				"rotate": [
+					{ "time": 0, "angle": 0 },
+					{ "time": 0.0666, "angle": 18.05 },
+					{ "time": 0.1333, "angle": -76.66 },
+					{ "time": 0.1666, "angle": -64.46, "curve": "stepped" },
+					{ "time": 0.2, "angle": -64.46 },
+					{ "time": 0.2666, "angle": 6.85 },
+					{ "time": 0.3333, "angle": -3.85 },
+					{ "time": 0.3666, "angle": 0, "curve": "stepped" },
+					{ "time": 0.5, "angle": 0 }
+				],
+				"translate": [
+					{ "time": 0, "x": 0, "y": 0, "curve": "stepped" },
+					{ "time": 0.3666, "x": 0, "y": 0, "curve": "stepped" },
+					{ "time": 0.5, "x": 0, "y": 0 }
+				],
+				"scale": [
+					{ "time": 0, "x": 1, "y": 1, "curve": "stepped" },
+					{ "time": 0.3666, "x": 1, "y": 1, "curve": "stepped" },
+					{ "time": 0.5, "x": 1, "y": 1 }
+				]
+			}
+		}
+	},
+	"behit": {
+		"slots": {
+			"baodian000": {
+				"attachment": [
+					{ "time": 0.0333, "name": "baodian000" },
+					{ "time": 0.0666, "name": "baodian001" },
+					{ "time": 0.1, "name": "baodian002" },
+					{ "time": 0.1333, "name": "baodian003" },
+					{ "time": 0.1666, "name": "baodian004" },
+					{ "time": 0.2, "name": null }
+				]
+			}
+		},
+		"bones": {
+			"xiaohu": {
+				"rotate": [
+					{ "time": 0, "angle": 0, "curve": "stepped" },
+					{ "time": 0.1666, "angle": 0, "curve": "stepped" },
+					{ "time": 0.3, "angle": 0 }
+				],
+				"translate": [
+					{ "time": 0, "x": 0, "y": 0 },
+					{ "time": 0.0666, "x": 0, "y": 7.57 },
+					{ "time": 0.1666, "x": 0, "y": 0, "curve": "stepped" },
+					{ "time": 0.3, "x": 0, "y": 0 }
+				],
+				"scale": [
+					{ "time": 0, "x": 1, "y": 1 },
+					{ "time": 0.0666, "x": 0.861, "y": 0.931 },
+					{ "time": 0.1666, "x": 1, "y": 1, "curve": "stepped" },
+					{ "time": 0.3, "x": 1, "y": 1 }
+				]
+			},
+			"baodian000": {
+				"translate": [
+					{ "time": 0.0333, "x": -272, "y": -375.71 },
+					{ "time": 0.0666, "x": -269.53, "y": -393.33 },
+					{ "time": 0.1333, "x": -267.48, "y": -368.19 }
+				]
+			}
+		}
+	}
+}
+}

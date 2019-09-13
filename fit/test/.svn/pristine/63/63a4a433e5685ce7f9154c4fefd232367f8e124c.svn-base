@@ -1,0 +1,537 @@
+<template>
+  <div class="personalList">
+    <scroll top="6.5">
+      <div class="item" v-for="(item,index) in recordList" @click="Detail(item)">
+        <div flex="main:justify cross:center">
+          <div >
+            <p :style="{color:item.IsAttack?'#218BC7':'' }">{{item.IsAttack?'被挑战者':'挑战者'}}：{{item.NickName}}</p>
+            <p>“{{item.GameType ?'神马':'骏马'}}”比拼挑战</p>
+          </div>
+          <div flex="main:center cross:center" style="width:3rem">
+            <div>
+              <p >{{item.CreateTime|Time}}</p>
+              <span v-if="item.GameResult!==5" :style="{'color':getColor(item.GameResult)}">{{getState(item.GameResult)}}</span>
+              <button class="btn-green" style="padding: 0.15rem 0.3rem;font-size: 0.37rem" v-if="item.GameResult===5"@click="cancelChoose(item,index)">待处理</button>
+            </div>
+            <img src="../../assets/img/curose/close.png" style="height: 0.5rem;margin-left: 0.2rem" v-if="item.GameResult<4" >
+          </div>
+        </div>
+        <div class='under-line' style="margin-top: 0.3rem"></div>
+      </div>
+      <div style="text-align: center" v-if="empty">
+        <img style="width: 2.5rem;padding: 1rem" src="../../assets/img/dialog/empty.png" >
+      </div>
+    </scroll>
+    <comfire-dialog
+      v-model="comDialog"
+      :sure="acceptChallenge"
+      :cancleFuc="Challenge"
+      cancleText="拒绝"
+      sureText="接受">
+      <p class="comTitle">接受挑战</p>
+      <p class="comText"><span>{{curItem.NickName}}</span>向你发起<span>{{curItem.GameType ?'神马':'骏马'}}</span>比拼挑战，是否接受？</p>
+    </comfire-dialog><!--接受挑战-->
+    <one-cancel-dialog v-model="detail">
+      <p class="name" flex="cross:center"><span style="color:#FFF719 ">{{detailAccountNick}}</span><span style="width: 10%">vs</span><span>{{detailOpponentNick?detailOpponentNick:'—'}}</span></p>
+      <div class="table">
+        <div class="title" flex="main:justify cross:center" >
+          <p class="table-left">参赛位</p>
+          <p class="table-mid">马匹编号</p>
+          <p class="table-mid">马匹性格</p>
+          <p class="table-right">结果</p>
+        </div>
+        <scroll style="height: 7rem;position: relative" warpId="detail">
+          <div v-for="(item,index) in detailList" class="detailList">
+            <div  flex="box:justify cross:center" class="detailItem">
+              <p class="table-left">{{item.Sequence}}</p>
+              <div>
+                <p flex="box:mean cross:center" style="color: #FFF719"><span>#{{item.HorseNo1}}</span><span>{{item.Disposition1}}</span></p>
+                <p>VS</p>
+                <p flex="box:mean cross:center"><span>{{item.HorseNo2?'#'+item.HorseNo2:'—'}}</span><span>{{item.Disposition2?item.Disposition2:'—'}}</span></p>
+              </div>
+              <p class="table-right">{{getDetailState(item)}}</p>
+            </div>
+            <div class="under-line-white" v-if="index!==(detailList.length-1)"></div>
+          </div>
+        </scroll>
+      </div>
+    </one-cancel-dialog><!--详情-->
+    <my-dialog :dialog-open="combat"><!--应战-->
+      <div class="warp takeCenter">
+        <p style="font-size: 0.4rem;text-align: center">{{curItem.GameType?'神马专区':'骏马专区'}}</p>
+        <div class="table">
+          <div class="title" flex="main:justify cross:center" >
+            <p class="table-left">参赛位</p>
+            <p class="table-mid">马匹编号</p>
+            <p class="table-mid">马匹性格</p>
+            <p class="table-right">操作</p>
+          </div>
+          <scroll style="height: 7rem;position: relative" warpId="guide">
+            <div   v-for="(item,index) in combatList">
+              <li  flex="main:center cross:center box:mean" class="combatItem">
+                <span>{{item.num}}</span>
+                <span>{{item.HorseNo?'#'+item.HorseNo:'—'}}</span>
+                <span>{{item.Disposition?item.Disposition:'—'}}</span>
+                <button class="btn-yellow" style="height: 0.8rem;padding: 0 0.2rem" @click="edit(index)">添加马匹</button>
+              </li>
+              <div class="under-line-white" v-if="index!==4"></div>
+            </div>
+          </scroll>
+        </div>
+        <div flex="main:right cross:center" class="btnWarp cl">
+          <button @click="onceCheckCancle"  style="margin-right: 1rem" class="checkCancle">取消</button>
+          <button @click="confirm" class="checkSure">确认</button>
+        </div>
+      </div>
+    </my-dialog> <!--应战-->
+    <my-dialog  :dialogOpen="chooseDlg"><!--选马-->
+      <div class="Check takeCenter" style="text-align: center">
+        <div class="synthesis-title ">
+          <p  style="transform: skewX(15deg);">{{curItem.GameType?'神马专区':'骏马专区'}}</p>
+        </div>
+        <scroll
+          ref="scroll2"
+          style="height: 7.5rem;position: relative;margin-top: 0.2rem"
+          :pullUpLoad="setPullUpLoad"
+          :pullUpLoadFuc="getHorseList"
+          pullUpLoadFucParam="UpLoad" warpId="scroll2">
+          <ul >
+            <li v-for="item in horseList" @click="choose(item)">
+              <div flex="main:center cross:center box:mean"  class="synthesis-item " >
+                <img :src="item.horse" >
+                <div style="width: 30%">
+                  <p>马匹号：{{item.HorseNo}}</p>
+                  <p>性格：{{item.Disposition}}</p>
+                  <p>马种：{{item.Breeds}}</p>
+                </div>
+                <div>
+                </div>
+              </div>
+              <div class="under-line-white"></div>
+            </li>
+            <div style="text-align: center" v-if="horseEmpty">
+              <img style="width: 2.5rem;padding: 1rem" src="../../assets/img/dialog/empty.png" >
+            </div>
+          </ul>
+        </scroll>
+        <button @click="cancle"  class="Cancle cl">取消</button>
+      </div>
+    </my-dialog>
+  </div>
+</template>
+
+<script>
+  import Scroll from "../../components/scroll/scroll";
+  import OneCancelDialog from "../../components/tips/oneCancelDialog";
+  import ComfireDialog from "../../components/comfireDialog";
+  import MyDialog from "../../components/dialog";
+  import common from '../../components/common'
+  export default{
+    components: {
+      MyDialog,
+      ComfireDialog,
+      OneCancelDialog,
+      Scroll},
+    name: "personalList",
+    data(){
+      return {
+        offset:0,
+        pageSize:30,
+        curItem:{},//选中项
+        curIndex:-1,//选中的recordList数组index
+        detailList:[],
+        detailAccountNick:"",
+        detailOpponentNick:"",
+        comDialog:false,
+        detail:false,//详情
+        combat:false,//迎战
+        chooseDlg:false,//选马
+        horseType:0,//马匹类型
+        recordList:[],//记录列表
+        combatList:[//应战列表
+          {num:1,HorseNo:'',Disposition:''},
+          {num:2,HorseNo:'',Disposition:''},
+          {num:3,HorseNo:'',Disposition:''},
+          {num:4,HorseNo:'',Disposition:''},
+          {num:5,HorseNo:'',Disposition:''},
+        ],
+        horseList:[],//马匹列表
+        empty:false,
+        horseEmpty:false,
+        chooseIndex:0
+      }
+    },
+    computed:{
+      setPullUpLoad:function () {
+        return {
+          threshold:-30,
+
+        }
+      },
+    },
+    mounted(){
+      this.getList();
+    },
+    methods:{
+      getList:function () {//挑战列表
+        this.$axios.post('http://01.coinunio.com/api/battle/character/singleteamlist/').then(
+          res=>{
+            let result = res.data;
+            if(result.IsSuccess){
+                if(result.Result.Data.length>0){
+                  this.empty = false;
+                  this.recordList =result.Result.Data
+                }else{
+                    this.empty = true
+                }
+
+            }else{
+              this.empty = true;
+              this.$get_error('tips',result.Code,result.Message);
+            }
+          },error=>{
+            this.empty = true;
+            this.$get_error('reload');
+          }
+        );
+      },
+      getColor:function (GameResult) {
+        switch (GameResult){
+          case 0: return '#218BC7';
+          case 1: return '#F45B45';
+          case 2: return '#F45B45';
+          case 3: return "#F45B45";
+          case 4: return "#4B4B4B";
+          case 5: return "#218BC7";
+          case 6: return "#4B4B4B";
+        }
+      },
+      getDetail:function (TeamKey) {
+        let data={teamKey:TeamKey};
+        this.$axios.post('http://01.coinunio.com/api/battle/character/teamdetail/',data).then(
+          res=>{
+            let result = res.data;
+            if(result.IsSuccess){
+              this.detailList = result.Result.Data;
+              this.detailAccountNick = result.Result.accountNick;
+              this.detailOpponentNick = result.Result.opponentNick;
+            }else{
+              this.$get_error('tips',result.Code,result.Message);
+            }
+          },error=>{
+            this.$get_error('reload');
+          }
+        );
+      },
+      getDetailState:function (item) {
+        switch (item.GameResult){
+          case 0:return '—';
+          case 1:return '胜';
+          case 2:return '负';
+          case 3:return '平';
+        }
+      },
+      Detail:function (item) {
+          if(item.GameResult>=4){
+              return
+          }
+        this.detailList=[];
+        this.detail = true;
+        this.getDetail(item.TeamKey)
+      },//详情弹窗
+      getState:function (GameResult) {
+        switch (GameResult){
+          case 0: return '待处理';
+          case 1: return '同意(胜)';
+          case 2: return '同意(负)';
+          case 3: return '同意(平)';
+          case 4: return '拒绝';
+          case 5: return '待处理';
+          case 6: return '失效';
+        }
+      },
+      cancelChoose:function (item,index) {//选择接受挑战
+        this.curItem = item;
+        this.curIndex = index;
+        this.comDialog = true
+      },
+      cancle:function () {//取消选择马
+        this.chooseDlg = false;
+        this.combat = true;
+      },
+      acceptChallenge:function () {//接受挑战
+        this.comDialog = false;
+        this.reset();
+        this.combat = true;
+      },
+      Challenge:function () {//拒绝挑战
+        this.comDialog = false;
+        let data={key:this.curItem.TeamKey};
+        this.$axios.post('http://01.coinunio.com/api/horse/battle/rejectsinglecharacter/',data).then(
+          res=>{
+            let result = res.data;
+            if(result.IsSuccess){
+              if(this.curIndex<0)return;
+              this.recordList[this.curIndex].GameResult = 4//设置状态为拒绝
+            }else{
+              this.$get_error('tips',result.Code,result.Message);
+            }
+          },error=>{
+            this.$get_error('reload');
+          }
+        );
+      },
+      edit:function (index) {//选取马匹
+        this.chooseIndex = index;
+        this.combat = false;
+        this.chooseDlg = true;
+        this.getHorseList();
+      },
+      choose:function (item) {//选中马匹
+        this.combatList[this.chooseIndex].HorseNo = item.HorseNo;
+        this.combatList[this.chooseIndex].Disposition = item.Disposition;
+        this.combatList[this.chooseIndex].HorseKey = item.HorseKey;
+        this.chooseDlg = false;
+        this.combat = true;
+      },
+      getHorseList:function (type) {
+        let offset;
+        if(type ==='UpLoad'){
+          offset = this.offset;
+        }else
+        {
+          offset = 0;
+          this.horseList = [];
+        }
+        let data={size:this.pageSize,offset:offset,gameType:this.curItem.GameType};
+        this.$axios.post('http://01.coinunio.com/api/battle/character/horselist/',data).then(
+          res=>{
+            let result = res.data;
+            if(result.IsSuccess){
+              if(!result.Result.Data) return;
+              if(result.Result.Data.length>0){
+                let self = this;
+                let list = result.Result.Data.filter(function (item,index,arr) {
+                  for(let index2 in self.combatList){
+                    if(item.HorseNo === self.combatList[index2].HorseNo){
+                      return false
+                    }
+                  }
+                  return true
+                });
+                for(let index in list){
+                  list[index].horse =common.svgApi+list[index].HorseKey
+                }
+                if(type ==='UpLoad'){
+                  this.horseList =  this.horseList.concat(list);
+                }else{
+                  this.horseList= list;
+                }
+              }else{
+                if(type ==='UpLoad')
+                {
+                  // this.$tips('暂无更多提现记录');
+                }else{
+                  this.horseEmpty = true;
+                }
+              }
+              if(this.$refs.scroll2){
+                this.$refs.scroll2.finishiPullUp();
+              }
+              this.offset = this.horseList.length;
+            }else{
+              if(this.$refs.scroll2){
+                this.$refs.scroll2.finishiPullUp();
+              }
+              this.$get_error('tips',result.Code,result.Message);
+            }
+          },error=>{
+            if(this.$refs.scroll2){
+              this.$refs.scroll2.finishiPullUp();
+            }
+            this.$get_error('reload');
+          }
+        );
+      },//获取添加马匹列表
+      sureToAcceptChallenge:function (key) {
+        if(!key)return;
+        let list = this.combatList.map(function (item) {
+          return item.HorseKey = item.HorseKey
+        });
+        let data={key:key,horseKeys:list};
+        this.$axios.post('http://01.coinunio.com/api/horse/battle/acceptsinglecharacter/',data).then(
+          res=>{
+            let result = res.data;
+            if(result.IsSuccess){
+              if(this.curIndex<0)return;
+              this.recordList[this.curIndex].GameResult = result.Result.gameResult//设置状态为比赛结果
+            }else{
+              this.$get_error('tips',result.Code,result.Message);
+            }
+          },error=>{
+            this.$get_error('reload');
+          }
+        );
+      },//应战提交
+      reset:function () {//重置参赛马匹
+        for(let item of this.combatList){
+          item.HorseNo="";
+          item.Disposition="";
+        }
+      },
+      onceCheckCancle:function () {//应战取消
+        this.reset();
+        this.combat = false;
+      },
+      confirm:function () {//应战确认
+        for(let index in this.combatList){
+          if(!this.combatList[index].HorseNo ||!this.combatList[index].Disposition ){
+            let set= parseInt(index)+1;
+            return this.$tips('请选择'+set+'参赛位')
+          }
+        }
+        this.reset();
+        this.combat = false;
+        this.sureToAcceptChallenge(this.curItem.TeamKey)
+      }
+    }
+  }
+</script>
+
+<style scoped>
+  .item{
+    font-size: 0.32rem;
+    line-height: 0.6rem;
+    color: #4C4C4C;
+    padding:  0.3rem;
+  }
+  .combatItem{
+    text-align: center;
+    font-size: 0.333rem;
+    color: #ffffff;
+    padding: 0.2rem 0;
+    line-height: 1rem;
+  }
+  .name span{
+    display: inline-block;
+    width: 45%;
+    text-align: center;
+    word-break: break-all;
+    height: 100%;
+    font-size: 0.45rem;
+  }
+  .Check{
+    padding: 0.5rem;
+    background-image: url("../../assets/img/fuse/choose-bg.png");
+    background-size: 100% 100%;
+    width: 80%;
+    border-radius: 5px;
+    color: #fff;;
+    height: 10rem;
+  }
+  .Cancle{
+    position: absolute;
+    bottom: -0.6rem;
+    color: #ffffff;
+    padding: 0.3rem 0.9rem;
+    font-size: 0.4rem;
+    background-image: url("../../assets/img/transactin/quxiaoanniu.png");
+    background-size: 100% 100%;
+    border-radius: 0.3rem;
+  }
+  .synthesis-title{
+    text-align: center;
+    margin: 0 auto;
+    padding: 0.2rem ;
+    transform: skewX(-15deg);
+    color: #000000;
+    background-color: #ffffff;
+    display: inline-block;
+    font-size: 0.32rem;
+  }
+  .synthesis-item{
+    position: relative;
+    padding: 0.2rem 0;
+  }
+  .table{
+    width: 100%;
+    text-align: center;
+    font-size: 0.2933rem;
+    margin-top: 0.5rem;
+  }
+  .title{
+    background: #ffffff;
+    border-radius: 0.15rem;
+    color: #666666;
+    padding: 0.1rem;
+  }
+  .title p{
+    font-size: 0.2933rem;
+  }
+  .table-left{
+    width: 20%;
+  }
+  .table-right{
+    width: 20%;
+  }
+  .table-mid{
+    width: 30%;
+  }
+  .comTitle{
+    text-align: center;
+    color: #ffffff;
+    font-size: 0.48rem;
+  }
+  .comText{
+    text-align: center;
+    color: #ffffff;
+    font-size: 0.37rem;
+    margin-top: 0.3rem;
+  }
+  .comText span{
+    color: #FFF719;
+  }
+  .warp{
+    padding: 0.5rem;
+    background-image: url("../../assets/img/fuse/choose-bg.png");
+    background-size: 100% 100%;
+    width: 80%;
+    border-radius: 5px;
+    color: #fff;;
+    height: 10rem;
+  }
+  .checkCancle{
+    margin-right: 5vw;
+    background-image: url("../../assets/img/transactin/quxiaoanniu.png");
+    background-size: 100% 100%;
+    border-radius: 0.3rem;
+    color: #ffffff;
+    font-size: 0.5rem;
+  }
+  .checkSure{
+    background-image: url("../../assets/img/transactin/querenanniu.png");
+    background-size: 100% 100%;
+    border-radius: 0.3rem;
+    font-size: 0.5rem;
+    color: #CF7315;
+  }
+  .btnWarp{
+    position: absolute;
+    bottom: -0.5rem;
+  }
+  .btnWarp button{
+    width:2.5rem;
+    height: 1.125rem;
+    cursor:pointer ;
+    border-radius:0.3rem;
+  }
+  .under-line-white{
+    height: 2px;
+    /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#f1806f+0,f1806f+14,ffffff+25,ffffff+71,ffffff+71,ffffff+75,f1806f+100 */
+    background: #f1806f; /* Old browsers */
+    background: -moz-linear-gradient(left, #f1806f 0%, #f1806f 14%, #ffffff 25%, #ffffff 71%, #ffffff 71%, #ffffff 75%, #f1806f 100%); /* FF3.6-15 */
+    background: -webkit-linear-gradient(left, #f1806f 0%,#f1806f 14%,#ffffff 25%,#ffffff 71%,#ffffff 71%,#ffffff 75%,#f1806f 100%); /* Chrome10-25,Safari5.1-6 */
+    background: linear-gradient(to right, #f1806f 0%,#f1806f 14%,#ffffff 25%,#ffffff 71%,#ffffff 71%,#ffffff 75%,#f1806f 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f1806f', endColorstr='#f1806f',GradientType=1 ); /* IE6-9 */
+  }
+</style>

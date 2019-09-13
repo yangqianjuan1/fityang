@@ -1,0 +1,90 @@
+
+wanlihu_run.png
+size: 1024,512
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+chibang
+  rotate: false
+  xy: 282, 169
+  size: 261, 333
+  orig: 261, 333
+  offset: 0, 0
+  index: -1
+daizi
+  rotate: false
+  xy: 2, 75
+  size: 278, 76
+  orig: 278, 76
+  offset: 0, 0
+  index: -1
+qugan
+  rotate: false
+  xy: 545, 348
+  size: 384, 154
+  orig: 384, 154
+  offset: 0, 0
+  index: -1
+tou
+  rotate: false
+  xy: 2, 153
+  size: 278, 349
+  orig: 278, 349
+  offset: 0, 0
+  index: -1
+tui_1
+  rotate: true
+  xy: 545, 192
+  size: 67, 98
+  orig: 67, 98
+  offset: 0, 0
+  index: -1
+tui_1_2
+  rotate: false
+  xy: 282, 83
+  size: 129, 84
+  orig: 129, 84
+  offset: 0, 0
+  index: -1
+tui_2
+  rotate: true
+  xy: 2, 2
+  size: 71, 98
+  orig: 71, 98
+  offset: 0, 0
+  index: -1
+tui_2_2
+  rotate: true
+  xy: 931, 391
+  size: 111, 91
+  orig: 111, 91
+  offset: 0, 0
+  index: -1
+tui_3
+  rotate: true
+  xy: 648, 278
+  size: 68, 93
+  orig: 68, 93
+  offset: 0, 0
+  index: -1
+tui_3_2
+  rotate: false
+  xy: 545, 261
+  size: 101, 85
+  orig: 101, 85
+  offset: 0, 0
+  index: -1
+tui_4
+  rotate: true
+  xy: 413, 97
+  size: 70, 96
+  orig: 70, 96
+  offset: 0, 0
+  index: -1
+tui_4_2
+  rotate: true
+  xy: 931, 294
+  size: 95, 91
+  orig: 95, 91
+  offset: 0, 0
+  index: -1
